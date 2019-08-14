@@ -1,0 +1,80 @@
+{
+    "modifications": [
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/root",
+            "value": {
+                "p_l": 50
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/p_l",
+            "value": {
+                "p_c": true
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/p_c",
+            "value": {
+                "o_1": "referencia"
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/o_1",
+            "value": {
+                "s_secompra__ne": false
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/s_secompra__ne",
+            "value": {
+                "s_sevende__ne": false
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/root",
+            "value": {
+                "masterGrid": {
+                    "componente": "YBTable",
+                    "class": "claseGrid",
+                    "prefix": "master",
+                    "filter": "buscador",
+                    "columns": [
+                        {
+                            "tipo": "field",
+                            "key": "referencia",
+                            "pk": "true",
+                            "width": 100
+                        },
+                        {
+                            "tipo": "field",
+                            "key": "descripcion",
+                            "width": 300
+                        }
+                    ],
+                    "rowclick": "link"
+                }
+            }
+        },
+        {
+            "type": "deleteNode",
+            "path": "/initValidation",
+            "value": null
+        },
+        {
+            "type": "deleteNode",
+            "path": "/focus",
+            "value": null
+        },
+        {
+            "type": "deleteNode",
+            "path": "/drawIf",
+            "value": null
+        }
+    ]
+}

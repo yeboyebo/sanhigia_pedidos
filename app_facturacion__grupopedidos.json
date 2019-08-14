@@ -1,0 +1,192 @@
+{
+    "querystring": {
+        "f_grupopedidos": true
+    },
+    "schema": {},
+    "initValidation": {},
+    "focus": "fdb_codBarras",
+    "layout": {
+        "layoutEnviar": {
+            "componente": "YBGroupBox",
+            "className": "class",
+            "layout": {
+                "listoGrupoPDAButton": {
+                    "componente": "YBButton",
+                    "prefix": "lineaspedidosprov",
+                    "icon": "send",
+                    "label": "Listo PDA",
+                    "className": "floatRight_",
+                    "buttonType": "flat",
+                    "action": {
+                        "key": "listogrupoPDA",
+                        "success": [{"receiver": "tdb_masterpedidosprov", "slot": "return"}]
+                    }
+                }
+            }
+        },
+        "groupBoxFields": {
+            "componente": "YBGroupBox",
+            "className": "",
+            "style": {
+                "float": "left",
+                "overflow": "hidden",
+                "width": "100%"
+            },
+            "layout": {
+                "fdb_codBarras": {
+                    "componente": "YBFieldDB",
+                    "prefix": "otros",
+                    "key": "codbarras",
+                    "label": "Cod.Barras",
+                    "tipo": 3,
+                    "actions": [
+                        {
+                            "signal": "enterPressed",
+                            "key": "procesaCodBarras",
+                            "success": [
+                                {"slot": "refrescar", "custom": "grupopedidos"},
+                                {"receiver": "fdb_codBarras", "slot": "select"}
+                            ],
+                            "error": [
+                                {"receiver": "fdb_codBarras", "slot": "select"}
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "groupBoxEnviar": {
+            "componente": "YBGroupBox",
+            "className": "",
+            "style": {
+                "float": "left",
+                "overflow": "hidden"
+            },
+            "layout": {
+                "botonAccion": {
+                    "componente": "YBButton",
+                    "prefix": "lineaspedidosprov",
+                    "label": "ENVIAR",
+                    "buttonType": "flat",
+                    "action": {
+                        "key": "procesaCodBarras",
+                        "success": [
+                            {"slot": "refrescar", "custom": "grupopedidos"},
+                            {"receiver": "fdb_codBarras", "slot": "select"}
+                        ],
+                        "error": [
+                            {"receiver": "fdb_codBarras", "slot": "select"},
+                            {"mensaje": "Error no se encuentra articulo", "slot": "toast"}
+                        ]
+                    }
+                }
+            }
+        },
+        "lineaspedidosprovGrid": {
+            "label": "Lineas de Pedido",
+            "componente": "YBTable",
+            "prefix": "lineaspedidosprov",
+            "colorRowField": "rowColor",
+            "class": "claseGrid",
+            "columns": [
+                {"tipo": "field", "key": "cantidad", "label": "Cant", "width": 50},
+                {
+                    "tipo": "field",
+                    "key": "shcantalbaran",
+                    "label": "Servida",
+                    "width": 60,
+                    "editable": false,
+                    "type": "number",
+                    "act": {
+                        "key": "modificarShcantidad",
+                        "success": [
+                            {"slot": "refrescar", "custom": "grupopedidos"},
+                            {"receiver": "fdb_codBarras", "slot": "select"}
+                        ]
+                    }
+                },
+                {"tipo": "field", "key": "descripcion", "width": 550, "flex": 5},
+                {"tipo": "foreignfield", "key": "referenciaprov", "label": "Ref. Prov", "width": 110},
+                {"tipo": "field", "key": "referencia",  "width": 110},
+                {"tipo": "field", "key": "cerradapda", "width": 60},
+                {
+                    "tipo": "act",
+                    "key": "cerrarLinea",
+                    "label": "cerrar Linea",
+                    "success": [
+                        {"slot": "refrescar", "custom": "grupopedidos"},
+                        {"receiver": "fdb_codBarras", "slot": "select"}
+                    ]
+                }
+            ],
+            "rowclick": "gotoMovilote"
+        },
+        "groupBoxVolver": {
+            "componente": "YBGroupBox",
+            "className": "actionGB",
+            "layout": {
+                "volverButton": {
+                    "componente": "YBButton",
+                    "label": "Volver",
+                    "className": "floatRight",
+                    "buttonType": "raised",
+                    "action": {
+                        "key": "volver",
+                        "success": []
+                    }
+                }
+            }
+        }
+    },
+    "acciones": {
+        "volver": {
+            "action": "return"
+        },
+        "cerrarLinea": {
+            "action": "legacy",
+            "icon": "lock",
+            "serverAction": "cerrarLinea"
+        },
+        "modificarShcantidad": {
+            "action": "legacy",
+            "icon": "add_circle",
+            "serverAction": "modificarShcantidad",
+            "params": [
+                {
+                    "tipo": 3,
+                    "verbose_name": "shcantalbaran",
+                    "key": "shcantalbaran",
+                    "validaciones": null
+                }
+            ]
+        },
+        "gotoMovilote": {
+            "action": "goto",
+            "serverAction": "dameTemplateMovilote"
+        },
+        "listogrupoPDA": {
+            "action": "legacy",
+            "serverAction": "grupopedidosListoPDA"
+        },
+        "procesaCodBarras": {
+            "label": "Procesar codigo de barras",
+            "action": "legacy",
+            "serverAction": "procesaCodBarrasGrupo",
+            "prefix": "lineaspedidosprov",
+            "params": [
+                {
+                    "tipo": 37,
+                    "required": true,
+                    "verbose_name": "codbarras",
+                    "key": "codbarras",
+                    "validaciones": null
+                }
+            ]
+        }
+    },
+    "drawIf": {
+        "layoutEnviar": {
+            "listoGrupoPDAButton": "checkPDAButton"
+        }
+    }
+}

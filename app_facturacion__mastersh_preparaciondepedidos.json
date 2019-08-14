@@ -1,0 +1,44 @@
+{
+    "querystring": {
+        "p_l": 50,
+        "p_c": true,
+        "o_2": "-codpreparaciondepedido",
+        "o_1": "-fecha"
+    },
+    "schema": {},
+    "layout": {
+        "masterGrid": {
+            "componente": "YBTable",
+            "class": "claseGrid",
+            "label": "Preparación de pedidos",
+            "prefix": "sh_preparaciondepedidos",
+            "filter": "buscador",
+            "columns": [
+                {"tipo": "field", "listpos": "title", "key": "codpreparaciondepedido", "width": 120},
+                {"tipo": "field", "listpos": "subtitle", "key": "descripcion"},
+                {"tipo": "field", "listpos": "body", "key": "fecha"},
+                {"tipo": "field", "listpos": "body", "key": "ubicacionini", "width": 100},
+                {"tipo": "field", "listpos": "body", "key": "ubicacionfin", "width": 100},
+                {
+                    "tipo": "act",
+                    "key": "delete",
+                    "label": "Borrar Linea",
+                    "success": [
+                        {"slot": "refrescar"}
+                    ]
+                }
+            ],
+            "rowclick": "gotopreparacion"
+        }
+    },
+    "acciones": {
+        "delete": {
+            "action": "deleteRow",
+            "icon": "delete"
+        },
+        "gotopreparacion": {
+            "action": "goto",
+            "serverAction": "dameTemplatePreparacion"
+        }
+    }
+}

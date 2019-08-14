@@ -1,0 +1,313 @@
+{
+    "modifications": [
+        {
+            "type": "insertAfterNode",
+            "path": "/schema/root",
+            "value": {
+                "lineasregstocks": {
+                    "rel": "codinventario",
+                    "querystring": {
+                        "p_l": 50,
+                        "p_c": 1,
+                        "o_1": "fecha",
+                        "o_2": "hora",
+                        "f_soloAbiertas": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "updateNode",
+            "path": "/focus",
+            "value": "fdb_codBarras"
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/root",
+            "value": {
+                "formRecordInventarios": {
+                    "prefix": "inventarios",
+                    "componente": "YBForm",
+                    "class": "claseGrid",
+                    "submit": "update",
+                    "success": [],
+                    "groupbox": "acordeon",
+                    "return": true,
+                    "fields": {
+                        "gb__principal": {
+                            "title": "Principal",
+                            "fields": {
+                                "codinventario": {
+                                    "disabled": true
+                                },
+                                "codalmacen": {
+                                    "disabled": true
+                                },
+                                "fecha": {
+                                    "disabled": true
+                                },
+                                "hora": {
+                                    "disabled": true
+                                },
+                                "observaciones": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/formRecordInventarios",
+            "value": {
+                "fdb_codBarras": {
+                    "componente": "YBFieldDB",
+                    "prefix": "otros",
+                    "key": "id",
+                    "desc": "descripcion",
+                    "auto_name": "Lectura",
+                    "auto_field": "descripcion",
+                    "relKey": "codinventario",
+                    "function": "getCodBarrasProv",
+                    "firstOnEnter": false,
+                    "tipo": "55",
+                    "rel": "lineasregstocks",
+                    "className": "shLectura",
+                    "showpk": false,
+                    "actions": [
+                        {
+                            "signal": "enterPressed",
+                            "key": "filtraTablaInventarios",
+                            "success": []
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/fdb_codBarras",
+            "value": {
+                "nuevalineacargapedidosButton": {
+                    "componente": "YBButton",
+                    "label": "",
+                    "className": "floatLeft",
+                    "buttonType": "flat",
+                    "primary": false,
+                    "secondary": true,
+                    "icon": "clear",
+                    "prefix": "inventarios",
+                    "style": {
+                        "marginTop": "20%",
+                        "width": "40px"
+                    },
+                    "action": {
+                        "key": "success",
+                        "success": [
+                            {
+                                "slot": "recargar"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/nuevalineacargapedidosButton",
+            "value": {
+                "lineasregstockGrid": {
+                    "label": "Lineas de Inventario",
+                    "componente": "YBTable",
+                    "prefix": "lineasregstocks",
+                    "className": "claseGrid",
+                    "colorRowField": "rowColor",
+                    "filter": "",
+                    "columns": [
+                        {
+                            "tipo": "field",
+                            "listpos": "body",
+                            "key": "id",
+                            "width": 90,
+                            "visible": false
+                        },
+                        {
+                            "tipo": "field",
+                            "listpos": "secondaryitem",
+                            "key": "referencia",
+                            "width": 90
+                        },
+                        {
+                            "tipo": "field",
+                            "listpos": "body",
+                            "key": "cantidadini",
+                            "label": "Cant.Ini.",
+                            "type": "int",
+                            "width": 70
+                        },
+                        {
+                            "tipo": "field",
+                            "listpos": "body",
+                            "key": "cantidadfin",
+                            "label": "Cant.Fin.",
+                            "width": 70,
+                            "editable": true,
+                            "type": "int",
+                            "act": {
+                                "key": "editarCantRegstock",
+                                "success": [
+                                    {
+                                        "slot": "refrescar"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "tipo": "field",
+                            "listpos": "body",
+                            "key": "sh_codigolote",
+                            "width": 90
+                        },
+                        {
+                            "tipo": "foreignfield",
+                            "key": "referenciaprov",
+                            "label": "Ref. Prov",
+                            "width": 115
+                        },
+                        {
+                            "tipo": "field",
+                            "listpos": "body",
+                            "key": "desarticulo",
+                            "width": 560,
+                            "flex": 3
+                        },
+                        {
+                            "tipo": "act",
+                            "key": "cerrarLinea",
+                            "label": "Cerrar Linea",
+                            "success": [
+                                {
+                                    "slot": "refrescar"
+                                }
+                            ]
+                        }
+                    ],
+                    "rowclick": "",
+                    "accionesGrid": [
+                        {
+                            "key": "visibility",
+                            "label": "Ver todo",
+                            "success": [
+                                {
+                                    "slot": "refrescar"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/root",
+            "value": {
+                "filtraTablaInventarios": {
+                    "action": "gridFilter",
+                    "prefix": "lineasregstocks",
+                    "layout": "lineasregstockGrid"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/filtraTablaInventarios",
+            "value": {
+                "actualizarRegStock": {
+                    "label": "Lineas albaran",
+                    "action": "legacy",
+                    "icon": "payment",
+                    "serverAction": "actualizarRegStock",
+                    "params": [
+                        {
+                            "tipo": 3,
+                            "verbose_name": "referencia",
+                            "key": "referencia",
+                            "validaciones": null
+                        },
+                        {
+                            "tipo": 3,
+                            "verbose_name": "cantidad",
+                            "key": "cantidad",
+                            "validaciones": null
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/actualizarRegStock",
+            "value": {
+                "success": {
+                    "action": "success"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/success",
+            "value": {
+                "cerrarLinea": {
+                    "action": "legacy",
+                    "icon": "lock",
+                    "serverAction": "cerrarLinea"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/cerrarLinea",
+            "value": {
+                "selectCantidad": {
+                    "action": "select"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/selectCantidad",
+            "value": {
+                "visibility": {
+                    "label": "",
+                    "action": "gridAction",
+                    "serverAction": "visibility",
+                    "icon": "visibility"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/visibility",
+            "value": {
+                "editarCantRegstock": {
+                    "action": "legacy",
+                    "icon": "add_circle",
+                    "serverAction": "editarCantRegstock",
+                    "params": [
+                        {
+                            "tipo": 3,
+                            "verbose_name": "Cant.Fin",
+                            "key": "cantidadfin",
+                            "validaciones": null
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "deleteNode",
+            "path": "/drawIf",
+            "value": null
+        }
+    ]
+}

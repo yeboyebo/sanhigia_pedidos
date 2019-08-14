@@ -1,0 +1,23 @@
+{
+    "modifications": [
+        {
+            "type": "insertAfterItem",
+            "path": "/items[root]",
+            "value": {
+                "NAME": "almacen",
+                "TEXT": "ALMACÉN",
+                "ICON": "dashboard",
+                "COLOR": "rgb(30, 170, 30)"
+            }
+        },
+        {
+            "type": "insertAfterItem",
+            "path": "/items[almacen]",
+            "value": {
+                "NAME": "facturacion",
+                "TEXT": "FACTURACIÓN",
+                "ICON": "insert_chart"
+            }
+        }
+    ]
+}

@@ -1,0 +1,37 @@
+{
+    "modifications": [
+        {
+            "type": "insertAfterItem",
+            "path": "/items[root]",
+            "value": {
+                "NAME": "Pedidos de Venta",
+                "TEXT": "PEDIDOS DE VENTA",
+                "URL": "facturacion/pedidoscli/master",
+                "ICON": "shopping_cart",
+                "COLOR": "rgb(30, 170, 30)"
+            }
+        },
+        {
+            "type": "insertAfterItem",
+            "path": "/items[Pedidos de Venta]",
+            "value": {
+                "NAME": "Pedidos de compra",
+                "TEXT": "PEDIDOS DE COMPRA",
+                "URL": "facturacion/pedidosprov/master",
+                "ICON": "shopping_cart",
+                "COLOR": "rgb(30, 170, 30)"
+            }
+        },
+        {
+            "type": "insertAfterItem",
+            "path": "/items[Pedidos de compra]",
+            "value": {
+                "NAME": "sh_preparaciondepedidos",
+                "TEXT": "PREPARACIÓN DE PEDIDOS",
+                "URL": "facturacion/sh_preparaciondepedidos/master",
+                "ICON": "shopping_cart",
+                "COLOR": "rgb(30, 170, 30)"
+            }
+        }
+    ]
+}

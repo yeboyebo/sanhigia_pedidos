@@ -1,7 +1,76 @@
 {
     "name": "sanhigia_pedidos",
     "modifications": {
-        "patchScript": [],
+        "patchScript": [
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__articulos_def.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__articulos.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__flfactalma_def.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__inventarios.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__inventarios_def.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__lineasregstocks.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__lineasregstocks_def.py"
+            },
+            {
+                "path": "models/flfacturac/",
+                "name": "model_flfacturac__flfacturac_def.py"
+            },
+            {
+                "path": "models/flfacturac/",
+                "name": "model_flfacturac__lineaspedidoscli_def.py"
+            },
+            {
+                "path": "models/flfacturac/",
+                "name": "model_flfacturac__lineaspedidoscli.py"
+            },
+            {
+                "path": "models/flfacturac/",
+                "name": "model_flfacturac__lineaspedidosprov.py"
+            },
+            {
+                "path": "models/flfacturac/",
+                "name": "model_flfacturac__lineaspedidosprov_def.py"
+            },
+            {
+                "path": "models/flfacturac/",
+                "name": "model_flfacturac__pedidoscli_def.py"
+            },
+            {
+                "path": "models/flfacturac/",
+                "name": "model_flfacturac__pedidoscli.py"
+            },
+            {
+                "path": "models/flfacturac/",
+                "name": "model_flfacturac__pedidosprov_def.py"
+            },
+            {
+                "path": "models/flfacturac/",
+                "name": "model_flfacturac__pedidosprov.py"
+            },
+            {
+                "path": "models/fllogin/",
+                "name": "model_fllogin__auth_user.py"
+            }
+        ],
         "patchJson": [
             {
                 "name": "urls.json",
@@ -10,9 +79,126 @@
             {
                 "name": "registros.json",
                 "path": "config/"
+            },
+            {
+                "path": "apps/portal/templates/portal/",
+                "name": "app_portal__menu_portal.json"
+            },
+            {
+                "path": "apps/facturacion/templates/facturacion/",
+                "name": "app_facturacion__menu_facturacion.json"
+            },
+            {
+                "name": "app_facturacion__pedidoscli.json",
+                "path": "apps/facturacion/templates/facturacion/plantillas/"
+            },
+            {
+                "name": "app_facturacion__masterpedidosprov.json",
+                "path": "apps/facturacion/templates/facturacion/plantillas/"
+            },
+            {
+                "name": "app_facturacion__masterpedidoscli.json",
+                "path": "apps/facturacion/templates/facturacion/plantillas/"
+            },
+            {
+                "path": "apps/facturacion/templates/facturacion/plantillas/",
+                "name": "app_facturacion__pedidosprov.json"
+            },
+            {
+                "path": "apps/almacen/templates/almacen/",
+                "name": "app_almacen__menu_almacen.json"
+            },
+            {
+                "path": "apps/almacen/templates/almacen/plantillas/",
+                "name": "app_almacen__articulos.json"
+            },
+            {
+                "path": "apps/almacen/templates/almacen/plantillas/",
+                "name": "app_almacen__inventarios.json"
+            },
+            {
+                "path": "apps/almacen/templates/almacen/plantillas/",
+                "name": "app_almacen__masterarticulos.json"
             }
         ],
-        "addFile": [],
+        "addFile": [
+            {
+                "path": "models/flfacturac/",
+                "name": "model_flfacturac__sh_preparaciondepedidos.py"
+            },
+            {
+                "path": "models/flfacturac/",
+                "name": "model_flfacturac__sh_preparaciondepedidos_def.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__movilote.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__movilote_def.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__lotes.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__lotes_def.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__ubicacionesarticulo.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__ubicacionesarticulo_def.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__sh_ubicaciones.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__sh_ubicaciones_def.py"
+            },
+            {
+                "path": "models/flfactppal/",
+                "name": "model_flfactppal__agenciastrans.py"
+            },
+            {
+                "path": "models/flfactppal/",
+                "name": "model_flfactppal__agenciastrans_def.py"
+            },
+            {
+                "name": "app_facturacion__cantidadapporlote.json",
+                "path": "apps/facturacion/templates/facturacion/plantillas/"
+            },
+            {
+                "name": "app_facturacion__mastersh_preparaciondepedidos.json",
+                "path": "apps/facturacion/templates/facturacion/plantillas/"
+            },
+            {
+                "name": "app_facturacion__grupopedidoscli.json",
+                "path": "apps/facturacion/templates/facturacion/plantillas/"
+            },
+            {
+                "name": "app_facturacion__grupopedidos.json",
+                "path": "apps/facturacion/templates/facturacion/plantillas/"
+            },
+            {
+                "path": "apps/almacen/templates/almacen/plantillas/",
+                "name": "app_almacen__masterinventarios.json"
+            },
+            {
+                "path": "models/flfactppal/",
+                "name": "model_flfactppal__sh_trabajadores.py"
+            },
+            {
+                "path": "models/flfactppal/",
+                "name": "model_flfactppal__sh_trabajadores_def.py"
+            }
+        ],
         "replaceFile": [
             {
                 "name": "dependencias.json",

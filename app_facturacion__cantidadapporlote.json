@@ -1,0 +1,130 @@
+{
+    "querystring": {},
+    "schema": {
+        "movilote": {
+            "rel": "idlineapp",
+            "querystring": {
+                "p_l": 20,
+                "p_c": 1,
+                "s_idlineaap__isnull": true
+            }
+        }
+    },
+    "title": "Movimientos de Lote",
+    "layout": {
+        "labelDescripcion": {
+            "componente": "YBLabel",
+            "text": "%yb1",
+            "style": {
+                "fontSize": "20px",
+                "fontWeight": "bold",
+                "width": "100%",
+                "textAlign": "left"
+            },
+            "params": [{"type": "model", "key": "descripcion"}]
+        },
+        "labelCantidad": {
+            "componente": "YBLabel",
+            "text": "Esperada: %yb2 Servida: %yb1 En Albaran %yb3",
+            "style": {
+                "fontSize": "17px",
+                "fontWeight": "bold",
+                "width": "100%",
+                "textAlign": "center"
+            },
+            "params": [{"type": "model", "key": "shcantalbaran"}, {"type": "model", "key": "cantidad"},{"type": "model", "key": "totalenalbaran"}]
+        },
+        "anadirLoteButton": {
+            "componente": "YBButton",
+            "prefix": "lineaspedidosprov",
+            "label": "Añadir lote",
+            "className": "floatRight",
+            "buttonType": "raised",
+            "secondary": true,
+            "primary": false,
+            "style": {
+                "marginTop": "10px"
+            },
+            "action": {
+                "key": "anadirLote",
+                "success": [{"slot": "refrescar", "custom": "cantidadapporlote"}]
+            }
+        },
+        "moviloteGrid": {
+            "componente": "YBTable",
+            "class": "claseGrid",
+            "label": "Movimientos de Lote",
+            "prefix": "movilote",
+            "columns": [
+                {"tipo": "foreignfield", "key": "codigolote", "label":"Codigo"},
+                {"tipo": "foreignfield", "key": "caducidadlote", "label":"Caduciad"},
+                {
+                    "tipo": "foreignfield",
+                    "key": "cantidad",
+                    "label": "cant",
+                    "width": 50,
+                    "editable": true,
+                    "act": {
+                        "key": "cambiarCantidad",
+                        "success": [
+                            {"custom": "cantidadapporlote", "slot":"refrescar"}
+                        ]
+                    }
+                },
+                {
+                    "tipo": "act",
+                    "key": "delete",
+                    "label": "Delete",
+                    "success": [{ "slot": "refrescar"}]
+                }
+            ],
+            "rowclick": ""
+        },
+        "groupBoxVolver": {
+            "componente": "YBGroupBox",
+            "className": "actionGB",
+            "layout": {
+                "volverButton": {
+                    "componente": "YBButton",
+                    "label": "Volver",
+                    "className": "floatRight",
+                    "buttonType": "raised",
+                    "action": {
+                        "key": "volver",
+                        "success": []
+                    }
+                }
+            }
+        }
+    },
+    "acciones": {
+        "volver": {
+            "action": "return"
+        },
+        "delete": {
+            "label": "Prueba",
+            "action": "deleteRow",
+            "icon": "delete"
+        },
+        "cambiarCantidad": {
+            "action": "legacy",
+            "icon": "payment",
+            "serverAction": "cambiarCantidad",
+            "prefix": "movilote",
+            "params": [
+                {
+                    "tipo": 3,
+                    "verbose_name": "Cantidad",
+                    "key": "cantidad",
+                    "validaciones": null
+                }
+            ]
+        },
+        "anadirLote": {
+            "action": "legacy",
+            "icon": "home",
+            "prefix": "lineaspedidosprov",
+            "serverAction": "anadirLote"
+        }
+    }
+}

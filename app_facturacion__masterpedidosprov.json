@@ -1,0 +1,104 @@
+{
+    "modifications": [
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/root",
+            "value": {
+                "p_l": 10
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/p_l",
+            "value": {
+                "p_c": true
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/p_c",
+            "value": {
+                "s_servido__in": [
+                    "No",
+                    "Parcial"
+                ]
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/s_servido__in",
+            "value": {
+                "s_pda__in": [
+                    "Pendiente",
+                    "Listo PDA",
+                    "Preparado"
+                ]
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/s_pda__in",
+            "value": {
+                "o_1": "-fecha"
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/root",
+            "value": {
+                "masterPedidosprovGrid": {
+                    "componente": "YBGrid",
+                    "class": "claseGrid",
+                    "label": "Pedidos de proveedores",
+                    "prefix": "pedidosprov",
+                    "filter": "buscador",
+                    "multiselectable": true,
+                    "colorRowField": "rowColor",
+                    "columns": [
+                        {
+                            "tipo": "field",
+                            "listpos": "title",
+                            "key": "codigo",
+                            "width": 120
+                        },
+                        {
+                            "tipo": "field",
+                            "listpos": "body",
+                            "key": "fecha"
+                        },
+                        {
+                            "tipo": "field",
+                            "listpos": "subtitle",
+                            "key": "nombre",
+                            "width": 200
+                        }
+                    ],
+                    "rowclick": "link",
+                    "accionesGrid": [
+                        {
+                            "key": "agruparPedidos",
+                            "label": "Agrupar Pedidos",
+                            "success": [
+                                {
+                                    "slot": "goto"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/root",
+            "value": {
+                "agruparPedidos": {
+                    "label": "",
+                    "action": "gridAction",
+                    "serverAction": "agruparPedidos",
+                    "icon": "content_copy"
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,168 @@
+{
+    "modifications": [
+        {
+            "type": "updateNode",
+            "path": "/focus",
+            "value": "fdb_lectura"
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/root",
+            "value": {
+                "wizardArticulo": {
+                    "componente": "YBWizard",
+                    "prefix": "otros",
+                    "action": {
+                        "key": "asociarCodBarras",
+                        "success": [
+                            {
+                                "slot": "return"
+                            }
+                        ],
+                        "error": "Error inesperado"
+                    },
+                    "layout": {
+                        "grupoBox_uno": {
+                            "componente": "YBGroupBox",
+                            "className": "gbStocks",
+                            "layout": {
+                                "fdb_codproveedor": {
+                                    "componente": "YBFieldDB",
+                                    "prefix": "otros",
+                                    "desc_name": "Proveedor",
+                                    "verbose_name": "Proveedor",
+                                    "tipo": 5,
+                                    "rel": "articulosprov",
+                                    "filtro": {
+                                        "r_referencia": null
+                                    },
+                                    "key": "codproveedor",
+                                    "desc": "nombre",
+                                    "showpk": false,
+                                    "actions": [
+                                        {
+                                            "signal": "enterPressed",
+                                            "receiver": "fdb_codBar",
+                                            "key": "dameCodBarras",
+                                            "success": []
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "groupBox_dos": {
+                            "componente": "YBGroupBox",
+                            "className": "gbStocks",
+                            "layout": {
+                                "fdb_lectura": {
+                                    "componente": "YBFieldDB",
+                                    "prefix": "otros",
+                                    "key": "lectura",
+                                    "label": "lectura",
+                                    "null": true,
+                                    "tipo": 3,
+                                    "actions": [
+                                        {
+                                            "signal": "enterPressed",
+                                            "receiver": "fdb_codBar",
+                                            "key": "lecturaCodBar",
+                                            "success": []
+                                        }
+                                    ]
+                                },
+                                "fdb_codBar": {
+                                    "componente": "YBFieldDB",
+                                    "prefix": "otros",
+                                    "key": "codbar",
+                                    "label": "codBar",
+                                    "null": true,
+                                    "tipo": 3,
+                                    "disabled": true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/root",
+            "value": {
+                "asociarCodBarras": {
+                    "label": "Prueba",
+                    "action": "legacy",
+                    "serverAction": "asociarCodBarras",
+                    "params": [
+                        {
+                            "tipo": 3,
+                            "verbose_name": "Proveedor",
+                            "key": "codproveedor",
+                            "validaciones": null
+                        },
+                        {
+                            "tipo": 3,
+                            "verbose_name": "codbarras",
+                            "key": "codbar",
+                            "validaciones": null
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/asociarCodBarras",
+            "value": {
+                "dameCodBarras": {
+                    "label": "Prueba",
+                    "action": "legacy",
+                    "serverAction": "dameCodBarras",
+                    "params": [
+                        {
+                            "tipo": 3,
+                            "verbose_name": "Proveedor",
+                            "key": "codproveedor",
+                            "validaciones": null
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/dameCodBarras",
+            "value": {
+                "lecturaCodBar": {
+                    "label": "Prueba",
+                    "action": "legacy",
+                    "serverAction": "lecturaCodBar",
+                    "params": [
+                        {
+                            "tipo": 3,
+                            "verbose_name": "Proveedor",
+                            "key": "codproveedor",
+                            "validaciones": null
+                        },
+                        {
+                            "tipo": 3,
+                            "verbose_name": "codbarras",
+                            "key": "lectura",
+                            "validaciones": null
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "deleteNode",
+            "path": "/initValidation",
+            "value": null
+        },
+        {
+            "type": "deleteNode",
+            "path": "/drawIf",
+            "value": null
+        }
+    ]
+}

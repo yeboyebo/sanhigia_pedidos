@@ -1,0 +1,26 @@
+{
+    "modifications": [
+        {
+            "type": "insertAfterItem",
+            "path": "/items[root]",
+            "value": {
+                "NAME": "inventarios",
+                "TEXT": "INVENTARIOS",
+                "URL": "almacen/inventarios/master",
+                "ICON": "content_paste",
+                "COLOR": "rgb(240, 120, 20)"
+            }
+        },
+        {
+            "type": "insertAfterItem",
+            "path": "/items[inventarios]",
+            "value": {
+                "NAME": "Articulos",
+                "TEXT": "ARTÍCULOS",
+                "URL": "almacen/articulos/master",
+                "ICON": "shopping_cart",
+                "COLOR": "rgb(240, 120, 20)"
+            }
+        }
+    ]
+}

@@ -1,0 +1,29 @@
+{
+    "querystring": {
+        "p_l": 50,
+        "p_c": true,
+        "o_1": "fecha",
+        "s_sh_estado__exact": "Abierto"
+    },
+    "schema": {},
+    "layout": {
+        "masterGrid": {
+            "componente": "YBTable",
+            "class": "claseGrid",
+            "prefix": "master" ,
+            "filter": "buscador",
+            "columns": [
+                {"tipo": "field", "key": "codinventario", "width": 80},
+                {
+                    "tipo": "field",
+                    "key": "codalmacen",
+                    "width": 70
+                },
+                {"tipo": "field", "key": "fecha", "width": 100},
+                {"tipo": "field", "key": "sh_estado", "width": 100}
+            ],
+            "rowclick": "link"
+        }
+    },
+    "acciones": {}
+}

@@ -1,3 +1,53 @@
 {
-    "modifications": []
+    "modifications": [
+        {
+            "type": "insertAfterNode",
+            "path": "/flfacturac/agruparalbaranesprov",
+            "value": {
+                "sh_preparaciondepedidos": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/flfactalma/lineasregstocks",
+            "value": {
+                "regstocks": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/flfactalma/stocks",
+            "value": {
+                "movilote": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/flfactalma/movilote",
+            "value": {
+                "lotes": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/flfactalma/lotes",
+            "value": {
+                "ubicacionesarticulo": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/flfactalma/ubicacionesarticulo",
+            "value": {
+                "sh_ubicaciones": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/flfactppal/usuarios",
+            "value": {
+                "sh_trabajadores": null
+            }
+        }
+    ]
 }

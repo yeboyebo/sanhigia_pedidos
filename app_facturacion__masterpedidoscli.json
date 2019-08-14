@@ -1,0 +1,200 @@
+{
+    "modifications": [
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/root",
+            "value": {
+                "p_l": 7
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/p_l",
+            "value": {
+                "p_c": true
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/p_c",
+            "value": {
+                "s_servido__in": [
+                    "No",
+                    "Parcial"
+                ]
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/s_servido__in",
+            "value": {
+                "s_pda__in": [
+                    "Pendiente",
+                    "Listo PDA",
+                    "Preparado",
+                    "Albaranado",
+                    "Parcial"
+                ]
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/s_pda__in",
+            "value": {
+                "o_1": "-fecha"
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/root",
+            "value": {
+                "groupBoxAcciones": {
+                    "componente": "YBGroupBox",
+                    "className": "",
+                    "style": {},
+                    "layout": {
+                        "pedidosStock": {
+                            "componente": "YBButton",
+                            "label": "Completar pedidos con Stock",
+                            "className": "floatRight",
+                            "buttonType": "raised",
+                            "secondary": true,
+                            "primary": false,
+                            "action": {
+                                "key": "completarpedidosstock",
+                                "success": [
+                                    {
+                                        "slot": "goto"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/groupBoxAcciones",
+            "value": {
+                "masterGrid": {
+                    "componente": "YBGrid",
+                    "class": "claseGrid",
+                    "label": "Pedidos",
+                    "prefix": "pedidoscli",
+                    "filter": "buscador",
+                    "colorRowField": "rowColor",
+                    "multiselectable": true,
+                    "columns": [
+                        {
+                            "tipo": "field",
+                            "listpos": "title",
+                            "key": "codigo",
+                            "width": 120
+                        },
+                        {
+                            "tipo": "field",
+                            "listpos": "body",
+                            "key": "fecha"
+                        },
+                        {
+                            "tipo": "field",
+                            "listpos": "subtitle",
+                            "key": "nombrecliente",
+                            "width": 200
+                        },
+                        {
+                            "tipo": "foreignfield",
+                            "listpos": "secondaryitem",
+                            "key": "Trabajador",
+                            "width": 90
+                        },
+                        {
+                            "tipo": "foreignfield",
+                            "listpos": "body",
+                            "key": "Desc. preparación",
+                            "width": 150
+                        },
+                        {
+                            "tipo": "field",
+                            "listpos": "body",
+                            "key": "sh_estadopreparacion",
+                            "width": 90
+                        }
+                    ],
+                    "rowclick": "link",
+                    "accionesGrid": [
+                        {
+                            "key": "agruparPedidos",
+                            "label": "Agrupar Pedidos",
+                            "success": [
+                                {
+                                    "slot": "goto"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "quitarTrabajador",
+                            "label": "Quitar Trabajador",
+                            "success": [
+                                {
+                                    "slot": "refrescar"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/root",
+            "value": {
+                "agruparPedidos": {
+                    "label": "",
+                    "action": "gridAction",
+                    "serverAction": "agruparPedidos",
+                    "icon": "content_copy"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/agruparPedidos",
+            "value": {
+                "completarpedidosstock": {
+                    "action": "gridAction",
+                    "prefix": "pedidoscli",
+                    "serverAction": "agruparpedidosstock"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/completarpedidosstock",
+            "value": {
+                "quitarTrabajador": {
+                    "action": "gridAction",
+                    "prefix": "pedidoscli",
+                    "serverAction": "quitarTrabajador",
+                    "icon": "highlight_off"
+                }
+            }
+        },
+        {
+            "type": "deleteNode",
+            "path": "/initValidation",
+            "value": null
+        },
+        {
+            "type": "deleteNode",
+            "path": "/focus",
+            "value": null
+        },
+        {
+            "type": "deleteNode",
+            "path": "/drawIf",
+            "value": null
+        }
+    ]
+}

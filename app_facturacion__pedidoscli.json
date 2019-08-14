@@ -1,0 +1,481 @@
+{
+    "modifications": [
+        {
+            "type": "insertAfterNode",
+            "path": "/schema/root",
+            "value": {
+                "lineaspedidoscli": {
+                    "rel": "idpedido",
+                    "querystring": {}
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/initValidation/root",
+            "value": {
+                "error": {
+                    "aplic": "facturacion",
+                    "prefix": "pedidoscli",
+                    "template": "master",
+                    "msg": "El pedido esta asignado a otro usuario"
+                }
+            }
+        },
+        {
+            "type": "updateNode",
+            "path": "/focus",
+            "value": "fdb_codBarras"
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/root",
+            "value": {
+                "labelObservaciones": {
+                    "componente": "YBLabel",
+                    "text": "%yb1",
+                    "style": {
+                        "fontSize": "20px",
+                        "fontWeight": "bold",
+                        "width": "100%",
+                        "textAlign": "left",
+                        "color": "red"
+                    },
+                    "params": [
+                        {
+                            "type": "model",
+                            "key": "observaciones"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/labelObservaciones",
+            "value": {
+                "layoutEnviar": {
+                    "componente": "YBGroupBox",
+                    "className": "class",
+                    "layout": {
+                        "listoPDAButton": {
+                            "componente": "YBButton",
+                            "prefix": "pedidoscli",
+                            "icon": "send",
+                            "label": "Listo PDA",
+                            "className": "floatRight_",
+                            "buttonType": "flat",
+                            "action": {
+                                "key": "listoPDA",
+                                "success": [
+                                    {
+                                        "receiver": "tdb_masterpedidoscli",
+                                        "slot": "return"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/layoutEnviar",
+            "value": {
+                "labelDescripcion": {
+                    "componente": "YBLabel",
+                    "text": "%yb1 - %yb2",
+                    "style": {
+                        "fontSize": "20px",
+                        "fontWeight": "bold",
+                        "width": "100%",
+                        "textAlign": "center"
+                    },
+                    "params": [
+                        {
+                            "type": "model",
+                            "key": "codigo"
+                        },
+                        {
+                            "type": "model",
+                            "key": "nombrecliente"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/labelDescripcion",
+            "value": {
+                "groupBoxFields": {
+                    "componente": "YBGroupBox",
+                    "className": "",
+                    "style": {
+                        "float": "left",
+                        "overflow": "hidden",
+                        "width": "100%"
+                    },
+                    "layout": {
+                        "fdb_codBarras": {
+                            "componente": "YBFieldDB",
+                            "prefix": "otros",
+                            "key": "codbarras",
+                            "label": "Cod.Barras",
+                            "tipo": 3,
+                            "actions": [
+                                {
+                                    "signal": "enterPressed",
+                                    "key": "procesaCodBarras",
+                                    "success": [
+                                        {
+                                            "slot": "refrescar"
+                                        },
+                                        {
+                                            "receiver": "fdb_codBarras",
+                                            "slot": "select"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/groupBoxFields",
+            "value": {
+                "groupBoxEnviar": {
+                    "componente": "YBGroupBox",
+                    "className": "",
+                    "style": {
+                        "float": "left",
+                        "overflow": "hidden"
+                    },
+                    "layout": {
+                        "botonAccion": {
+                            "componente": "YBButton",
+                            "prefix": "pedidoscli",
+                            "label": "ENVIAR",
+                            "buttonType": "flat",
+                            "action": {
+                                "key": "procesaCodBarras",
+                                "success": [
+                                    {
+                                        "slot": "refrescar"
+                                    },
+                                    {
+                                        "receiver": "fdb_codBarras",
+                                        "slot": "select"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/groupBoxEnviar",
+            "value": {
+                "lineasregstocksGrid": {
+                    "label": "Líneas de Pedido",
+                    "componente": "YBTable",
+                    "prefix": "lineaspedidoscli",
+                    "colorRowField": "rowColor",
+                    "class": "claseGrid",
+                    "columns": [
+                        {
+                            "tipo": "foreignfield",
+                            "key": "pteServir",
+                            "label": "Pte.",
+                            "width": 50
+                        },
+                        {
+                            "tipo": "field",
+                            "key": "shcantalbaran",
+                            "label": "A env",
+                            "width": 60,
+                            "editable": false,
+                            "type": "number",
+                            "act": {
+                                "key": "modificarShcantidad",
+                                "success": [
+                                    {
+                                        "slot": "refrescar"
+                                    },
+                                    {
+                                        "receiver": "fdb_codBarras",
+                                        "slot": "select"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "tipo": "field",
+                            "key": "descripcion",
+                            "width": 550,
+                            "flex": 5
+                        },
+                        {
+                            "tipo": "field",
+                            "key": "codubicacion",
+                            "label": "Ubic.",
+                            "width": 60,
+                            "editable": true,
+                            "act": {
+                                "key": "modificarUbicacion",
+                                "success": [
+                                    {
+                                        "slot": "refrescar"
+                                    },
+                                    {
+                                        "receiver": "fdb_codBarras",
+                                        "slot": "select"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "tipo": "foreignfield",
+                            "key": "referenciaprov",
+                            "label": "Ref. Prov",
+                            "width": 110
+                        },
+                        {
+                            "tipo": "field",
+                            "key": "referencia",
+                            "width": 110
+                        },
+                        {
+                            "tipo": "field",
+                            "key": "totalenalbaran",
+                            "label": "Serv",
+                            "width": 50
+                        },
+                        {
+                            "tipo": "field",
+                            "key": "cantidad",
+                            "label": "Cant",
+                            "width": 50
+                        },
+                        {
+                            "tipo": "field",
+                            "key": "cerradapda",
+                            "width": 60
+                        },
+                        {
+                            "tipo": "field",
+                            "key": "disStock",
+                            "label": "Stock",
+                            "width": 50
+                        },
+                        {
+                            "tipo": "act",
+                            "key": "inventariar",
+                            "label": "Inventario al vuelo",
+                            "success": [
+                                {
+                                    "slot": "refrescar"
+                                },
+                                {
+                                    "receiver": "fdb_codBarras",
+                                    "slot": "select"
+                                }
+                            ]
+                        },
+                        {
+                            "tipo": "act",
+                            "key": "cerrarLinea",
+                            "label": "cerrar Linea",
+                            "success": [
+                                {
+                                    "slot": "refrescar"
+                                },
+                                {
+                                    "receiver": "fdb_codBarras",
+                                    "slot": "select"
+                                }
+                            ]
+                        }
+                    ],
+                    "rowclick": "gotoMovilote"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/layout/lineasregstocksGrid",
+            "value": {
+                "groupBoxVolver": {
+                    "componente": "YBGroupBox",
+                    "className": "actionGB",
+                    "layout": {
+                        "volverButton": {
+                            "componente": "YBButton",
+                            "label": "Volver",
+                            "className": "floatRight",
+                            "buttonType": "raised",
+                            "action": {
+                                "key": "volver",
+                                "success": []
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/root",
+            "value": {
+                "volver": {
+                    "action": "return"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/volver",
+            "value": {
+                "inventariar": {
+                    "action": "legacy",
+                    "icon": "content_paste",
+                    "prefix": "lineaspedidoscli",
+                    "serverAction": "inventariar"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/inventariar",
+            "value": {
+                "cerrarLinea": {
+                    "action": "legacy",
+                    "icon": "lock",
+                    "serverAction": "cerrarLinea"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/cerrarLinea",
+            "value": {
+                "modificarUbicacion": {
+                    "action": "legacy",
+                    "icon": "add_circle",
+                    "serverAction": "modificarUbicacion",
+                    "params": [
+                        {
+                            "tipo": 3,
+                            "verbose_name": "codubicacion",
+                            "key": "codubicacion",
+                            "validaciones": null
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/modificarUbicacion",
+            "value": {
+                "modificarShcantidad": {
+                    "action": "legacy",
+                    "icon": "add_circle",
+                    "serverAction": "modificarShcantidad",
+                    "params": [
+                        {
+                            "tipo": 3,
+                            "verbose_name": "shcantalbaran",
+                            "key": "shcantalbaran",
+                            "validaciones": null
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/modificarShcantidad",
+            "value": {
+                "gotoMovilote": {
+                    "action": "goto",
+                    "serverAction": "dameTemplateMovilote"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/gotoMovilote",
+            "value": {
+                "listoPDA": {
+                    "action": "legacy",
+                    "serverAction": "pedidoListoPDA",
+                    "prefix": "pedidoscli"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/listoPDA",
+            "value": {
+                "procesaCodBarras": {
+                    "label": "Procesar codigo de barras",
+                    "action": "legacy",
+                    "serverAction": "procesaCodBarras",
+                    "prefix": "pedidoscli",
+                    "params": [
+                        {
+                            "tipo": 37,
+                            "required": true,
+                            "verbose_name": "codbarras",
+                            "key": "codbarras",
+                            "validaciones": null
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/drawIf/root",
+            "value": {
+                "layoutEnviar": {
+                    "listoPDAButton": {
+                        "tipo": "disabled",
+                        "condiciones": [
+                            {
+                                "tipo": "!=",
+                                "campo": "pda",
+                                "valor": "Preparado"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/drawIf/layoutEnviar",
+            "value": {
+                "modal_procesaCodBarras": {
+                    "caducidad": {
+                        "tipo": "disabled",
+                        "condiciones": [
+                            {
+                                "tipo": "!=",
+                                "campo": "ncodlote",
+                                "valor": "1"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,304 @@
+{
+    "querystring": {
+        "f_grupopedidoscli": true
+    },
+    "schema": {
+        "grupoPedidosCli": {
+            "query": {
+                "p_l": 200
+            }
+        }
+    },
+    "initValidation": {},
+    "focus": "fdb_codBarras",
+    "layout": {
+        "groupBoxFields": {
+            "componente": "YBGroupBox",
+            "className": "",
+            "style": {
+                "float": "left",
+                "overflow": "hidden",
+                "width": "100%"
+            },
+            "layout": {
+                "fdb_codBarras": {
+                    "componente": "YBFieldDB",
+                    "prefix": "otros",
+                    "key": "codbarras",
+                    "label": "Cod.Barras",
+                    "tipo": 3,
+                    "actions": [
+                        {
+                            "signal": "enterPressed",
+                            "key": "procesaCodBarras",
+                            "success": [
+                                {"slot": "refrescar", "custom": "grupopedidoscli"},
+                                {"receiver": "fdb_codBarras", "slot": "select"}
+                            ],
+                            "error": [
+                                {"receiver": "fdb_codBarras", "slot": "select"}
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "groupBoxEnviar": {
+            "componente": "YBGroupBox",
+            "className": "",
+            "style": {
+                "float": "left",
+                "overflow": "hidden"
+            },
+            "layout": {
+                "botonAccion": {
+                    "componente": "YBButton",
+                    "prefix": "lineaspedidosprov",
+                    "label": "ENVIAR",
+                    "buttonType": "flat",
+                    "action": {
+                        "key": "procesaCodBarras",
+                        "success": [
+                            {"slot": "refrescar", "custom": "grupopedidoscli"},
+                            {"receiver": "fdb_codBarras", "slot": "select"}
+                        ],
+                        "error": [
+                            {"receiver": "fdb_codBarras", "slot": "select"},
+                            {"mensaje": "Error no se encuentra articulo", "slot": "toast"}
+                        ]
+                    }
+                }
+            }
+        },
+        "queryGrid_grupoPedidosCli": {
+            "componente": "YBTable",
+            "label": "",
+            "prefix": "grupoPedidosCli",
+            "filter": "",
+            "colorRowField": "rowColor",
+            "type": "query",
+            "columns": [
+                {"tipo": "field", "key": "lineaspedidoscli.cantidad", "label": "Cant", "width": 50},
+                {"tipo": "foreignfield", "key": "pteServir", "label": "Pte.", "width": 50},
+                {
+                    "tipo": "field",
+                    "key": "lineaspedidoscli.shcantalbaran",
+                    "label": "A env",
+                    "width": 60,
+                    "editable": false,
+                    "type": "number",
+                    "act": {
+                        "key": "modificarShcantidad",
+                        "success": [
+                            {"slot": "refrescar", "custom": "grupopedidoscli"},
+                            {"receiver": "fdb_codBarras", "slot": "select"}
+                        ]
+                    }
+                },
+                {"tipo": "field", "key": "lineaspedidoscli.descripcion", "width": 550, "flex": 5},
+                {
+                    "tipo": "field",
+                    "key": "ubicacionesarticulo.codubicacion",
+                    "label":"Ubic.",
+                    "width": 60,
+                    "editable": true,
+                    "act": {
+                        "key": "modificarUbicacion",
+                        "success": [
+                            {"slot": "refrescar", "custom": "grupopedidoscli"},
+                            {"receiver": "fdb_codBarras", "slot": "select"}
+                        ]
+                    }
+                },
+                {"tipo": "foreignfield", "key": "referenciaprov", "label": "Ref.Prov", "width": 110},
+                {"tipo": "foreignfield", "key": "pedidoscli.codigo", "label": "Pedido", "width": 110},
+                {"tipo": "field", "key": "lineaspedidoscli.totalenalbaran", "label": "Serv", "width": 50},
+                {"tipo": "field", "key": "lineaspedidoscli.cerradapda", "width": 60},
+                {"tipo": "field", "key": "stocks.cantidad", "label":"Stock", "width": 58},
+                {"tipo": "field", "key": "stocks.disponible", "label":"Disp.", "width": 58},
+                {"tipo": "field", "key": "lineaspedidoscli.referencia", "width": 110},
+                {
+                    "tipo": "act",
+                    "key": "inventariar",
+                    "label": "Inventario al vuelo",
+                    "success": [
+                        {"slot": "refrescar", "custom": "grupopedidoscli"},
+                        {"receiver": "fdb_codBarras", "slot": "select"}
+                    ]
+                },
+                {
+                    "tipo": "act",
+                    "key": "cerrarLinea",
+                    "label": "cerrar Linea",
+                    "success": [
+                        {"slot": "refrescar", "custom": "grupopedidoscli"},
+                        {"receiver": "fdb_codBarras", "slot": "select"}
+                    ]
+                },
+                {
+                    "tipo": "act",
+                    "key": "verpedido",
+                    "label": "Ver Pedido",
+                    "success": []
+                }
+            ],
+            "rowclick": "gotoMoviloteQuery",
+            "accionesGrid": []
+        },
+        "lineaspedidoscliGrid": {
+            "visible": false,
+            "label": "Líneas de Pedido",
+            "componente": "YBTable",
+            "prefix": "lineaspedidoscli",
+            "colorRowField": "rowColor",
+            "class": "claseGrid",
+            "columns": [
+                {"tipo": "field", "key": "cantidad", "label": "Cant", "width": 50},
+                {
+                    "tipo": "field",
+                    "key": "shcantalbaran",
+                    "label": "A env",
+                    "width": 60,
+                    "editable": false,
+                    "type": "number",
+                    "act": {
+                        "key": "modificarShcantidad",
+                        "success": [
+                            {"slot": "refrescar", "custom": "grupopedidoscli"},
+                            {"receiver": "fdb_codBarras", "slot": "select"}
+                        ]
+                    }
+                },
+                {"tipo": "field", "key": "descripcion", "width": 550, "flex": 5},
+                {
+                    "tipo": "field",
+                    "key": "codubicacion",
+                    "label":"Ubic.",
+                    "width": 60,
+                    "editable": false,
+                    "act": {
+                        "key": "modificarUbicacion",
+                        "success": [
+                            {"slot": "refrescar", "custom": "grupopedidoscli"},
+                            {"receiver": "fdb_codBarras", "slot": "select"}
+                        ]
+                    }
+                },
+                {"tipo": "foreignfield", "key": "referenciaprov", "label": "Ref. Prov", "width": 110},
+                {"tipo": "foreignfield", "key": "codpedido", "label": "Pedido", "width": 110},
+                {"tipo": "field", "key": "referencia", "width": 110},
+                {"tipo": "field", "key": "totalenalbaran", "label": "Serv", "width": 50},
+                {"tipo": "field", "key": "cerradapda", "width": 60},
+                {"tipo": "field", "key": "disStock", "label":"Disp.", "width": 50},
+                {
+                    "tipo": "act",
+                    "key": "cerrarLinea",
+                    "label": "cerrar Linea",
+                    "success": [
+                        {"slot": "refrescar", "custom": "grupopedidoscli"},
+                        {"receiver": "fdb_codBarras", "slot": "select"}
+                    ]
+                },
+                {
+                    "tipo": "act",
+                    "key": "verpedido",
+                    "label": "Ver Pedido",
+                    "success": []
+                }
+            ],
+            "rowclick": "gotoMovilote"
+        },
+        "groupBoxVolver": {
+            "componente": "YBGroupBox",
+            "className": "actionGB",
+            "layout": {
+                "volverButton": {
+                    "componente": "YBButton",
+                    "label": "Volver",
+                    "className": "floatRight",
+                    "buttonType": "raised",
+                    "action": {
+                        "key": "volver",
+                        "success": []
+                    }
+                }
+            }
+        }
+    },
+    "acciones": {
+        "volver": {
+            "action": "return"
+        },
+        "inventariar": {
+            "action": "legacy",
+            "icon": "content_paste",
+            "prefix": "lineaspedidoscli",
+            "serverAction": "inventariar"
+        },
+        "cerrarLinea": {
+            "action": "legacy",
+            "icon": "lock",
+            "prefix": "lineaspedidoscli",
+            "serverAction": "cerrarLinea"
+        },
+        "modificarUbicacion": {
+            "action": "legacy",
+            "icon": "add_circle",
+            "prefix": "lineaspedidoscli",
+            "serverAction": "modificarUbicacion",
+            "params": [
+                {
+                    "tipo": 3,
+                    "verbose_name": "codubicacion",
+                    "key": "ubicacionesarticulo.codubicacion",
+                    "validaciones": null
+                }
+            ]
+        },
+        "modificarShcantidad": {
+            "action": "legacy",
+            "icon": "add_circle",
+            "prefix": "lineaspedidoscli",
+            "serverAction": "modificarShcantidadQuery",
+            "params": [
+                {
+                    "tipo": 3,
+                    "verbose_name": "shcantalbaran",
+                    "key": "lineaspedidoscli.shcantalbaran",
+                    "validaciones": null
+                }
+            ]
+        },
+        "gotoMovilote": {
+            "action": "goto",
+            "serverAction": "dameTemplateMovilote"
+        },
+        "gotoMoviloteQuery": {
+            "action": "goto",
+            "prefix": "lineaspedidoscli",
+            "serverAction": "dameTemplateMoviloteQuery"
+        },
+        "procesaCodBarras": {
+            "label": "Procesar codigo de barras",
+            "action": "legacy",
+            "serverAction": "procesaCodBarrasGrupo",
+            "prefix": "lineaspedidoscli",
+            "params": [
+                {
+                    "tipo": 37,
+                    "required": true,
+                    "verbose_name": "codbarras",
+                    "key": "codbarras",
+                    "validaciones": null
+                }
+            ]
+        },
+        "verpedido": {
+            "action": "goto",
+            "icon": "edit",
+            "prefix": "lineaspedidoscli",
+            "serverAction": "dameTemplatePedidoCli"
+        }
+    },
+    "drawIf": {}
+}
