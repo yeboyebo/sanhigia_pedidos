@@ -28,17 +28,13 @@
                     ]
                 }
             ],
-            "rowclick": "gotopreparacion"
+            "rowclick": "link"
         }
     },
     "acciones": {
         "delete": {
             "action": "deleteRow",
             "icon": "delete"
-        },
-        "gotopreparacion": {
-            "action": "goto",
-            "serverAction": "dameTemplatePreparacion"
         }
     }
 }

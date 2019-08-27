@@ -138,8 +138,8 @@
             }
         }
     },
-    "acciones": {
-        "volver": {
+    "acciones": {  
+       "volver": {
             "action": "return"
         },
         "cerrarLinea": {

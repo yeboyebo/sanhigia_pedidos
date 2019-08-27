@@ -23,9 +23,21 @@ class sanhigia_pedidos_sh_preparaciondepedidos(interna_sh_preparaciondepedidos, 
     def getDesc():
         return form.iface.getDesc()
 
-    @helpers.decoradores.accion()
-    def dameTemplatePreparacion(self):
-        return form.iface.dameTemplatePreparacion(self)
+    def getForeignFields(self, template=None):
+        return form.iface.getForeignFields(self, template)
+
+    def field_grupoQueryColorRow(self):
+        return form.iface.field_grupoQueryColorRow(self)
+
+    def queryGrid_grupoPedidosCli(self, model):
+        return form.iface.queryGrid_grupoPedidosCli(model)
+
+    def fun_metadata(self):
+        return form.iface.fun_metadata(self)
+
+    @helpers.decoradores.accion(aqparam=["oParam"])
+    def procesaCodBarrasGrupo(self, oParam):
+        return form.iface.procesaCodBarrasGrupo(self, oParam)
 
 
 # @class_declaration sh_preparaciondepedidos #

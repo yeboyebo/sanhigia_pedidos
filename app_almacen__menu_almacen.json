@@ -19,6 +19,7 @@
                 "TEXT": "ARTÍCULOS",
                 "URL": "almacen/articulos/master",
                 "ICON": "shopping_cart",
+                "VISIBLE": false,
                 "COLOR": "rgb(240, 120, 20)"
             }
         }

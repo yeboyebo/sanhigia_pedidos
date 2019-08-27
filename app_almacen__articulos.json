@@ -1,11 +1,6 @@
 {
     "modifications": [
         {
-            "type": "updateNode",
-            "path": "/focus",
-            "value": "fdb_lectura"
-        },
-        {
             "type": "insertAfterNode",
             "path": "/layout/root",
             "value": {
@@ -34,7 +29,7 @@
                                     "tipo": 5,
                                     "rel": "articulosprov",
                                     "filtro": {
-                                        "r_referencia": null
+                                        "r_referencia_referencia": null
                                     },
                                     "key": "codproveedor",
                                     "desc": "nombre",
@@ -84,6 +79,11 @@
                     }
                 }
             }
+        },
+        {
+            "type": "updateNode",
+            "path": "/focus",
+            "value": "fdb_lectura"
         },
         {
             "type": "insertAfterNode",

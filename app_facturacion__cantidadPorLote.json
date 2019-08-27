@@ -2,11 +2,11 @@
     "querystring": {},
     "schema": {
         "movilote": {
-            "rel": "idlineapp",
+            "rel": "idlineapc",
             "querystring": {
                 "p_l": 20,
                 "p_c": 1,
-                "s_idlineaap__isnull": true
+                "s_idlineaac__isnull": true
             }
         }
     },
@@ -36,7 +36,7 @@
         },
         "anadirLoteButton": {
             "componente": "YBButton",
-            "prefix": "lineaspedidosprov",
+            "prefix": "lineaspedidoscli",
             "label": "Añadir lote",
             "className": "floatRight",
             "buttonType": "raised",
@@ -47,7 +47,7 @@
             },
             "action": {
                 "key": "anadirLote",
-                "success": [{"slot": "refrescar", "custom": "cantidadapporlote"}]
+                "success": [{"slot": "refrescar", "custom": "cantidadPorLote"}]
             }
         },
         "moviloteGrid": {
@@ -60,14 +60,14 @@
                 {"tipo": "foreignfield", "key": "caducidadlote", "label":"Caducidad"},
                 {
                     "tipo": "foreignfield",
-                    "key": "cantidad",
+                    "key": "cantidadmlote",
                     "label": "cant",
                     "width": 50,
                     "editable": true,
                     "act": {
                         "key": "cambiarCantidad",
                         "success": [
-                            {"custom": "cantidadapporlote", "slot":"refrescar"}
+                            {"slot": "refrescar", "custom": "cantidadPorLote"}
                         ]
                     }
                 },
@@ -75,7 +75,7 @@
                     "tipo": "act",
                     "key": "delete",
                     "label": "Delete",
-                    "success": [{ "slot": "refrescar"}]
+                    "success": [{"receiver": "tdb_crmcampanas", "slot": "refrescar"}]
                 }
             ],
             "rowclick": ""
@@ -89,6 +89,7 @@
                     "label": "Volver",
                     "className": "floatRight",
                     "buttonType": "raised",
+                    "prefix": "lineaspedidoscli",
                     "action": {
                         "key": "volver",
                         "success": []
@@ -115,7 +116,7 @@
                 {
                     "tipo": 3,
                     "verbose_name": "Cantidad",
-                    "key": "cantidad",
+                    "key": "cantidadmlote",
                     "validaciones": null
                 }
             ]
@@ -123,7 +124,7 @@
         "anadirLote": {
             "action": "legacy",
             "icon": "home",
-            "prefix": "lineaspedidosprov",
+            "prefix": "lineaspedidoscli",
             "serverAction": "anadirLote"
         }
     }

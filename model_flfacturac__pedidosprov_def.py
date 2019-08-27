@@ -9,9 +9,7 @@ from models.flfactalma import flfactalma_def
 class sanhigia_pedidos(flfacturac):
 
     def sanhigia_pedidos_procesaCodBarras(self, model, oParam):
-        # print("proceso")
-        # print("_________procesacodbarras________")
-        # print(oParam)
+        print(oParam)
         # Suma 1
         cantidad = 1
         # qsatype.debug(ustr("lencodbarras ", len(oParam['codbarras'])))
@@ -21,10 +19,12 @@ class sanhigia_pedidos(flfacturac):
         if len(oParam['codbarras']) > 35:
             oParam['codbarras'] = oParam['codbarras'][:-32]
         qsatype.debug(ustr("codigobarrasposterior ", oParam['codbarras']))
-        idPedido = "('" + str(model.pk) + "')"
         if "grupoPedidos" in oParam:
             idPedido = oParam['grupoPedidos']
-
+            codAlmacen = model["codalmacen"]
+        else:
+            idPedido = "({})".format(model.pk)
+            codAlmacen = model.codalmacen.codalmacen
         if "referencia" in oParam:
             oParam['idlinea'] = self.iface.dameIdLinea(model, oParam)
             if not oParam['idlinea']:
@@ -37,56 +37,59 @@ class sanhigia_pedidos(flfacturac):
                 lote = self.iface.creaLote(oParam["ncodlote"], oParam["caducidad"], oParam['referencia'])
                 if("status" in lote):
                     return lote
-                val = self.iface.insertarMovilote(oParam['idlinea'], oParam['referencia'], cantidad, model.codalmacen, lote)
+                val = self.iface.insertarMovilote(oParam['idlinea'], oParam['referencia'], cantidad, codAlmacen, lote)
                 if val['status'] == 0:
                     return True
                 return val
-            val = self.iface.insertarMovilote(oParam['idlinea'], oParam['referencia'], cantidad, model.codalmacen, oParam['codlote'])
+            val = self.iface.insertarMovilote(oParam['idlinea'], oParam['referencia'], cantidad, codAlmacen, oParam['codlote'])
             if val['status'] == 0:
                 return True
             return val
         # Si tengo idlinea y nuevo codlote puedo asignar procesar el codigo de barras
         if "idlinea" in oParam and "ncodlote" in oParam:
             lote = self.iface.creaLote(oParam["ncodlote"], oParam["caducidad"], oParam['referencia'])
-            val = self.iface.insertarMovilote(oParam['idlinea'], oParam['referencia'], cantidad, model.codalmacen, lote)
+            val = self.iface.insertarMovilote(oParam['idlinea'], oParam['referencia'], cantidad, codAlmacen, lote)
             if val['status'] == 0:
                 return True
             return val
 
         # Si idlinea y codproveedor en oParam tengo todo lo necesario para asignar un codigo de barras
         if "idlinea" in oParam and "codproveedor" in oParam:
-            linea = lineaspedidosprov.objects.get(pk=oParam['idlinea'])
-            objcod = flfactalma_def.iface.datosLecturaCodBarras(oParam['codbarras'], oParam["codproveedor"], linea.referencia)
-            asociado = flfactalma_def.iface.asociarCodBarras(linea.referencia, oParam["codproveedor"], objcod['codbarras'])
+            # linea = lineaspedidosprov.objects.get(pk=oParam['idlinea'])
+            referencia = qsatype.FLUtil.sqlSelect("lineaspedidosprov", "referencia", "idlinea = {}".format(oParam['idlinea']))
+            objcod = flfactalma_def.iface.datosLecturaCodBarras(oParam['codbarras'], oParam["codproveedor"], referencia)
+            asociado = flfactalma_def.iface.asociarCodBarras(referencia, oParam["codproveedor"], objcod['codbarras'])
             if asociado and not objcod['lote']:
-                val = self.iface.analizaCodBarras(idPedido, oParam['codbarras'], cantidad, model.codalmacen, oParam['idlinea'])
+                val = self.iface.analizaCodBarras(idPedido, oParam['codbarras'], cantidad, codAlmacen, oParam['idlinea'])
                 return self.iface.respuestaAnalizaCodBarras(model, oParam, val)
                 return val
             else:
-                val = self.iface.analizaCodBarrasLote(linea.referencia, objcod['codbarras'], objcod['lote'], cantidad, linea.idlinea, model.codalmacen)
+                val = self.iface.analizaCodBarrasLote(referencia, objcod['codbarras'], objcod['lote'], cantidad, oParam['idlinea'], codAlmacen)
                 return self.iface.respuestaAnalizaCodBarras(model, oParam, val)
                 return val
 
         # Si idlinea en oParam significa que me estan enviando un codigo de barras para asociar a un articulo de la linea
         if "idlinea" in oParam and "codproveedor" not in oParam:
-            linea = lineaspedidosprov.objects.get(pk=oParam['idlinea'])
-            proveedor = articulosprov.objects.filter(referencia__exact=linea.referencia)
+            # linea = lineaspedidosprov.objects.get(pk=oParam['idlinea'])
+            # proveedor = articulosprov.objects.filter(referencia__exact=linea.referencia)
+            referencia = qsatype.FLUtil.sqlSelect("lineaspedidosprov", "referencia", "idlinea = {}".format(oParam['idlinea']))
+            codproveedor = qsatype.FLUtil.sqlSelect("articulosprov", "codproveedor", "referencia = '{}'".format(referencia))
             if len(proveedor) == 1:
                 # print("tengo idlinea y no proveedor pero ", proveedor[0].codproveedor, " ", linea.referencia, " ", oParam['codbarras'])
-                objcod = flfactalma_def.iface.datosLecturaCodBarras(oParam['codbarras'], proveedor[0].codproveedor, linea.referencia)
-                asociado = flfactalma_def.iface.asociarCodBarras(linea.referencia, proveedor[0].codproveedor, objcod['codbarras'])
+                objcod = flfactalma_def.iface.datosLecturaCodBarras(oParam['codbarras'], codproveedor, referencia)
+                asociado = flfactalma_def.iface.asociarCodBarras(referencia, codproveedor, objcod['codbarras'])
                 if asociado and not objcod['lote']:
-                    val = self.iface.analizaCodBarras(idPedido, oParam['codbarras'], cantidad, model.codalmacen, oParam['idlinea'])
+                    val = self.iface.analizaCodBarras(idPedido, oParam['codbarras'], cantidad, codAlmacen, oParam['idlinea'])
                     return self.iface.respuestaAnalizaCodBarras(model, oParam, val)
                     return val
                 else:
-                    val = self.iface.analizaCodBarrasLote(linea.referencia, objcod['codbarras'], objcod['lote'], cantidad, linea.idlinea, model.codalmacen)
+                    val = self.iface.analizaCodBarrasLote(referencia, objcod['codbarras'], objcod['lote'], cantidad, oParam['idlinea'], codAlmacen)
                     return self.iface.respuestaAnalizaCodBarras(model, oParam, val)
                     return val
             else:
                 response = {}
                 response['status'] = -1
-                response['data'] = {"codbarras": oParam['codbarras'], "cantidad": cantidad, "idlinea": oParam["idlinea"], "referencia": linea.referencia}
+                response['data'] = {"codbarras": oParam['codbarras'], "cantidad": cantidad, "idlinea": oParam["idlinea"], "referencia": referencia}
                 response['params'] = [
                     {
                         "componente": "YBFieldDB",
@@ -131,20 +134,22 @@ class sanhigia_pedidos(flfacturac):
 
         # Solo viene codigo de barras y cantidad
         else:
-            val = self.iface.analizaCodBarras(idPedido, oParam['codbarras'], cantidad, model.codalmacen, None)
+            val = self.iface.analizaCodBarras(idPedido, oParam['codbarras'], cantidad, codAlmacen, None)
             return self.iface.respuestaAnalizaCodBarras(model, oParam, val)
 
         return True
 
     def sanhigia_pedidos_dameIdLinea(self, model, oParam):
-        idPedido = "('" + str(model.pk) + "')"
+        # idPedido = "('" + str(model.pk) + "')"
         if "grupoPedidos" in oParam:
             idPedido = oParam['grupoPedidos']
+        else:
+            idPedido = "({})".format(model.idpedido)
         query = qsatype.FLSqlQuery()
         query.setTablesList(u"lineaspedidosprov")
         query.setSelect(u"idlinea, referencia, cantidad, shcantalbaran")
         query.setFrom(u"lineaspedidosprov")
-        query.setWhere(ustr(u"referencia = '", oParam['referencia'], "' AND idpedido IN ", idPedido))
+        query.setWhere(u"referencia = '{}'  AND idpedido IN {}".format(oParam['referencia'], idPedido))
 
         if query.exec_():
             if query.size() > 1:
@@ -162,7 +167,7 @@ class sanhigia_pedidos(flfacturac):
         # Si se produce un error que no permite modificar el pedido
         # Suma 1
         cantidad = 1
-        if val['status'] == -3:
+        if val['status'] == -3 or val['status'] == -2:
             return val
 
         # -1 Si el codigo de barras no pertenece a nigun articulo y algun articulo del pedido no tienen codigo de barras
@@ -225,7 +230,7 @@ class sanhigia_pedidos(flfacturac):
                     "verbose_name": "Código Lote",
                     "visible": True,
                     "key": "ncodlote",
-                    "clientBch": True,
+                    # "clientBch": True,
                     "validaciones": None
                 },
                 {
@@ -290,7 +295,8 @@ class sanhigia_pedidos(flfacturac):
                     fecha = query.value("caducidad").strftime(formatofecha)
                 else:
                     fecha = None
-                opt['alias'] = query.value("codigo") + " - " + str(int(query.value("enalmacen"))) + " - " + str(fecha) + " - " + query.value("descripcion")
+                # opt['alias'] = query.value("codigo") + " - " + str(int(query.value("enalmacen"))) + " - " + str(fecha) + " - " + query.value("descripcion")
+                opt['alias'] = "{} - {} - {} - {}".format(query.value("codigo"), query.value("enalmacen"), fecha, query.value("descripcion"))
                 opts.append(opt)
             response = {}
             response['status'] = -1
@@ -310,7 +316,7 @@ class sanhigia_pedidos(flfacturac):
                     "verbose_name": "Código Lote",
                     "null": True,
                     "key": "ncodlote",
-                    "clientBch": True,
+                    # "clientBch": True,
                     "validaciones": None
                 },
                 {
@@ -370,7 +376,7 @@ class sanhigia_pedidos(flfacturac):
 
     def sanhigia_pedidos_pedidoListoPDA(self, model, oParam):
         curPedido = qsatype.FLSqlCursor(u"pedidosprov")
-        curPedido.select("idpedido = " + str(model.idpedido))
+        curPedido.select("idpedido = {}".format(model.idpedido))
         if not curPedido.first():
             raise ValueError("Error no se encuentra el pedido ")
             return False
@@ -387,13 +393,13 @@ class sanhigia_pedidos(flfacturac):
         ]
 
     def sanhigia_pedidos_creaLote(self, codigo, caducidad, referencia):
-        codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", ustr(u"codigo = '", codigo, u"'"))
+        codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", u"codigo = '{}'".format(codigo))
         if not codLote:
             query = qsatype.FLSqlQuery()
             query.setTablesList(u"articulos")
             query.setSelect(u"descripcion")
             query.setFrom(u"articulos")
-            query.setWhere(ustr(u"referencia = '", referencia, "'"))
+            query.setWhere("referencia = '{}'".format(referencia))
 
             if query.exec_():
                 if query.next():
@@ -436,20 +442,20 @@ class sanhigia_pedidos(flfacturac):
             resul['resul'] = False
             return resul
 
-        idStock = qsatype.FLUtil.sqlSelect(u"stocks", u"idstock", ustr(u"referencia = '", referencia, u"' AND codalmacen = '", codAlmacen, u"'"))
+        idStock = qsatype.FLUtil.sqlSelect(u"stocks", u"idstock", u"referencia = '{}' AND codalmacen = '{}'".format(referencia, codAlmacen))
 
         if idStock == u"" or not idStock:
             resul['status'] = -3
-            resul['msg'] = "No existe stock para la referencia ", referencia, " en el almacén ", codAlmacen
+            resul['msg'] = "No existe stock para la referencia {} en el almacén {}.".format(referencia, codAlmacen)
             resul['param'] = idLinea
             resul['resul'] = False
             return resul
 
         hoy = qsatype.Date()
-        idmovilote = qsatype.FLUtil.sqlSelect(u"movilote", u"id", ustr(u"idlineapp = '", idLinea, u"' AND fecha = '", hoy, u"' AND codlote = '" + codLote + "'  AND idlineaap is null"))
+        idmovilote = qsatype.FLUtil.sqlSelect(u"movilote", u"id", u"idlineapp = '{}' AND fecha = '{}' AND codlote = '{}' AND idlineaap is null".format(idLinea, hoy, codLote))
         if idmovilote:
             curMovilote = qsatype.FLSqlCursor(u"movilote")
-            curMovilote.select("id = '" + str(idmovilote) + "'")
+            curMovilote.select("id = '{}'".format(idmovilote))
             if not curMovilote.first():
                 resul['status'] = -3
                 resul['msg'] = "Error al crear movimiento de lote"
@@ -509,7 +515,7 @@ class sanhigia_pedidos(flfacturac):
         codBarras = datos['codbarras']
 
         # Ver si existe alguna referencia para ese c?igo de barras
-        referencia = qsatype.FLUtil.sqlSelect(u"articulosprov", u"referencia", ustr(u"codbarrasprov = '", codBarras, u"'"))
+        referencia = qsatype.FLUtil.sqlSelect(u"articulosprov", u"referencia", "codbarrasprov = '{}'".format(codBarras))
         # Si no existe referencia compruebo si las lineas tienen codbarras
         if referencia == u"" or not referencia:
             # if "lote" in datos and not datos["lote"]:
@@ -519,12 +525,12 @@ class sanhigia_pedidos(flfacturac):
             # query.setSelect(u"articulosprov.referencia, lineaspedidosprov.idlinea, lineaspedidosprov.descripcion")
             query.setFrom(u"articulosprov inner join lineaspedidosprov on articulosprov.referencia = lineaspedidosprov.referencia")
             # query.setWhere(ustr(u"articulosprov.codbarrasprov is null AND lineaspedidosprov.idpedido = ", idPedido))
-            query.setWhere(ustr(u"lineaspedidosprov.idpedido IN ", idPedido))
+            query.setWhere(u"lineaspedidosprov.idpedido IN {}".format(idPedido))
 
             if query.exec_():
                 if query.size() >= 1:
                     resul['status'] = -1
-                    resul['msg'] = "?Asociar codigo de barras a pedido?"
+                    resul['msg'] = "¿Asociar codigo de barras a pedido?"
                     resul['param'] = query
                     return resul
                 else:
@@ -536,7 +542,7 @@ class sanhigia_pedidos(flfacturac):
                 return False
 
         # Ver si existe m? de una referencia para el c?igo de barras pero filtramos ya por el pedido
-        numReg = qsatype.FLUtil.sqlSelect(u"articulosprov inner join lineaspedidosprov on articulosprov.referencia = lineaspedidosprov.referencia ", u"count(distinct(articulosprov.referencia))", ustr(u"articulosprov.codbarrasprov = '", codBarras, u"' AND lineaspedidosprov.idpedido IN ", idPedido, u" group by articulosprov.referencia"))
+        numReg = qsatype.FLUtil.sqlSelect(u"articulosprov inner join lineaspedidosprov on articulosprov.referencia = lineaspedidosprov.referencia ", u"count(distinct(articulosprov.referencia))", u"articulosprov.codbarrasprov = '{}' AND lineaspedidosprov.idpedido IN {} GROUP BY articulosprov.referencia".format(codBarras, idPedido))
         if not numReg:
             resul['status'] = -2
             resul['msg'] = "No existe la referencia en el pedido"
@@ -555,7 +561,7 @@ class sanhigia_pedidos(flfacturac):
             query.setTablesList(u"lineaspedidosprov")
             query.setSelect(u"idlinea, referencia, cantidad")
             query.setFrom(u"lineaspedidosprov")
-            query.setWhere(ustr(u"referencia = '", referencia, "' AND idpedido IN ", idPedido))
+            query.setWhere(u"referencia = '{}' AND idpedido IN {}".format(referencia, idPedido))
 
             if query.exec_():
                 if query.size() > 1:
@@ -578,13 +584,13 @@ class sanhigia_pedidos(flfacturac):
         # 2.Existe
         # 2.1 no es cuadrado
         if datos['lote'] == u"" or not datos['lote']:
-            porLotes = qsatype.FLUtil.sqlSelect(u"articulos", u"porlotes", ustr(u"referencia = '", referencia, u"'"))
+            porLotes = qsatype.FLUtil.sqlSelect(u"articulos", u"porlotes", "referencia = '{}'".format(referencia))
             if not porLotes:
                 # 2.1.1 actualizo línea
                 print("_____idlinea____", idLinea)
-                shcantidad = qsatype.FLUtil.sqlSelect(u"lineaspedidosprov", u"shcantalbaran", ustr(u"idlinea = ", idLinea)) or 0
+                shcantidad = qsatype.FLUtil.sqlSelect(u"lineaspedidosprov", u"shcantalbaran", "idlinea = {}".format(idLinea)) or 0
                 shcantidad = shcantidad + 1
-                if not qsatype.FLUtil.sqlUpdate(u"lineaspedidosprov", u"shcantalbaran", shcantidad, ustr(u"idlinea = ", idLinea)):
+                if not qsatype.FLUtil.sqlUpdate(u"lineaspedidosprov", u"shcantalbaran", shcantidad, u"idlinea = {}".format(idLinea)):
                     resul['status'] = -3
                     resul['msg'] = "Error al actualizar línea del pedido"
                     resul['param'] = idLinea
@@ -598,7 +604,7 @@ class sanhigia_pedidos(flfacturac):
                 query.setTablesList(u"lotes")
                 query.setSelect(u"*")
                 query.setFrom(u"lotes")
-                query.setWhere(ustr(u"referencia = '", referencia, "' AND enalmacen > 0"))
+                query.setWhere("referencia = '{}' AND enalmacen > 0".format(referencia))
 
                 if query.exec_():
                     if query.size() >= 1:
@@ -607,7 +613,7 @@ class sanhigia_pedidos(flfacturac):
                         resul['msg'] = "¿Asociar codigo de barras a pedido?"
                         oParam = {}
                         oParam['referencia'] = referencia
-                        oParam['descripcion'] = qsatype.FLUtil.sqlSelect(u"articulos", u"descripcion", ustr(u"referencia = '", referencia, u"'"))
+                        oParam['descripcion'] = qsatype.FLUtil.sqlSelect(u"articulos", u"descripcion", "referencia = '{}'".format(referencia))
                         oParam['idlinea'] = idLinea
                         oParam['query'] = query
                         resul['param'] = oParam
@@ -618,7 +624,7 @@ class sanhigia_pedidos(flfacturac):
                         resul['msg'] = "¿Asociar codigo de barras a pedido?"
                         oParam = {}
                         oParam['referencia'] = referencia
-                        oParam['descripcion'] = qsatype.FLUtil.sqlSelect(u"articulos", u"descripcion", ustr(u"referencia = '", referencia, u"'"))
+                        oParam['descripcion'] = qsatype.FLUtil.sqlSelect(u"articulos", u"descripcion", "referencia = '{}'".format(referencia))
                         oParam['idlinea'] = idLinea
                         oParam['query'] = query
                         resul['param'] = oParam
@@ -629,13 +635,13 @@ class sanhigia_pedidos(flfacturac):
             # 2.2 El barcode es cuadrado
             codigo = datos['lote']
             # lo que tenemos es el codigo de lotes pero lo que se inserta es el campo codlote de lotes, vamos a buscar el primer codlote de la tabla lotes que tenga como codigo el lote que hemos ledio y que tenga stock
-            codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", ustr(u"codigo = '", codigo, u"'"))
+            codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", "codigo = '{}'".format(codigo))
             if not codLote:
                 query = qsatype.FLSqlQuery()
                 query.setTablesList(u"lotes")
                 query.setSelect(u"*")
                 query.setFrom(u"lotes")
-                query.setWhere(ustr(u"referencia = '", referencia, "' AND enalmacen > 0"))
+                query.setWhere("referencia = '{}' AND enalmacen > 0".format(referencia))
 
                 # if query.exec_():
                 #     if query.size() >= 1:
@@ -644,7 +650,7 @@ class sanhigia_pedidos(flfacturac):
                 resul['msg'] = "¿Asociar codigo de barras a pedido?"
                 oParam = {}
                 oParam['referencia'] = referencia
-                oParam['descripcion'] = qsatype.FLUtil.sqlSelect(u"articulos", u"descripcion", ustr(u"referencia = '", referencia, u"'"))
+                oParam['descripcion'] = qsatype.FLUtil.sqlSelect(u"articulos", u"descripcion", "referencia = '{}'".format(referencia))
                 oParam['idlinea'] = idLinea
                 oParam['query'] = query
                 oParam['ncodlote'] = codigo
@@ -661,16 +667,16 @@ class sanhigia_pedidos(flfacturac):
                 # resul['param'] = idLinea
                 # return resul
 
-            idStock = qsatype.FLUtil.sqlSelect(u"stocks", u"idstock", ustr(u"referencia = '", referencia, u"' AND codalmacen = '", codAlmacen, u"'"))
+            # idStock = qsatype.FLUtil.sqlSelect(u"stocks", u"idstock", ustr(u"referencia = '", referencia, u"' AND codalmacen = '", codAlmacen, u"'"))
+            idStock = qsatype.FLUtil.sqlSelect(u"stocks", u"idstock", "referencia = '{}' AND codalmacen = '{}'".format(referencia, codAlmacen))
             if idStock == u"" or not idStock:
                 resul['status'] = -1
-                resul['msg'] = "No existe stock para la referencia ", referencia, " en el almacén ", codAlmacen
+                resul['msg'] = "No existe stock para la referencia {} en el almacén {}.".format(referencia, codAlmacen)
                 resul['param'] = idLinea
                 resul['resul'] = False
                 return resul
-
             hoy = qsatype.Date()
-            idmovilote = qsatype.FLUtil.sqlSelect(u"movilote", u"id", ustr(u"idlineapp = '", idLinea, u"' AND fecha = '", hoy, u"' AND codlote = '" + codLote + "' AND idlineaap is null"))
+            idmovilote = qsatype.FLUtil.sqlSelect(u"movilote", u"id", u"idlineapp = '{}' AND fecha = '{}' AND codlote = '{}' AND idlineaap is null".format(idLinea, hoy, codLote))
             if idmovilote:
                 curMovilote = qsatype.FLSqlCursor(u"movilote")
                 curMovilote.select("id = '" + str(idmovilote) + "'")
@@ -716,27 +722,27 @@ class sanhigia_pedidos(flfacturac):
         resul = {}
         # codigo = lote
         # lo que tenemos es el codigo de lotes pero lo que se inserta es el campo codlote de lotes, vamos a buscar el primer codlote de la tabla lotes que tenga como codigo el lote que hemos ledio y que tenga stock
-        codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", ustr(u"codigo = '", codigo, u"' AND enalmacen > 0 "))
+        codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", "codigo = '{}' AND enalmacen > 0".format(codigo))
         if codLote == u"" or not codLote:
             query = qsatype.FLSqlQuery()
             query.setTablesList(u"lotes")
             query.setSelect(u"*")
             query.setFrom(u"lotes")
-            query.setWhere(ustr(u"referencia = '", referencia, "' AND enalmacen > 0"))
+            query.setWhere("referencia = '{}' AND enalmacen > 0".format(referencia))
 
             resul = {}
             resul['status'] = 2
             resul['msg'] = "¿Asociar codigo de barras a pedido?"
             oParam = {}
             oParam['referencia'] = referencia
-            oParam['descripcion'] = qsatype.FLUtil.sqlSelect(u"articulos", u"descripcion", ustr(u"referencia = '", referencia, u"'"))
+            oParam['descripcion'] = qsatype.FLUtil.sqlSelect(u"articulos", u"descripcion", "referencia = '{}'".format(referencia))
             oParam['idlinea'] = idLinea
             oParam['query'] = query
             oParam['ncodlote'] = codigo
             resul['param'] = oParam
             return resul
 
-        idStock = qsatype.FLUtil.sqlSelect(u"stocks", u"idstock", ustr(u"referencia = '", referencia, u"' AND codalmacen = '", codAlmacen, u"'"))
+        idStock = qsatype.FLUtil.sqlSelect(u"stocks", u"idstock", "referencia = '{}' AND codalmacen = '{}'".format(referencia, codAlmacen))
         if idStock == u"" or not idStock:
             resul['status'] = -1
             resul['msg'] = "No existe stock para la referencia ", referencia, " en el almacén ", codAlmacen
@@ -744,7 +750,7 @@ class sanhigia_pedidos(flfacturac):
             return resul
 
         hoy = qsatype.Date()
-        idmovilote = qsatype.FLUtil.sqlSelect(u"movilote", u"id", ustr(u"idlineapp = '", idLinea, u"' AND fecha = '", hoy, u"' AND codlote = '" + codLote + "'  AND idlineaap is null"))
+        idmovilote = qsatype.FLUtil.sqlSelect(u"movilote", u"id", u"idlineapp = '{}' AND fecha = '{}' AND codlote = '{}' AND idlineaap is null".format(idLinea, hoy, codLote))
         if idmovilote:
             curMovilote = qsatype.FLSqlCursor(u"movilote")
             curMovilote.select("id = '" + str(idmovilote) + "'")
@@ -787,18 +793,18 @@ class sanhigia_pedidos(flfacturac):
         return None
 
     def sanhigia_pedidos_agruparPedidos(self, model, oParam):
-        # print(oParam)
+        print("agruparPedidos___pedidosprov: ", oParam)
         response = {}
         if "selecteds" not in oParam or not oParam['selecteds']:
             response['status'] = -1
             response['msg'] = "Debes seleccionar al menos un pedido"
             return response
         arrProveedores = oParam['selecteds'].split(u",")
-        fp = qsatype.FLUtil.sqlSelect(u"pedidosprov", u"codproveedor", ustr(u"idpedido = '", str(arrProveedores[0]), u"'"))
-        fa = qsatype.FLUtil.sqlSelect(u"pedidosprov", u"codalmacen", ustr(u"idpedido = '", str(arrProveedores[0]), u"'"))
+        fp = qsatype.FLUtil.sqlSelect(u"pedidosprov", u"codproveedor", "idpedido = {}".format(arrProveedores[0]))
+        fa = qsatype.FLUtil.sqlSelect(u"pedidosprov", u"codalmacen", "idpedido = {}".format(arrProveedores[0]))
         for p in arrProveedores:
-            np = qsatype.FLUtil.sqlSelect(u"pedidosprov", u"codproveedor", ustr(u"idpedido = '", str(p), u"'"))
-            na = qsatype.FLUtil.sqlSelect(u"pedidosprov", u"codalmacen", ustr(u"idpedido = '", str(p), u"'"))
+            np = qsatype.FLUtil.sqlSelect(u"pedidosprov", u"codproveedor", "idpedido = {}".format(p))
+            na = qsatype.FLUtil.sqlSelect(u"pedidosprov", u"codalmacen", "idpedido = {}".format(p))
             if fp != np:
                 response['status'] = -1
                 response['msg'] = "Los proveedores no coinciden"
@@ -808,8 +814,12 @@ class sanhigia_pedidos(flfacturac):
                 response['msg'] = "Los almacenes no coinciden"
                 return response
         response['status'] = 1
-        response['url'] = "/facturacion/lineaspedidosprov/custom/grupopedidos?p_selecteds=" + oParam['selecteds']
+        response['url'] = "/facturacion/lineaspedidosprov/custom/grupopedidos?p_selecteds={}".format(oParam['selecteds'])
         return response
+
+    def sanhigia_pedidos_dameTemplateMasterPedidosprov(self, model):
+        print("dameTemplateMasterPedidosprov")
+        return '/facturacion/pedidosprov/master'
 
     def __init__(self, context=None):
         super(sanhigia_pedidos, self).__init__(context)
@@ -853,4 +863,7 @@ class sanhigia_pedidos(flfacturac):
 
     def field_colorRow(self, model):
         return self.ctx.sanhigia_pedidos_field_colorRow(model)
+
+    def dameTemplateMasterPedidosprov(self, model):
+        return self.ctx.sanhigia_pedidos_dameTemplateMasterPedidosprov(model)
 

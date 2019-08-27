@@ -1,5 +1,6 @@
 
 # @class_declaration sanhigia_pedidos #
+from YBUTILS.viewREST import  cacheController
 from models.flfactalma import flfactalma_def
 
 
@@ -15,7 +16,6 @@ class sanhigia_pedidos(flfactalma):
         return response
 
     def sanhigia_pedidos_asociarCodBarras(self, model, oParam):
-        # print("asociar???")
         if len(oParam['codbar']) > 35:
             oParam['codbar'] = oParam['codbar'][:-32]
         response = flfactalma_def.iface.asociarCodBarras(model.referencia.referencia, oParam["codproveedor"], oParam["codbar"])
@@ -28,6 +28,24 @@ class sanhigia_pedidos(flfactalma):
         response['data'] = {"codproveedor": oParam['codproveedor'], "codbar": codbarrasprov}
         return response
 
+    def sanhigia_pedidos_getRerenciasInventario(self, model, oParam, cursor):
+        data = []
+        codinventario = cacheController.getSessionVariable(ustr(u"inventarios_", qsatype.FLUtil.nameUser()))
+        q = qsatype.FLSqlQuery()
+        q.setTablesList(u"articulos, lineasregstocks")
+        q.setSelect(u"distinct(a.referencia),a.descripcion")
+        q.setFrom(u"articulos a INNER JOIN lineasregstocks l ON a.referencia = l.referencia")
+        q.setWhere(u"l.codinventario = '{0}' AND (UPPER(a.referencia) LIKE '%{1}%' OR UPPER(a.descripcion) LIKE '%{1}%')".format(codinventario, oParam['val'].upper()))
+        if not q.exec_():
+            print("Error inesperado")
+            return []
+        if q.size() > 200:
+            return []
+        while q.next():
+            descripcion = str(q.value(0)) + "  " + q.value(1)
+            data.append({"descripcion": descripcion, "referencia": q.value(0)})
+        return data
+
     def __init__(self, context=None):
         super(sanhigia_pedidos, self).__init__(context)
 
@@ -39,4 +57,7 @@ class sanhigia_pedidos(flfactalma):
 
     def dameCodBarras(self, model, oParam):
         return self.ctx.sanhigia_pedidos_dameCodBarras(model, oParam)
+
+    def getRerenciasInventario(self, model, oParam, cursor):
+        return self.ctx.sanhigia_pedidos_getRerenciasInventario(model, oParam, cursor)
 

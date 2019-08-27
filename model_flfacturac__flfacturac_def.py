@@ -26,7 +26,7 @@ class sanhigia_pedidos(interna):
         query.setTablesList(name)
         query.setSelect(u"cantidad, totalenalbaran, shcantalbaran, cerradapda")
         query.setFrom(name)
-        query.setWhere(ustr(u"idpedido = ", idPedido))
+        query.setWhere("idpedido = {}".format(idPedido))
         if not query.exec_():
             return False
         estado = u""
@@ -72,7 +72,7 @@ class sanhigia_pedidos(interna):
         idPedido = curLinea.valueBuffer("idpedido")
         estado = _i.obtenerEstadoPDA(idPedido, "lineaspedidoscli")
         curPedido = qsatype.FLSqlCursor(u"pedidoscli")
-        curPedido.select("idpedido = " + str(idPedido))
+        curPedido.select("idpedido = {}".format(idPedido))
         if not curPedido.first():
             raise ValueError("Error no se encuentra el pedido ")
             return False
@@ -92,7 +92,7 @@ class sanhigia_pedidos(interna):
         idPedido = curLinea.valueBuffer("idpedido")
         estado = _i.obtenerEstadoPreparacion(idPedido)
         curPedido = qsatype.FLSqlCursor(u"pedidoscli")
-        curPedido.select("idpedido = " + str(idPedido))
+        curPedido.select("idpedido = {}".format(idPedido))
         if not curPedido.first():
             raise ValueError("Error no se encuentra el pedido ")
             return False
@@ -115,7 +115,7 @@ class sanhigia_pedidos(interna):
         query.setTablesList("lineaspedidoscli")
         query.setSelect(u"cantidad, shcantalbaran, codpreparaciondepedido")
         query.setFrom("lineaspedidoscli")
-        query.setWhere(ustr(u"idpedido = ", idPedido))
+        query.setWhere("idpedido = {}".format(idPedido))
         if not query.exec_():
             return False
         estado = u""
@@ -155,7 +155,7 @@ class sanhigia_pedidos(interna):
         idPedido = curLinea.valueBuffer("idpedido")
         estado = _i.obtenerEstadoPDA(idPedido, "lineaspedidosprov")
         curPedido = qsatype.FLSqlCursor(u"pedidosprov")
-        curPedido.select("idpedido = " + str(idPedido))
+        curPedido.select("idpedido = {}".format(idPedido))
         if not curPedido.first():
             raise ValueError("Error no se encuentra el pedido ")
             return False
@@ -222,7 +222,6 @@ class sanhigia_pedidos(interna):
         return self.ctx.sanhigia_pedidos_dameInventarioRecuentoPDA()
 
     def generarLineaRegStockLote(self, curInventario, referencia, codlote, cantidad):
-        print("generalinearegstoclote", referencia, codlote)
         idStock = None
         idStock = qsatype.FLUtil.sqlSelect(u"stocks", u"idstock", ustr(u"codalmacen = 'ALM' AND referencia = '", referencia, u"'"))
         if not idStock:

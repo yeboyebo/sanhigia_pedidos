@@ -81,7 +81,6 @@ class sanhigia_pedidos_lineaspedidoscli(flfacturac_lineaspedidoscli, helpers.Mix
 
     @helpers.decoradores.accion(aqparam=["oParam"])
     def procesaCodBarrasGrupo(self, oParam):
-        print("lineaspedidoscli_procesa")
         return form.iface.procesaCodBarrasGrupo(self, oParam)
 
     @helpers.decoradores.accion(miparam=[])

@@ -1,0 +1,71 @@
+{% load staticfiles %}
+{% load i18n %}
+{% load includeJSX %}
+{% load YBtools %}
+
+		{% block css %}
+			<link rel="stylesheet" type="text/css" href="{% static 'bundles/main.css' %}">            
+		{% endblock %}
+
+		{% block js %}            
+			<script src="{% static "bundles/main.js" %}"></script>
+			<script src="{% static "bundles/auxcss.js" %}"></script>
+		{% endblock %}
+
+		{% block main %}
+	<style>
+		.logPanel{
+			max-width:350px;
+			margin:30px auto;
+			overflow:hidden;
+			background-color:white;
+			box-shadow: -40px 40px 160px 0 rgba(0, 0, 0, 0.08), -8px 8px 15px 0 rgba(120, 120, 120, 0.04), 3px 3px 30px 0 rgba(0, 0, 0, 0.04) !important;
+		}
+
+		.logInput{
+			//width:98%;
+		}
+
+		.logInputPas{
+			//width:98%;
+			margin-top:20px !important;
+
+		}
+
+		.logButton{
+			float:right;
+			//left:50%;
+			//margin-left:-55px;
+		}
+
+		.logPanelHeader, .logPanelBody{
+			margin:5px 20px;
+		}
+
+/*		.logPanelHeader{
+			text-align: center;
+		}*/
+	</style>
+		   <div class="logPanel">
+				<div class="logPanelHeader">
+					<div class="logError">{{error}}</div>
+					<img src="{% static "dist/img/logo/logo.png" %}" className="logo" style="margin-left:17%"></img>
+				</div>
+				<div class="logPanelBody">
+					<form action="" method="post">
+						{% csrf_token %}
+						<input type="hidden" name="action" value="login">
+						 <div class="form-group label-floating">
+						 	<label class="control-label" for="focusedInput1">Usuario</label>
+						 	<input type="text" name="username" class="logInput form-control" autofocus>
+						</div>
+						<div class="logPanelFooter">
+							<!--button type="submit">Entrar</button-->
+							<button name="loginSubmit" href="javascript:void(0)" class="btn btn-flat btn-primary logButton">Entrar</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		{% endblock %}
+{% block endjs %}
+{% endblock %}

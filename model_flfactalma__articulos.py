@@ -18,3 +18,7 @@ class sanhigia_pedidos_articulos(flfactalma_articulos, helpers.MixinConAcciones)
     def dameCodBarras(self, oParam):
         return form.iface.dameCodBarras(self, oParam)
 
+    @helpers.decoradores.accion(aqparam=["oParam", "cursor"])
+    def getRerenciasInventario(self, oParam, cursor):
+        return form.iface.getRerenciasInventario(self, oParam, cursor)
+

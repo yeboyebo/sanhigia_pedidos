@@ -33,3 +33,7 @@ class sanhigia_pedidos_lineasregstocks(flfactalma_lineasregstocks, helpers.Mixin
     def fun_referenciaprov(self):
         return form.iface.fun_referenciaprov(self)
 
+    @helpers.decoradores.accion(aqparam=["oParam"])
+    def visibility(self, oParam):
+        return form.iface.visibility(self, oParam)
+

@@ -31,21 +31,22 @@ class sanhigia_pedidos(interna):
         return cantmlote
 
     def sanhigia_pedidos_field_codigolote(self, model):
-        lote = lotes.objects.filter(codlote__exact=model.codlote)
-        codigo = lote[0].codigo
+        # lote = lotes.objects.filter(codlote__exact=model.codlote)
+        # codigo = lote[0].codigo
+        codigo = qsatype.FLUtil.sqlSelect("lotes", "codigo", "codlote = '{}'".format(model.codlote.codlote))
         return codigo
 
     def sanhigia_pedidos_field_caducidadlote(self, model):
-        lote = lotes.objects.filter(codlote__exact=model.codlote)
+        # lote = lotes.objects.filter(codlote__exact=model.codlote)
+        caducidad = qsatype.FLUtil.sqlSelect("lotes", "caducidad", "codlote = '{}'".format(model.codlote.codlote))
         formatofecha = "%d/%m/%Y"
         try:
-            caducidad = lote[0].caducidad.strftime(formatofecha)
+            caducidad = caducidad.strftime(formatofecha)
         except Exception:
             caducidad = None
         return caducidad
 
     def sanhigia_pedidos_cambiarCantidad(self, model, oParam, cursor):
-        print(oParam)
         if ("cantidadmlote" in oParam and oParam["cantidadmlote"] == '0') or ("cantidad" in oParam and oParam["cantidad"] == '0'):
             resul = {}
             resul['status'] = -1

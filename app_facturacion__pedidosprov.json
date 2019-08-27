@@ -11,11 +11,6 @@
             }
         },
         {
-            "type": "updateNode",
-            "path": "/focus",
-            "value": "fdb_codBarras"
-        },
-        {
             "type": "insertAfterNode",
             "path": "/layout/root",
             "value": {
@@ -283,6 +278,11 @@
                     }
                 }
             }
+        },
+        {
+            "type": "updateNode",
+            "path": "/focus",
+            "value": "fdb_codBarras"
         },
         {
             "type": "insertAfterNode",

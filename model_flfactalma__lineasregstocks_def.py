@@ -66,55 +66,27 @@ class sanhigia_pedidos(flfactalma):
                 return False
         return True
 
-    def sanhigia_pedidos_getCodBarrasProv(self, model, oParam, cursor):
-        data = []
-        # if len(oParam['val']) > 35:
-        #     oParam['val'] = oParam['val'][:-32]
-        if not oParam['val']:
-            return data
-        # qsatype.debug(ustr("codigobarrasposterior ", oParam['val']))
-        datos = flfactalma_def.iface.datosLecturaCodBarras(oParam['val'])
-        print("____", datos)
-        referencia = qsatype.FLUtil.sqlSelect(u"articulosprov", u"referencia", ustr(u"codbarrasprov = '", datos["codbarras"], u"'"))
-        print("______", referencia)
-        if not referencia:
-            return data
-        print(cursor)
-        print(oParam)
-        print(model.__dict__)
-        print(cursor.valueBuffer("codinventario"))
-        where = u"codinventario = '" + cursor.valueBuffer("codinventario") + "' AND referencia = '" + referencia + "'"
-        if datos["lote"]:
-            where = where + " AND sh_codigolote = '" + datos["lote"] + "'"
-        where = where + " LIMIT 7"
-        q = qsatype.FLSqlQuery()
-        q.setTablesList(u"lineasregstocks")
-        q.setSelect(u"id, referencia, sh_codigolote")
-        q.setFrom(u"lineasregstocks")
-        q.setWhere(where)
-
-        if not q.exec_():
-            print("Error inesperado")
-            return []
-        if q.size() > 100:
-            print("sale por aqui")
-            return []
-
-        while q.next():
-            data.append({"id": q.value(0), "descripcion": str(q.value(1)) + "_" + str(q.value(2))})
-        return data
-
     def sanhigia_pedidos_fun_referenciaprov(self, model):
+        if not model.referencia:
+            return 0
         q = qsatype.FLSqlQuery()
         q.setTablesList(u"articulosprov")
         q.setSelect(u"refproveedor")
         q.setFrom(u"articulosprov")
-        q.setWhere(u"referencia = UPPER('" + model.referencia.referencia.upper() + "') AND pordefecto = true")
+        q.setWhere("referencia = UPPER('{}') AND pordefecto = true".format(model.referencia.referencia.upper()))
         if not q.exec_():
             return ""
 
         if q.next():
             return q.value(0)
+
+    def sanhigia_pedidos_visibility(self, model, oParam):
+        visible = cacheController.getSessionVariable(ustr(u"visibeLRS_", qsatype.FLUtil.nameUser()))
+        if not visible:
+            cacheController.setSessionVariable(ustr(u"visibeLRS_", qsatype.FLUtil.nameUser()), True)
+        elif visible:
+            cacheController.setSessionVariable(ustr(u"visibeLRS_", qsatype.FLUtil.nameUser()), False)
+        return True
 
     def __init__(self, context=None):
         super(sanhigia_pedidos, self).__init__(context)
@@ -137,9 +109,9 @@ class sanhigia_pedidos(flfactalma):
     def editarCantRegstock(self, model, oParam, cursor):
         return self.ctx.sanhigia_pedidos_editarCantRegstock(model, oParam, cursor)
 
-    def getCodBarrasProv(self, model, oParam, cursor):
-        return self.ctx.sanhigia_pedidos_getCodBarrasProv(model, oParam, cursor)
-
     def fun_referenciaprov(self, model):
         return self.ctx.sanhigia_pedidos_fun_referenciaprov(model)
+
+    def visibility(self, model, oParam):
+        return self.ctx.sanhigia_pedidos_visibility(model, oParam)
 

@@ -30,3 +30,7 @@ class sanhigia_pedidos_pedidosprov(flfacturac_pedidosprov, helpers.MixinConAccio
     def field_colorRow(self):
         return form.iface.field_colorRow(self)
 
+    @helpers.decoradores.accion(miparam=[])
+    def dameTemplateMasterPedidosprov(self):
+        return form.iface.dameTemplateMasterPedidosprov(self)
+

@@ -17,7 +17,7 @@ from YBLEGACY.constantes import *
 class sanhigia_pedidos(interna):
 
     def sanhigia_pedidos_getDesc(self):
-        return None
+        return "nombre"
 
     def __init__(self, context=None):
         super().__init__(context)

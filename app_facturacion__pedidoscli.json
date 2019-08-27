@@ -2,16 +2,6 @@
     "modifications": [
         {
             "type": "insertAfterNode",
-            "path": "/schema/root",
-            "value": {
-                "lineaspedidoscli": {
-                    "rel": "idpedido",
-                    "querystring": {}
-                }
-            }
-        },
-        {
-            "type": "insertAfterNode",
             "path": "/initValidation/root",
             "value": {
                 "error": {
@@ -23,9 +13,14 @@
             }
         },
         {
-            "type": "updateNode",
-            "path": "/focus",
-            "value": "fdb_codBarras"
+            "type": "insertAfterNode",
+            "path": "/schema/root",
+            "value": {
+                "lineaspedidoscli": {
+                    "rel": "idpedido",
+                    "querystring": {}
+                }
+            }
         },
         {
             "type": "insertAfterNode",
@@ -328,6 +323,11 @@
                     }
                 }
             }
+        },
+        {
+            "type": "updateNode",
+            "path": "/focus",
+            "value": "fdb_codBarras"
         },
         {
             "type": "insertAfterNode",

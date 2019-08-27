@@ -6,7 +6,7 @@ class sanhigia_pedidos_inventarios(flfactalma_inventarios, helpers.MixinConAccio
     class Meta:
         proxy = True
 
-    def initValidation(name, data=None):
+    def initValidation(name, data):
         return form.iface.initValidation(name, data)
 
     def getForeignFields(self, template=None):
@@ -15,11 +15,7 @@ class sanhigia_pedidos_inventarios(flfactalma_inventarios, helpers.MixinConAccio
     def field_colorRow(cursor):
         return form.iface.field_colorRow(cursor)
 
-    @helpers.decoradores.accion(aqparam=["oParam"])
-    def visibility(self, oParam):
-        return form.iface.visibility(self, oParam)
-
-    @helpers.decoradores.accion(aqparam=["oParam", "cursor"])
-    def getCodBarrasProv(self, oParam, cursor):
-        return form.iface.getCodBarrasProv(self, oParam, cursor)
+    # @helpers.decoradores.accion(aqparam=["oParam", "cursor"])
+    # def getCodBarrasProv(self, oParam, cursor):
+    #     return form.iface.getCodBarrasProv(self, oParam, cursor)
 
