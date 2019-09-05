@@ -73,7 +73,7 @@
             "layout": {
                 "botonAccion": {
                     "componente": "YBButton",
-                    "prefix": "lineaspedidosprov",
+                    "prefix": "sh_preparaciondepedidos",
                     "label": "ENVIAR",
                     "buttonType": "flat",
                     "action": {
