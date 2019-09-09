@@ -149,7 +149,7 @@ class sanhigia_pedidos(flfacturac):
         query.setSelect(u"idlinea, referencia, cantidad, shcantalbaran, totalenalbaran")
         query.setFrom(u"lineaspedidoscli")
         query.setWhere(where)
-        idLinea = False
+        idLinea = -1
         if query.exec_():
             if query.size() > 1:
                 while query.next():
@@ -159,8 +159,8 @@ class sanhigia_pedidos(flfacturac):
             if query.size() == 1:
                 if query.next():
                     idLinea = query.value(0)
-            if not idLinea:
-                idLinea = query.value(0)
+            # if not idLinea:
+            #     idLinea = query.value(0)
         return idLinea
 
     def sanhigia_pedidos_respuestaAnalizaCodBarras(self, model, oParam, val):
@@ -285,6 +285,7 @@ class sanhigia_pedidos(flfacturac):
 
     def sanhigia_pedidos_pedidoListoPDA(self, model, oParam):
         if "pesobultos" not in oParam:
+            print("_______________AAAAAAAAAAAAAAAAAAAA_______________")
             valor = parseFloat(qsatype.FLUtil.sqlSelect(u"articulos a INNER JOIN lineaspedidoscli l ON a.referencia = l.referencia ", u"SUM(a.peso*l.shcantalbaran)", "l.idpedido = {}".format(model.idpedido), u"articulos,lineaspedidoscli"))
             # valor = qsatype.FLUtil.roundFieldValue(valor, u"albaranescli", u"peso")
             if valor < 1:
@@ -317,6 +318,7 @@ class sanhigia_pedidos(flfacturac):
             ]
             return response
         elif "codagencia" not in oParam:
+            print("_______________BBBBBBBBBBBBBBBBBBBBBB_______________")
             valor = parseFloat(qsatype.FLUtil.sqlSelect(u"lineaspedidoscli", u"SUM((pvptotal / cantidad) * shcantalbaran)", u"idpedido = {} AND shcantalbaran > 0".format(model.idpedido)))
             print("importe ", valor)
             # codAgencia = qsatype.FLUtil.sqlSelect(u"reglas_tarifa", u"codagencia", ustr(u"codpais = '", model.codpais.codpais, u"' AND provincias like '%''", model.idprovincia.idprovincia, "''%' AND (", oParam['pesobultos'], " >= pesodesde and (", oParam['pesobultos'], " <= pesohasta or pesohasta IS NULL)) AND (", oParam['canbultos'], " >= bultosdesde and (", oParam['canbultos'], " <= bultoshasta or bultoshasta IS NULL)) AND (", valor, " >= importedesde and (", valor, " <= importehasta or importehasta IS NULL)) ORDER BY orden ASC"))
@@ -365,6 +367,7 @@ class sanhigia_pedidos(flfacturac):
                 ]
                 return response
             else:
+                print("_______________CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC_______________")
                 tarifaDefecto = ""
                 q = qsatype.FLSqlQuery()
                 q.setTablesList(u"productosagtrans")
@@ -582,7 +585,8 @@ class sanhigia_pedidos(flfacturac):
             curPedido.setValueBuffer("pda", 'Listo PDA')
             if "canbultos" in oParam and "pesobultos" in oParam:
                 curPedido.setValueBuffer("canbultos", oParam['canbultos'])
-                curPedido.setValueBuffer("pesobultos", oParam['pesobultos'])
+                pesobulto = parseFloat(oParam['pesobultos']) / parseFloat(oParam['canbultos'])
+                curPedido.setValueBuffer("pesobultos", pesobulto)
             if "codagencia" in oParam:
                 curPedido.setValueBuffer("codagencia", oParam['codagencia'])
             if "Tarifa" in oParam:

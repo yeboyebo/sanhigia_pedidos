@@ -98,6 +98,11 @@ class sanhigia_pedidos(interna):
             if referencia:
                 oParam["referencia"] = referencia
                 oParam["idlinea"] = pedidoscli.form.iface.dameIdLinea(oParam)
+                if oParam["idlinea"] == -1:
+                    resul = {}
+                    resul['status'] = -1
+                    resul['msg'] = "El estado de preparación del artículo con código de barras {} no está 'En curso'".format(codBarras)
+                    return resul
                 idPedido = qsatype.FLUtil.sqlSelect(u"lineaspedidoscli", u"idpedido", u"idlinea = {}".format(oParam["idlinea"]))
                 oParam["codalmacen"] = qsatype.FLUtil.sqlSelect(u"pedidoscli", u"codalmacen", u"idpedido = {}".format(idPedido))
             else:
