@@ -37,7 +37,7 @@ class sanhigia_pedidos(flfactalma):
         q.setFrom(u"articulos a INNER JOIN lineasregstocks l ON a.referencia = l.referencia")
         q.setWhere(u"l.codinventario = '{0}' AND (UPPER(a.referencia) LIKE '%{1}%' OR UPPER(a.descripcion) LIKE '%{1}%')".format(codinventario, oParam['val'].upper()))
         if not q.exec_():
-            print("Error inesperado")
+            # print("Error inesperado")
             return []
         if q.size() > 200:
             return []

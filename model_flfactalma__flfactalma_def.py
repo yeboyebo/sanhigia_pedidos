@@ -40,7 +40,7 @@ class sanhigia_pedidos(flfactalma):
         q.setFrom(u"articulosprov")
         q.setWhere(u"codproveedor = '" + codproveedor + "' AND referencia = '" + referencia + "'")
         if not q.exec_():
-            print("Error inesperado")
+            # print("Error inesperado")
             return None
 
         if q.next():
@@ -59,7 +59,7 @@ class sanhigia_pedidos(flfactalma):
         q.setWhere(u"codbarrasprov = '" + codbarras + "'")
 
         if not q.exec_():
-            print("Error inesperado")
+            # print("Error inesperado")
             return None, None
 
         if q.size() > 1:
@@ -90,7 +90,7 @@ class sanhigia_pedidos(flfactalma):
         q.setFrom(u"articulosprov")
         q.setWhere(u"codproveedor = '" + codproveedor + "' AND codbarrasprov = '" + codbarras + "'")
         if not q.exec_():
-            print("Error inesperado")
+            # print("Error inesperado")
             return None
 
         if q.next():

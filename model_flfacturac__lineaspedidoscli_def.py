@@ -215,7 +215,7 @@ class sanhigia_pedidos(flfacturac):
             if not qsatype.FLUtil.sqlUpdate(u"pedidoscli", u"codtrabajador", user, "idpedido = {}".format(model.idpedido.idpedido)):
                 return False
             # qsatype.FLUtil.execSql(ustr(u"UPDATE pedidoscli set codtrabajador = '", user, u"' WHERE idpedido = '", str(model.idpedido.idpedido), "'"))
-            print("trabajado cambiado")
+            # print("trabajado cambiado")
             # print("______", nombre)
             # resul['msg'] = "El pedido esta asignado al usuario: " + nombre
             # return resul
@@ -562,7 +562,7 @@ class sanhigia_pedidos(flfacturac):
             idStock = qsatype.FLUtil.sqlSelect(u"stocks", u"idstock", ustr(u"codalmacen = 'ALM' AND referencia = '", ref, u"'"))
             if porLotes:
                 lineaLote = flfacturac_def.iface.generarLineaRegStockLote(curInventario, ref, oParam["codlote"], oParam['cantidadStock'])
-                print("tengo linea lote no")
+                # print("tengo linea lote no")
                 if not lineaLote:
                     return False
             else:

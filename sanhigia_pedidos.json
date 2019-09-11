@@ -73,6 +73,10 @@
             {
                 "name": "app_portal__views_portal.py",
                 "path": "apps/portal/viewset/"
+            },
+            {
+                "path": "models/fllogin/",
+                "name": "model_fllogin__fllogin_def.py"
             }
         ],
         "patchJson": [

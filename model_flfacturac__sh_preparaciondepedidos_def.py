@@ -126,7 +126,7 @@ class sanhigia_pedidos(interna):
             else:
                 if "lote" in datos and datos["lote"]:
                     codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", u"codigo = '{}' AND referencia = '{}'  AND enalmacen > 0 ".format(datos["lote"], oParam['referencia']))
-                    print("_____codlote3____", codLote)
+                    # print("_____codlote3____", codLote)
                     val = pedidoscli.form.iface.insertarMovilote(oParam['idlinea'], oParam['referencia'], cantidad, oParam["codalmacen"], codLote)
                     if val['status'] == 0:
                         return True

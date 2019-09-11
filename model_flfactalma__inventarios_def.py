@@ -8,7 +8,7 @@ class sanhigia_pedidos(flfactalma):
 
     def sanhigia_pedidos_initValidation(self, name, data=None):
         response = True
-        print(data["DATA"]["codinventario"])
+        # print(data["DATA"]["codinventario"])
         cacheController.setSessionVariable(ustr(u"inventarios_", qsatype.FLUtil.nameUser()), data["DATA"]["codinventario"])
         return response
 

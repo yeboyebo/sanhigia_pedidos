@@ -46,6 +46,20 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/querystring/o_1",
+            "value": {
+                "o_2": "-codigo"
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/querystring/o_2",
+            "value": {
+                "o_3": "-sh_estadopreparacion"
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/layout/root",
             "value": {
                 "groupBoxAcciones": {

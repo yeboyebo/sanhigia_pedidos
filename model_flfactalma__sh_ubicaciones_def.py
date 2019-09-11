@@ -28,7 +28,7 @@ class sanhigia_pedidos(interna):
         q.setWhere(u"codubicacion LIKE '%" + oParam['val'] + "%'")
 
         if not q.exec_():
-            print("Error inesperado")
+            # print("Error inesperado")
             return []
         if q.size() > 100:
             return []

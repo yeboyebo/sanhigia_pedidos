@@ -9,7 +9,7 @@ from models.flfactalma import flfactalma_def
 class sanhigia_pedidos(flfacturac):
 
     def sanhigia_pedidos_procesaCodBarras(self, model, oParam):
-        print(oParam)
+        # print(oParam)
         # Suma 1
         cantidad = 1
         # qsatype.debug(ustr("lencodbarras ", len(oParam['codbarras'])))
@@ -587,7 +587,7 @@ class sanhigia_pedidos(flfacturac):
             porLotes = qsatype.FLUtil.sqlSelect(u"articulos", u"porlotes", "referencia = '{}'".format(referencia))
             if not porLotes:
                 # 2.1.1 actualizo línea
-                print("_____idlinea____", idLinea)
+                # print("_____idlinea____", idLinea)
                 shcantidad = qsatype.FLUtil.sqlSelect(u"lineaspedidosprov", u"shcantalbaran", "idlinea = {}".format(idLinea)) or 0
                 shcantidad = shcantidad + 1
                 if not qsatype.FLUtil.sqlUpdate(u"lineaspedidosprov", u"shcantalbaran", shcantidad, u"idlinea = {}".format(idLinea)):
@@ -793,7 +793,7 @@ class sanhigia_pedidos(flfacturac):
         return None
 
     def sanhigia_pedidos_agruparPedidos(self, model, oParam):
-        print("agruparPedidos___pedidosprov: ", oParam)
+        # print("agruparPedidos___pedidosprov: ", oParam)
         response = {}
         if "selecteds" not in oParam or not oParam['selecteds']:
             response['status'] = -1
@@ -818,7 +818,6 @@ class sanhigia_pedidos(flfacturac):
         return response
 
     def sanhigia_pedidos_dameTemplateMasterPedidosprov(self, model):
-        print("dameTemplateMasterPedidosprov")
         return '/facturacion/pedidosprov/master'
 
     def __init__(self, context=None):

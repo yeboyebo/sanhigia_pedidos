@@ -59,7 +59,7 @@ class sanhigia_pedidos(flfacturac):
 
         # Si idlinea en oParam significa que me estan enviando un codigo de barras para asociar a un articulo de la linea
         if "idlinea" in oParam and "codproveedor" not in oParam:
-            print("viene por aqui 2")
+            # print("viene por aqui 2")
             # linea = lineaspedidoscli.objects.get(pk=oParam['idlinea'])
             referencia = qsatype.FLUtil.sqlSelect("lineaspedidoscli", "referencia", "idlinea = {}".format(oParam['idlinea']))
             # proveedor = articulosprov.objects.filter(referencia__exact=linea.referencia)
@@ -173,8 +173,8 @@ class sanhigia_pedidos(flfacturac):
         # -1 Si el codigo de barras no pertenece a nigun articulo y algun articulo del pedido no tienen codigo de barras
         if val['status'] == -1:
             opts = []
-            print("________________")
-            print(val)
+            # print("________________")
+            # print(val)
             query = val['param']
             while query.next():
                 opt = {}
@@ -285,7 +285,7 @@ class sanhigia_pedidos(flfacturac):
 
     def sanhigia_pedidos_pedidoListoPDA(self, model, oParam):
         if "pesobultos" not in oParam:
-            print("_______________AAAAAAAAAAAAAAAAAAAA_______________")
+            # print("_______________AAAAAAAAAAAAAAAAAAAA_______________")
             valor = parseFloat(qsatype.FLUtil.sqlSelect(u"articulos a INNER JOIN lineaspedidoscli l ON a.referencia = l.referencia ", u"SUM(a.peso*l.shcantalbaran)", "l.idpedido = {}".format(model.idpedido), u"articulos,lineaspedidoscli"))
             # valor = qsatype.FLUtil.roundFieldValue(valor, u"albaranescli", u"peso")
             if valor < 1:
@@ -318,9 +318,9 @@ class sanhigia_pedidos(flfacturac):
             ]
             return response
         elif "codagencia" not in oParam:
-            print("_______________BBBBBBBBBBBBBBBBBBBBBB_______________")
+            # print("_______________BBBBBBBBBBBBBBBBBBBBBB_______________")
             valor = parseFloat(qsatype.FLUtil.sqlSelect(u"lineaspedidoscli", u"SUM((pvptotal / cantidad) * shcantalbaran)", u"idpedido = {} AND shcantalbaran > 0".format(model.idpedido)))
-            print("importe ", valor)
+            # print("importe ", valor)
             # codAgencia = qsatype.FLUtil.sqlSelect(u"reglas_tarifa", u"codagencia", ustr(u"codpais = '", model.codpais.codpais, u"' AND provincias like '%''", model.idprovincia.idprovincia, "''%' AND (", oParam['pesobultos'], " >= pesodesde and (", oParam['pesobultos'], " <= pesohasta or pesohasta IS NULL)) AND (", oParam['canbultos'], " >= bultosdesde and (", oParam['canbultos'], " <= bultoshasta or bultoshasta IS NULL)) AND (", valor, " >= importedesde and (", valor, " <= importehasta or importehasta IS NULL)) ORDER BY orden ASC"))
             if oParam['canbultos'] is None:
                 oParam['canbultos'] = 0
@@ -367,7 +367,7 @@ class sanhigia_pedidos(flfacturac):
                 ]
                 return response
             else:
-                print("_______________CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC_______________")
+                # print("_______________CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC_______________")
                 tarifaDefecto = ""
                 q = qsatype.FLSqlQuery()
                 q.setTablesList(u"productosagtrans")
@@ -436,7 +436,7 @@ class sanhigia_pedidos(flfacturac):
                 ]
                 return response
         elif "Tarifa" not in oParam:
-            print("_______________1_______________")
+            # print("_______________1_______________")
             tarifaDefecto = ""
             q = qsatype.FLSqlQuery()
             q.setTablesList(u"productosagtrans")
@@ -505,7 +505,7 @@ class sanhigia_pedidos(flfacturac):
             ]
             return response
         else:
-            print("____________2_______________")
+            # print("____________2_______________")
             if oParam['codagencia'] != qsatype.FLUtil.sqlSelect(u"productosagtrans", u"codagencia", u"codproductoagt = '{}'".format(oParam['Tarifa'])):
                 codTarifa = qsatype.FLUtil.sqlSelect(u"agenciastrans", u"codproductoagtdefecto", u"codagencia = '{}'".format(oParam['codagencia']))
                 # codzona = qsatype.FLUtil.sqlSelect("provincias", "codigo", ustr(u"idprovincia = '", model.idprovincia, "'"))
@@ -671,7 +671,7 @@ class sanhigia_pedidos(flfacturac):
 
     def sanhigia_pedidos_insertarMovilote(self, idLinea, referencia, cantidad, codAlmacen, codLote):
         resul = {}
-        print("idLinea", idLinea, "referencia", referencia, "cantidad", cantidad, "codAlmacen", codAlmacen, "codLote", codLote)
+        # print("idLinea", idLinea, "referencia", referencia, "cantidad", cantidad, "codAlmacen", codAlmacen, "codLote", codLote)
         # lo que tenemos es el codigo de lotes pero lo que se inserta es el campo codlote de lotes, vamos a buscar el primer codlote de la tabla lotes que tenga como codigo el lote que hemos ledio y que tenga stock
         # codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", ustr(u"codigo = '", codigo, u"' AND enalmacen > 0 "))
         if codLote == u"" or not codLote:
@@ -691,9 +691,9 @@ class sanhigia_pedidos(flfacturac):
         hoy = qsatype.Date()
         # idmovilote = qsatype.FLUtil.sqlSelect(u"movilote", u"id", ustr(u"idlineapc = '", idLinea, u"' AND fecha = '", hoy, u"' AND codlote = '" + codLote + "' AND idlineaac is null"))
         idmovilote = qsatype.FLUtil.sqlSelect(u"movilote", u"id", u"idlineapc = '{}' AND fecha = '{}'  AND codlote = '{}' AND idlineaac is null".format(idLinea, hoy, codLote))
-        print("______________", idmovilote)
+        # print("______________", idmovilote)
         if idmovilote:
-            print("por aqui")
+            # print("por aqui")
             curMovilote = qsatype.FLSqlCursor(u"movilote")
             curMovilote.select("id = '{}'".format(idmovilote))
             if not curMovilote.first():
@@ -710,7 +710,7 @@ class sanhigia_pedidos(flfacturac):
                 resul['param'] = idLinea
                 return resul
         else:
-            print("no por aqui", cantidad, idStock, codLote, idLinea)
+            # print("no por aqui", cantidad, idStock, codLote, idLinea)
             curMovilote = qsatype.FLSqlCursor(u"movilote")
             curMovilote.setModeAccess(curMovilote.Insert)
             curMovilote.refreshBuffer()
@@ -721,7 +721,7 @@ class sanhigia_pedidos(flfacturac):
             curMovilote.setValueBuffer("docorigen", "PC")
             curMovilote.setValueBuffer("fecha", hoy)
             curMovilote.setValueBuffer("idlineapc", idLinea)
-            print("vamos a commit", curMovilote.valueBuffer("codlote"))
+            # print("vamos a commit", curMovilote.valueBuffer("codlote"))
             if not curMovilote.commitBuffer():
                 resul['status'] = -3
                 resul['msg'] = "Error al crear movimiento de lote"
@@ -745,8 +745,8 @@ class sanhigia_pedidos(flfacturac):
             2.2. El barcode SI es cuadrado --> Tengo lote --> Inserto l?ea en movilote y devuelvo true.
 
         '''
-        print("analizacodbarras", idlineapedido)
-        print("_______________________________________________")
+        # print("analizacodbarras", idlineapedido)
+        # print("_______________________________________________")
         referencia = ""
         idLinea = idlineapedido
         resul = {}
@@ -813,7 +813,7 @@ class sanhigia_pedidos(flfacturac):
             return resul
         # si existe solo una referencia para el c?igo de barras que exista en el pedido , cogeremos esa
         if not idlineapedido:
-            print("no entra aqui?????")
+            # print("no entra aqui?????")
             query = qsatype.FLSqlQuery()
             query.setTablesList(u"lineaspedidoscli")
             query.setSelect(u"idlinea, referencia, cantidad, shcantalbaran")
@@ -828,7 +828,7 @@ class sanhigia_pedidos(flfacturac):
                             referencia = query.value(1)
                             idLinea = query.value(0)
                     if not idLinea:
-                        print("aqui al menos")
+                        # print("aqui al menos")
                         referencia = query.value(1)
                         idLinea = query.value(0)
                 if query.size() == 1:
@@ -839,7 +839,7 @@ class sanhigia_pedidos(flfacturac):
                 resul['status'] = -3
                 resul['msg'] = "Error inesperado"
                 return resul
-            print("?????????????", idLinea)
+            # print("?????????????", idLinea)
 
             # query = qsatype.FLSqlQuery()
             # query.setTablesList(u"articulosprov,lineaspedidoscli")
@@ -888,7 +888,7 @@ class sanhigia_pedidos(flfacturac):
                     if query.size() == 1:
                         if query.next():
                             idStock = qsatype.FLUtil.sqlSelect(u"stocks", u"idstock", u"referencia = '{}' AND codalmacen = '{}'".format(referencia, codAlmacen))
-                            print("aqui tengo que hacer el movimiento", query.value(0))
+                            # print("aqui tengo que hacer el movimiento", query.value(0))
                             codLote = query.value("codlote")
                             # codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", ustr(u"codigo = '", query.value(0), u"'"))
                             hoy = qsatype.Date()
@@ -960,7 +960,7 @@ class sanhigia_pedidos(flfacturac):
         else:
             # 2.2 El barcode es cuadrado
             codigo = datos['lote']
-            print("por aqui ????_______________")
+            # print("por aqui ????_______________")
             # lo que tenemos es el codigo de lotes pero lo que se inserta es el campo codlote de lotes, vamos a buscar el primer codlote de la tabla lotes que tenga como codigo el lote que hemos ledio y que tenga stock
             codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", u"codigo = '{}' and referencia = '{}'".format(codigo, referencia))
             if not codLote:
@@ -1008,7 +1008,7 @@ class sanhigia_pedidos(flfacturac):
             hoy = qsatype.Date()
             idmovilote = qsatype.FLUtil.sqlSelect(u"movilote", u"id", ustr(u"idlineapc = '", idLinea, u"' AND fecha = '", hoy, u"' AND codlote = '" + codLote + "' AND idlineaac is null"))
             cantidad = cantidad * -1
-            print(idStock, "idmovilote", idmovilote, "codlote", codLote)
+            # print(idStock, "idmovilote", idmovilote, "codlote", codLote)
             if idmovilote:
                 curMovilote = qsatype.FLSqlCursor(u"movilote")
                 curMovilote.select("id = '" + str(idmovilote) + "'")
@@ -1053,7 +1053,7 @@ class sanhigia_pedidos(flfacturac):
         resul = {}
         # codigo = lote
         # lo que tenemos es el codigo de lotes pero lo que se inserta es el campo codlote de lotes, vamos a buscar el primer codlote de la tabla lotes que tenga como codigo el lote que hemos ledio y que tenga stock
-        print("analiza codbarraslote", referencia)
+        # print("analiza codbarraslote", referencia)
         codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", ustr(u"codigo = '", codigo, u"' AND enalmacen > 0 AND referencia ='", referencia, "'"))
         if codLote == u"" or not codLote:
             resul['status'] = -3
@@ -1179,9 +1179,9 @@ class sanhigia_pedidos(flfacturac):
             response['msg'] = "Debes seleccionar al menos un pedido"
             return response
 
-        print("_____generarpreparacion____")
+        # print("_____generarpreparacion____")
         preparacion = self.sanhigia_pedidos_generaPreparaciondepedidos(model, oParam["data"])
-        print(preparacion)
+        # print(preparacion)
         if not preparacion:
             response['status'] = -1
             response['msg'] = "Error al generar la agrupación"
@@ -1196,7 +1196,7 @@ class sanhigia_pedidos(flfacturac):
         return response
 
     def sanhigia_pedidos_generaPreparaciondepedidos(self, model, oParam):
-        print(oParam)
+        # print(oParam)
         resul = {}
         ubicacionini = oParam["ubicacionini"]
         ubicacionfin = oParam["ubicacionfin"]
@@ -1216,13 +1216,13 @@ class sanhigia_pedidos(flfacturac):
         query.setFrom(u"pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia  ")
         # query.setWhere(ustr(u"p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN (", pedidoscli, ") AND u.codubicacion >= '", str(ubicacionini), "' AND u.codubicacion <= '", str(ubicacionfin), "' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso')"))
         query.setWhere(u"p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}'  AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso')".format(pedidoscli, ubicacionini, ubicacionfin))
-        print("generaPreparaciondepedidos___Consulta: ", query.sql())
+        # print("generaPreparaciondepedidos___Consulta: ", query.sql())
         if query.exec_():
             if query.size() >= 1:
-                print("hay mas de uno", query.size())
+                # print("hay mas de uno", query.size())
                 curPreparaciondepedidos = qsatype.FLSqlCursor(u"sh_preparaciondepedidos")
                 codpreparacion = qsatype.FLUtil.nextCounter(u"codpreparaciondepedido", curPreparaciondepedidos)
-                print("______", codpreparacion)
+                # print("______", codpreparacion)
                 # if not qsatype.FLUtil.execSql(ustr(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='", str(codpreparacion), "' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia   WHERE p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN (", pedidoscli, ") AND u.codubicacion >= '", str(ubicacionini), "' AND u.codubicacion <= '", str(ubicacionfin), "' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso'))")):
                 if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{}' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia  WHERE p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso'))".format(codpreparacion, pedidoscli, ubicacionini, ubicacionfin)):
                     return False
@@ -1240,13 +1240,13 @@ class sanhigia_pedidos(flfacturac):
                 resul["preparacion"] = codpreparacion
                 return resul
             else:
-                print("no se encuentra")
+                # print("no se encuentra")
                 resul['status'] = -2
                 resul['msg'] = "No se encuentran elementos que cumplan los requisitos"
                 return resul
                 # return False
         else:
-            print("algo fallo")
+            # print("algo fallo")
             resul['status'] = -2
             resul['msg'] = "No se encuentran elementos que cumplan los requisitos"
             return resul
@@ -1318,10 +1318,10 @@ class sanhigia_pedidos(flfacturac):
         # query.setWhere(ustr(u"p.servido like 'Parcial' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '", str(ubicacionini), "' AND u.codubicacion <= '", str(ubicacionfin), "' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.totalenalbaran <> l.cantidad AND s.disponible > 0"))
         if query.exec_():
             if query.size() >= 1:
-                print("hay mas de uno", query.size())
+                # print("hay mas de uno", query.size())
                 curPreparaciondepedidos = qsatype.FLSqlCursor(u"sh_preparaciondepedidos")
                 codpreparacion = qsatype.FLUtil.nextCounter(u"codpreparaciondepedido", curPreparaciondepedidos)
-                print("______", codpreparacion)
+                # print("______", codpreparacion)
                 if not codpreparacion:
                     return False
                 if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{}' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia  LEFT JOIN stocks s ON l.referencia = s.referencia WHERE p.servido in ('No','Parcial') AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso')  AND l.totalenalbaran <> l.cantidad AND s.disponible > 0)".format(codpreparacion, ubicacionini, ubicacionfin)):
@@ -1341,13 +1341,13 @@ class sanhigia_pedidos(flfacturac):
                 resul["preparacion"] = codpreparacion
                 return resul
             else:
-                print("no se encuentra")
+                # print("no se encuentra")
                 resul['status'] = -2
                 resul['msg'] = "No se encuentran elementos que cumplan los requisitos"
                 return resul
                 # return False
         else:
-            print("algo fallo")
+            # print("algo fallo")
             resul['status'] = -2
             resul['msg'] = "No se encuentran elementos que cumplan los requisitos"
             return resul
@@ -1400,7 +1400,7 @@ class sanhigia_pedidos(flfacturac):
             return response
 
         preparacion = self.sanhigia_pedidos_generaPreparaciondepedidosConStock(model, oParam["data"])
-        print("_______", preparacion)
+        # print("_______", preparacion)
         if not preparacion:
             response['status'] = -1
             response['msg'] = "Error al generar la agrupación"
@@ -1423,9 +1423,9 @@ class sanhigia_pedidos(flfacturac):
             return response
         response = {}
 
-        print("_____actualizarTrabajador____")
+        # print("_____actualizarTrabajador____")
         preparacion = self.sanhigia_pedidos_actualizarTrabajador(model, oParam)
-        print(preparacion)
+        # print(preparacion)
         if not preparacion:
             response['status'] = -1
             response['msg'] = "Error al quitar el trabajador"
@@ -1437,7 +1437,7 @@ class sanhigia_pedidos(flfacturac):
         pedidoscli = "'" + "','".join(oParam['selecteds'].split(",")) + "'"
         if not qsatype.FLUtil.sqlUpdate(u"pedidoscli", u"codtrabajador", u"", u"servido not like 'Sí' AND pda IN ('Pendiente') AND idpedido IN ({})".format(pedidoscli)):
             return False
-        print("sale pro aqui????")
+        # print("sale pro aqui????")
         return True
 
     def __init__(self, context=None):

@@ -161,7 +161,7 @@ class sanhigia_pedidos(flfacturac):
     def sanhigia_pedidos_initValidation(self, name, data):
         response = True
         if name == "grupopedidos":
-            print(data)
+            # print(data)
             cacheController.setSessionVariable(ustr(u"grupoPedidos_", qsatype.FLUtil.nameUser()), data['params']['selecteds'])
             return response
         return response

@@ -44,6 +44,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/querystring/o_1",
+            "value": {
+                "o_2": "-codigo"
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/layout/root",
             "value": {
                 "masterPedidosprovGrid": {

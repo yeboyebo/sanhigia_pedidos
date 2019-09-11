@@ -248,8 +248,8 @@ class sanhigia_pedidos(interna):
                 if not idLineaRegStock:
                     return False
                 return idLineaRegStock
-        else:
-            print("algo fallo en query???")
+        # else:
+            # print("algo fallo en query???")
         return False
 
     def crearLineaRegStock(self, cursor, oParam):
@@ -276,7 +276,7 @@ class sanhigia_pedidos(interna):
         curLineaRegStock.setValueBuffer(u"sh_estado", u"Cerrada")
 
         if not curLineaRegStock.commitBuffer():
-            print("error commit regstock")
+            # print("error commit regstock")
             return False
         if curLineaRegStock.valueBuffer(u"sh_codlote"):
             idmovilote = qsatype.FactoriaModulos.get('flfactalma').iface.controlRegStockLote(curLineaRegStock)
