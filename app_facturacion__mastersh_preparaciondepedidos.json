@@ -12,7 +12,12 @@
             "class": "claseGrid",
             "label": "Preparación de pedidos",
             "prefix": "sh_preparaciondepedidos",
-            "filter": "buscador",
+            "buscador": true,
+            "filter": {
+                "fecha": {
+                    "filterType": "interval"
+                }
+            },
             "columns": [
                 {"tipo": "field", "listpos": "title", "key": "codpreparaciondepedido", "width": 120},
                 {"tipo": "field", "listpos": "subtitle", "key": "descripcion"},

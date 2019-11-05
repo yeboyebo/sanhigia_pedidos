@@ -96,7 +96,12 @@
                     "class": "claseGrid",
                     "label": "Pedidos",
                     "prefix": "pedidoscli",
-                    "filter": "buscador",
+                    "buscador": true,
+                    "filter": {
+                        "fecha": {
+                            "filterType": "interval"
+                        }
+                    },
                     "colorRowField": "rowColor",
                     "multiselectable": true,
                     "columns": [
