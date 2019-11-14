@@ -18,28 +18,12 @@
             "type": "insertAfterNode",
             "path": "/querystring/p_c",
             "value": {
-                "s_servido__in": [
-                    "No",
-                    "Parcial"
-                ]
+                "f_pedidosNoBorradores": null
             }
         },
         {
             "type": "insertAfterNode",
-            "path": "/querystring/s_servido__in",
-            "value": {
-                "s_pda__in": [
-                    "Pendiente",
-                    "Listo PDA",
-                    "Preparado",
-                    "Albaranado",
-                    "Parcial"
-                ]
-            }
-        },
-        {
-            "type": "insertAfterNode",
-            "path": "/querystring/s_pda__in",
+            "path": "/querystring/f_pedidosNoBorradores",
             "value": {
                 "o_1": "-fecha"
             }

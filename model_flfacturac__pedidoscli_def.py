@@ -1113,9 +1113,23 @@ class sanhigia_pedidos(flfacturac):
 
     def sanhigia_pedidos_getFilters(self, model, name, template=None):
         filters = []
+        if name == 'pedidosNoBorradores':
+            acodpedido = []
+            q = qsatype.FLSqlQuery()
+            q.setTablesList(u"pedidoscli")
+            q.setSelect(u"codigo")
+            q.setFrom(u"pedidoscli")
+            q.setWhere(u"pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Albaranado', 'Parcial') AND servido IN ('No', 'Parcial') AND (sh_estadopago NOT IN ('Borrador', 'Borrador con promocion') OR sh_estadopago is null)")
+            if not q.exec_():
+                return []
+            # if q.size() > 100:
+            #     return []
+            while q.next():
+                acodpedido.append(q.value("codigo"))
+            filters.append({'criterio': 'codigo__in', 'valor': acodpedido, 'tipo': 'q'})
         if name == 'nocompletados':
-
-            return [{'criterio': 'codagente__in', 'valor': [agente[0].codagente]}]
+            filters.append({'criterio': 'codagente__in', 'valor': [agente[0].codagente]})
+            # return [{'criterio': 'codagente__in', 'valor': [agente[0].codagente]}]
         return filters
 
     def sanhigia_pedidos_agruparPedidos(self, model, oParam):
@@ -1215,7 +1229,7 @@ class sanhigia_pedidos(flfacturac):
         query.setSelect(u"l.idlinea")
         query.setFrom(u"pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia  ")
         # query.setWhere(ustr(u"p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN (", pedidoscli, ") AND u.codubicacion >= '", str(ubicacionini), "' AND u.codubicacion <= '", str(ubicacionfin), "' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso')"))
-        query.setWhere(u"p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}'  AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso')".format(pedidoscli, ubicacionini, ubicacionfin))
+        query.setWhere(u"p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}'  AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null)".format(pedidoscli, ubicacionini, ubicacionfin))
         # print("generaPreparaciondepedidos___Consulta: ", query.sql())
         if query.exec_():
             if query.size() >= 1:
@@ -1314,7 +1328,7 @@ class sanhigia_pedidos(flfacturac):
         query.setTablesList(u"pedidoscli,lineaspedidoscli, ubicacionesarticulo")
         query.setSelect(u"l.idlinea")
         query.setFrom(u"pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia LEFT JOIN stocks s ON l.referencia = s.referencia")
-        query.setWhere(u"p.servido in ('No','Parcial') AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.totalenalbaran <> l.cantidad AND s.disponible > 0".format(ubicacionini, ubicacionfin))
+        query.setWhere(u"p.servido in ('No','Parcial') AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.totalenalbaran <> l.cantidad AND s.disponible > 0 AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null)".format(ubicacionini, ubicacionfin))
         # query.setWhere(ustr(u"p.servido like 'Parcial' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '", str(ubicacionini), "' AND u.codubicacion <= '", str(ubicacionfin), "' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.totalenalbaran <> l.cantidad AND s.disponible > 0"))
         if query.exec_():
             if query.size() >= 1:
