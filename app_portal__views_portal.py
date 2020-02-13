@@ -30,7 +30,6 @@ class sanhigia_pedidos(yblogin):
 
     def sanhigia_pedidos_login(self, request, error=None):
         """ Peticion defecto"""
-        print("peticion login")
         if not error:
             error = ''
         return render(request, 'portal/login.html', {'error': error})
