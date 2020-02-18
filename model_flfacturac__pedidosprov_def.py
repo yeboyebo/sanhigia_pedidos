@@ -393,7 +393,7 @@ class sanhigia_pedidos(flfacturac):
         ]
 
     def sanhigia_pedidos_creaLote(self, codigo, caducidad, referencia):
-        codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", u"codigo = '{}'".format(codigo))
+        codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", u"codigo = '{0}' AND referencia = '{1}' AND caducidad = '{2}'".format(codigo, referencia, caducidad))
         if not codLote:
             query = qsatype.FLSqlQuery()
             query.setTablesList(u"articulos")
