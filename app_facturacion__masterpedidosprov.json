@@ -58,7 +58,25 @@
                     "class": "claseGrid",
                     "label": "Pedidos de proveedores",
                     "prefix": "pedidosprov",
-                    "filter": "buscador",
+                    "cansavefilter": false,
+                    "buscador": {
+                        "fields": [
+                            "codigo"
+                        ]
+                    },
+                    "filter": {
+                        "proyecto": {
+                            "label": "Proveedores",
+                            "filterType": "custom",
+                            "tipo": 55,
+                            "rel": "proveedores",
+                            "key": "codproveedor",
+                            "tofield": "codproveedor",
+                            "desc": "nombre",
+                            "fN": "codproveedor",
+                            "showpk": false
+                        }
+                    },
                     "multiselectable": true,
                     "colorRowField": "rowColor",
                     "columns": [
