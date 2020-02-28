@@ -11,7 +11,7 @@
     },
     "initValidation": {},
     "focus": "fdb_codBarras",
-    "layout": {    	
+    "layout": {     
         "formRecordPreparacion": {
             "prefix": "sh_preparaciondepedidos",
             "componente": "YBForm",
@@ -98,6 +98,30 @@
             "colorRowField": "rowColor",
             "type": "query",
             "columns": [
+                {
+                    "tipo": "act",
+                    "key": "inventariar",
+                    "label": "Inventario al vuelo",
+                    "success": [
+                        {"slot": "refrescar"},
+                        {"receiver": "fdb_codBarras", "slot": "select"}
+                    ]
+                },
+                {
+                    "tipo": "act",
+                    "key": "cerrarLinea",
+                    "label": "cerrar Linea",
+                    "success": [
+                        {"slot": "refrescar"},
+                        {"receiver": "fdb_codBarras", "slot": "select"}
+                    ]
+                },
+                {
+                    "tipo": "act",
+                    "key": "verpedido",
+                    "label": "Ver Pedido",
+                    "success": []
+                },
                 {"tipo": "field", "key": "lineaspedidoscli.cantidad", "label": "Cant", "width": 50},
                 {"tipo": "field", "key": "lineaspedidoscli.cantidad - lineaspedidoscli.totalenalbaran", "label": "Pte.", "width": 50},
                 {
@@ -136,31 +160,7 @@
                 {"tipo": "field", "key": "lineaspedidoscli.cerradapda", "width": 60},
                 {"tipo": "field", "key": "stocks.cantidad", "label":"Stock", "width": 58},
                 {"tipo": "field", "key": "stocks.disponible", "label":"Disp.", "width": 58},
-                {"tipo": "field", "key": "lineaspedidoscli.referencia", "width": 110},
-                {
-                    "tipo": "act",
-                    "key": "inventariar",
-                    "label": "Inventario al vuelo",
-                    "success": [
-                        {"slot": "refrescar"},
-                        {"receiver": "fdb_codBarras", "slot": "select"}
-                    ]
-                },
-                {
-                    "tipo": "act",
-                    "key": "cerrarLinea",
-                    "label": "cerrar Linea",
-                    "success": [
-                        {"slot": "refrescar"},
-                        {"receiver": "fdb_codBarras", "slot": "select"}
-                    ]
-                },
-                {
-                    "tipo": "act",
-                    "key": "verpedido",
-                    "label": "Ver Pedido",
-                    "success": []
-                }
+                {"tipo": "field", "key": "lineaspedidoscli.referencia", "width": 110}
             ],
             "rowclick": "gotoMoviloteQuery",
             "accionesGrid": []
