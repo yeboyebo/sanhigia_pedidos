@@ -72,7 +72,7 @@ class sanhigia_pedidos(interna):
     def sanhigia_pedidos_fun_metadata(self, model):
         porlotes = qsatype.FLUtil.sqlSelect("articulos", "porlotes", "referencia = '{}'".format(model["lineaspedidoscli.referencia"]))
         if not porlotes:
-            return [{'colKey': 'shcantalbaran', 'colEditable': True}]
+            return [{'colKey': 'lineaspedidoscli.shcantalbaran', 'colEditable': True}]
         else:
             return []
 
