@@ -12,6 +12,22 @@
     "initValidation": {},
     "focus": "fdb_codBarras",
     "layout": {     
+        "volverButton": {
+            "componente": "YBButton",
+            "title": "Volver",
+            "prefix": "gt_tareas",
+            "icon": "arrow_back",
+            "className": "floatLeft",
+            "buttonType": "icon",
+            "style": {
+                "marginRight": "5px",
+                "marginTop":"15px"
+            },
+            "action": {
+                "key": "volver",
+                "success": [{"slot": "return"}]
+            }
+        },
         "formRecordPreparacion": {
             "prefix": "sh_preparaciondepedidos",
             "componente": "YBForm",

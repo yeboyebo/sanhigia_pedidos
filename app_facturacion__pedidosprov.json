@@ -18,12 +18,32 @@
                     "componente": "YBGroupBox",
                     "className": "class",
                     "layout": {
+                        "volverButton": {
+                            "componente": "YBButton",
+                            "title": "Volver",
+                            "prefix": "gt_tareas",
+                            "icon": "arrow_back",
+                            "className": "floatLeft",
+                            "buttonType": "icon",
+                            "style": {
+                                "marginRight": "5px",
+                                "marginTop": "15px"
+                            },
+                            "action": {
+                                "key": "volver",
+                                "success": [
+                                    {
+                                        "slot": "return"
+                                    }
+                                ]
+                            }
+                        },
                         "listoPDAButton": {
                             "componente": "YBButton",
                             "prefix": "pedidosprov",
                             "icon": "send",
                             "label": "Listo PDA",
-                            "className": "floatRight_",
+                            "className": "floatRight",
                             "buttonType": "flat",
                             "action": {
                                 "key": "listoPDA",
