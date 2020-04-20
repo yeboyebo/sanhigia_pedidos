@@ -1133,15 +1133,20 @@ class sanhigia_pedidos(flfacturac):
         return filters
 
     def sanhigia_pedidos_agruparPedidos(self, model, oParam):
-        # print(oParam)
+        print(oParam)
         response = {}
         if ("selecteds" not in oParam or not oParam['selecteds']) and "data" not in oParam:
             response['status'] = -1
             response['msg'] = "Debes seleccionar pedido Desde y Hasta"
             return response
-        if "data" not in oParam:
+        # or ("data" in oParam and not oParam["data"]["descripcion"])
+        if "data" not in oParam or ("data" in oParam and not oParam["data"]["descripcion"]):
             response['status'] = -1
-            response['data'] = {"selecteds": oParam['selecteds']}
+            if "data" in oParam and not oParam["data"]["descripcion"]:
+                response["title"] = "Campo descripción es obligatorio"
+                response['data'] = {"selecteds": oParam["data"]['selecteds'], "ubicacionini": oParam["data"]["ubicacionini"], "ubicacionfin": oParam["data"]["ubicacionfin"]}
+            else:
+                response['data'] = {"selecteds": oParam['selecteds']}
             response['params'] = [
                 {
                     "componente": "YBFieldDB",
@@ -1171,7 +1176,7 @@ class sanhigia_pedidos(flfacturac):
                 },
                 {
                     "tipo": 3,
-                    "required": False,
+                    "required": True,
                     "verbose_name": "Descripción",
                     "key": "descripcion",
                     "visible": True,
@@ -1210,61 +1215,56 @@ class sanhigia_pedidos(flfacturac):
         return response
 
     def sanhigia_pedidos_generaPreparaciondepedidos(self, model, oParam):
-        # print(oParam)
         resul = {}
         ubicacionini = oParam["ubicacionini"]
         ubicacionfin = oParam["ubicacionfin"]
-        # print(ubicacionfin, ubicacionini)
-        # arrPedidoscli = oParam['selecteds'].split(u",")
+        crearPreparacion = False
         pedidoscli = "'" + "','".join(oParam['selecteds'].split(",")) + "'"
-        # pedidoinicial = arrPedidoscli[0]
-        # pedidofinal = arrPedidoscli[1]
-        # if int(arrPedidoscli[0] < arrPedidoscli[1]):
-        #     pedidoinicial = arrPedidoscli[1]
-        #     pedidofinal = arrPedidoscli[0]
-        # TODO query ver numero de lineas si > 100 o < 1 avisar
-        # numLineas = qsatype.FLUtil.execSql(ustr(u"select l.idlinea from  WHERE ")
+        consulta_where = u"p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}'  AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null) GROUP BY p.idpedido".format(pedidoscli, ubicacionini, ubicacionfin)
         query = qsatype.FLSqlQuery()
         query.setTablesList(u"pedidoscli, lineaspedidoscli, ubicacionesarticulo")
-        query.setSelect(u"l.idlinea")
-        query.setFrom(u"pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia  ")
-        # query.setWhere(ustr(u"p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN (", pedidoscli, ") AND u.codubicacion >= '", str(ubicacionini), "' AND u.codubicacion <= '", str(ubicacionfin), "' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso')"))
-        query.setWhere(u"p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}'  AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null)".format(pedidoscli, ubicacionini, ubicacionfin))
-        # print("generaPreparaciondepedidos___Consulta: ", query.sql())
-        if query.exec_():
-            if query.size() >= 1:
-                # print("hay mas de uno", query.size())
-                curPreparaciondepedidos = qsatype.FLSqlCursor(u"sh_preparaciondepedidos")
-                codpreparacion = qsatype.FLUtil.nextCounter(u"codpreparaciondepedido", curPreparaciondepedidos)
-                # print("______", codpreparacion)
-                # if not qsatype.FLUtil.execSql(ustr(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='", str(codpreparacion), "' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia   WHERE p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN (", pedidoscli, ") AND u.codubicacion >= '", str(ubicacionini), "' AND u.codubicacion <= '", str(ubicacionfin), "' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso'))")):
-                if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{}' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia  WHERE p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso'))".format(codpreparacion, pedidoscli, ubicacionini, ubicacionfin)):
-                    return False
-                curPreparaciondepedidos.setModeAccess(curPreparaciondepedidos.Insert)
-                curPreparaciondepedidos.refreshBuffer()
-                curPreparaciondepedidos.setValueBuffer(u"codpreparaciondepedido", codpreparacion)
-                curPreparaciondepedidos.setValueBuffer(u"descripcion", oParam["descripcion"])
-                curPreparaciondepedidos.setValueBuffer(u"fecha", qsatype.Date())
-                curPreparaciondepedidos.setValueBuffer(u"ubicacionini", oParam["ubicacionini"])
-                curPreparaciondepedidos.setValueBuffer(u"ubicacionfin", oParam["ubicacionfin"])
-                # curPreparaciondepedidos.setValueBuffer(u"desdehasta", oParam["selecteds"])
-                if not curPreparaciondepedidos.commitBuffer():
-                    return False
-                resul["status"] = 1
-                resul["preparacion"] = codpreparacion
-                return resul
-            else:
-                # print("no se encuentra")
-                resul['status'] = -2
-                resul['msg'] = "No se encuentran elementos que cumplan los requisitos"
-                return resul
-                # return False
-        else:
-            # print("algo fallo")
+        query.setSelect(u"p.idpedido,COUNT(l.idlinea)")
+        query.setFrom(u"pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido INNER JOIN ubicacionesarticulo u ON l.referencia = u.referencia")
+        query.setWhere(consulta_where)
+        if not query.exec_():
+            resul['status'] = -2
+            resul['msg'] = "Error al ejecutar la consulta"
+            return resul
+        if query.size() < 1:
             resul['status'] = -2
             resul['msg'] = "No se encuentran elementos que cumplan los requisitos"
             return resul
-        return True
+        str_idpedidos = ""
+        while query.next():
+            num_lineas_prep = query.value(1)
+            num_lineas = qsatype.FLUtil.sqlSelect("pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido", "COUNT(l.idlinea)", "p.idpedido = {0} AND  p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null)".format(query.value(0)), u"pedidoscli,lineaspedidoscli")
+            if int(num_lineas) == int(num_lineas_prep):
+                crearPreparacion = True
+                str_idpedidos += "{},".format(query.value(0))
+
+        if crearPreparacion:
+            curPreparaciondepedidos = qsatype.FLSqlCursor(u"sh_preparaciondepedidos")
+            codpreparacion = qsatype.FLUtil.nextCounter(u"codpreparaciondepedido", curPreparaciondepedidos)
+            curPreparaciondepedidos.setModeAccess(curPreparaciondepedidos.Insert)
+            curPreparaciondepedidos.refreshBuffer()
+            curPreparaciondepedidos.setValueBuffer(u"codpreparaciondepedido", codpreparacion)
+            curPreparaciondepedidos.setValueBuffer(u"descripcion", oParam["descripcion"])
+            curPreparaciondepedidos.setValueBuffer(u"fecha", qsatype.Date())
+            curPreparaciondepedidos.setValueBuffer(u"ubicacionini", oParam["ubicacionini"])
+            curPreparaciondepedidos.setValueBuffer(u"ubicacionfin", oParam["ubicacionfin"])
+            # curPreparaciondepedidos.setValueBuffer(u"desdehasta", oParam["selecteds"])
+            if not curPreparaciondepedidos.commitBuffer():
+                return False
+
+            if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{}' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido INNER JOIN ubicacionesarticulo u ON l.referencia = u.referencia  WHERE p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null))".format(codpreparacion, str_idpedidos[:-1], ubicacionini, ubicacionfin)):
+                return False
+            resul["status"] = 1
+            resul["preparacion"] = codpreparacion
+            return resul
+        else:
+            resul['status'] = -2
+            resul['msg'] = "No se encuentran elementos que cumplan los requisitos"
+            return resul
 
     # def sanhigia_pedidos_generaPreparaciondepedidos(self, model, oParam):
     #     print(oParam)
@@ -1380,7 +1380,7 @@ class sanhigia_pedidos(flfacturac):
                     "desc": "codubicacion",
                     "disabled_name": "Ubicacion Inicial",
                     "auto_name": "Ubicacion Inicial",
-                    "tipo": "56",
+                    "tipo": "55",
                     "rel": "sh_ubicaciones",
                     "function": "getCodUbicacion",
                     "className": "relatedField",
@@ -1393,7 +1393,7 @@ class sanhigia_pedidos(flfacturac):
                     "desc": "codubicacion",
                     "disabled_name": "Ubicacion Final",
                     "auto_name": "Ubicacion Final",
-                    "tipo": "56",
+                    "tipo": "55",
                     "rel": "sh_ubicaciones",
                     "function": "getCodUbicacion",
                     "className": "relatedField",
