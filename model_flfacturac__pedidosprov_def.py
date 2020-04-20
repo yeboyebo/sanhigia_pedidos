@@ -16,8 +16,8 @@ class sanhigia_pedidos(flfacturac):
         # qsatype.debug(ustr("codigobarrasprevio ", oParam['codbarras']))
         # oParam['codbarras'] = re.sub(r"/(\\x00)/g", " ", oParam['codbarras'])
         # oParam['codbarras'] = re.sub(r"/(\^@)/g", " ", oParam['codbarras'])
-        if len(oParam['codbarras']) > 35:
-            oParam['codbarras'] = oParam['codbarras'][:-32]
+        # if len(oParam['codbarras']) > 35:
+        #     oParam['codbarras'] = oParam['codbarras'][:-32]
         qsatype.debug(ustr("codigobarrasposterior ", oParam['codbarras']))
         if "grupoPedidos" in oParam:
             idPedido = oParam['grupoPedidos']
