@@ -2,6 +2,7 @@
 # @class_declaration sanhigia_pedidos #
 from YBUTILS.viewREST import  cacheController
 from models.flfactalma import flfactalma_def
+import requests
 
 
 class sanhigia_pedidos(flfactalma):
@@ -62,6 +63,36 @@ class sanhigia_pedidos(flfactalma):
 
     #     return data
 
+    def sanhigia_pedidos_cerrarAbrirInventario(self, model, oParam):
+        response = {}
+        if "selecteds" not in oParam or not oParam['selecteds']:
+            response['status'] = -1
+            response['msg'] = "Debes seleccionar al menos un inventario"
+            return response
+        arrInventarios = oParam['selecteds'].split(u",")
+        if len(arrInventarios) != 1:
+            response['status'] = -1
+            response['msg'] = "Debes seleccionar sólo un inventario"
+            return response
+        estado = qsatype.FLUtil.sqlSelect("inventarios", "sh_estado", "codinventario = '{}'".format(arrInventarios[0]))
+        if estado == "Cerrado":
+            msgError = "Abrir"
+            msgInfo = "abierto"
+        else:
+            msgError = "Cerrar"
+            msgInfo = "cerrado"
+        try:
+            requests.post("http://127.0.0.1:8005/api/inventariosapi/{0}/llama_abrircerrar_inventario".format(arrInventarios[0]))
+            # requests.post("http://172.65.0.1:8005/api/inventariosapi/{0}/llama_abrircerrar_inventario".format(arrInventarios[0]))
+        except Exception as exc:
+            print(exc)
+            response['status'] = -1
+            response['msg'] = "Error al {} el inventario.<br>Error: {}".format(msgError, exc)
+            return response
+        response['resul'] = 1
+        response['msg'] = "Se ha {0} correctamente el inventario '{1}'".format(msgInfo, arrInventarios[0])
+        return response
+
     def __init__(self, context=None):
         super(sanhigia_pedidos, self).__init__(context)
 
@@ -76,4 +107,7 @@ class sanhigia_pedidos(flfactalma):
 
     # def getCodBarrasProv(self, model, oParam, cursor):
     #     return self.ctx.sanhigia_pedidos_getCodBarrasProv(model, oParam, cursor)
+
+    def cerrarAbrirInventario(self, model, oParam):
+        return self.ctx.sanhigia_pedidos_cerrarAbrirInventario(model, oParam)
 

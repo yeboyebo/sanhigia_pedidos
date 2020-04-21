@@ -76,10 +76,14 @@
                             "visible": false
                         },
                         {
-                            "tipo": "field",
-                            "listpos": "secondaryitem",
-                            "key": "referencia",
-                            "width": 90
+                            "tipo": "act",
+                            "key": "cerrarLinea",
+                            "label": "Cerrar Linea",
+                            "success": [
+                                {
+                                    "slot": "refrescar"
+                                }
+                            ]
                         },
                         {
                             "tipo": "field",
@@ -108,15 +112,9 @@
                         },
                         {
                             "tipo": "field",
-                            "listpos": "body",
-                            "key": "sh_codigolote",
+                            "listpos": "secondaryitem",
+                            "key": "referencia",
                             "width": 90
-                        },
-                        {
-                            "tipo": "foreignfield",
-                            "key": "referenciaprov",
-                            "label": "Ref. Prov",
-                            "width": 115
                         },
                         {
                             "tipo": "field",
@@ -126,14 +124,16 @@
                             "flex": 3
                         },
                         {
-                            "tipo": "act",
-                            "key": "cerrarLinea",
-                            "label": "Cerrar Linea",
-                            "success": [
-                                {
-                                    "slot": "refrescar"
-                                }
-                            ]
+                            "tipo": "field",
+                            "listpos": "body",
+                            "key": "sh_codigolote",
+                            "width": 90
+                        },
+                        {
+                            "tipo": "foreignfield",
+                            "key": "referenciaprov",
+                            "label": "Ref. Prov",
+                            "width": 115
                         }
                     ],
                     "rowclick": "",

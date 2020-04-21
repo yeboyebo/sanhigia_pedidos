@@ -19,3 +19,7 @@ class sanhigia_pedidos_inventarios(flfactalma_inventarios, helpers.MixinConAccio
     # def getCodBarrasProv(self, oParam, cursor):
     #     return form.iface.getCodBarrasProv(self, oParam, cursor)
 
+    @helpers.decoradores.accion(aqparam=["oParam"])
+    def cerrarAbrirInventario(self, oParam):
+        return form.iface.cerrarAbrirInventario(self, oParam)
+

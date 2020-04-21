@@ -2,28 +2,52 @@
     "querystring": {
         "p_l": 50,
         "p_c": true,
-        "o_1": "fecha",
-        "s_sh_estado__exact": "Abierto"
+        "o_1": "sh_estado",
+        "o_2": "-fecha"
     },
     "schema": {},
     "layout": {
-        "masterGrid": {
-            "componente": "YBTable",
+        "masterInventariosGrid": {
+            "componente": "YBGrid",
             "class": "claseGrid",
-            "prefix": "master" ,
-            "filter": "buscador",
+            "label": "Inventarios",
+            "prefix": "inventarios",
+            "buscador": {
+                "fields": [
+                    "codinventario"
+                ]
+            },
+            "filter": {
+                "fecha": {
+                    "filterType": "interval"
+                }
+            },
+            "colorRowField": "rowColor",
+            "multiselectable": true,
             "columns": [
                 {"tipo": "field", "key": "codinventario", "width": 80},
-                {
-                    "tipo": "field",
-                    "key": "codalmacen",
-                    "width": 70
-                },
+                {"tipo": "field", "key": "codalmacen", "width": 70},
                 {"tipo": "field", "key": "fecha", "width": 100},
                 {"tipo": "field", "key": "sh_estado", "width": 100}
             ],
-            "rowclick": "link"
+            "rowclick": "link",
+            "accionesGrid": [
+                {
+                    "key": "cerrarAbrirInventario",
+                    "label": "Cerrar/Abrir Inventario",
+                    "success": [{ "slot": "refrescar"}]
+                }
+            ]
         }
     },
-    "acciones": {}
+    "focus": {},
+    "acciones": {
+        "cerrarAbrirInventario": {
+            "label": "",
+            "action": "gridAction",
+            "serverAction": "cerrarAbrirInventario",
+            "icon": "lock"
+        }
+    },
+    "drawIf": {}
 }
