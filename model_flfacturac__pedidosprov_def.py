@@ -10,15 +10,15 @@ import requests
 class sanhigia_pedidos(flfacturac):
 
     def sanhigia_pedidos_procesaCodBarras(self, model, oParam):
-        # print(oParam)
+        print(oParam)
         # Suma 1
         cantidad = 1
         # qsatype.debug(ustr("lencodbarras ", len(oParam['codbarras'])))
         # qsatype.debug(ustr("codigobarrasprevio ", oParam['codbarras']))
         # oParam['codbarras'] = re.sub(r"/(\\x00)/g", " ", oParam['codbarras'])
         # oParam['codbarras'] = re.sub(r"/(\^@)/g", " ", oParam['codbarras'])
-        if len(oParam['codbarras']) > 35:
-            oParam['codbarras'] = oParam['codbarras'][:-32]
+        # if len(oParam['codbarras']) > 35:
+        #     oParam['codbarras'] = oParam['codbarras'][:-32]
         qsatype.debug(ustr("codigobarrasposterior ", oParam['codbarras']))
         if "grupoPedidos" in oParam:
             idPedido = oParam['grupoPedidos']
@@ -65,7 +65,7 @@ class sanhigia_pedidos(flfacturac):
                 return self.iface.respuestaAnalizaCodBarras(model, oParam, val)
                 return val
             else:
-                val = self.iface.analizaCodBarrasLote(referencia, objcod['codbarras'], objcod['lote'], cantidad, oParam['idlinea'], codAlmacen)
+                val = self.iface.analizaCodBarrasLote(referencia, objcod['codbarras'], objcod, cantidad, oParam['idlinea'], codAlmacen)
                 return self.iface.respuestaAnalizaCodBarras(model, oParam, val)
                 return val
 
@@ -75,8 +75,8 @@ class sanhigia_pedidos(flfacturac):
             # proveedor = articulosprov.objects.filter(referencia__exact=linea.referencia)
             referencia = qsatype.FLUtil.sqlSelect("lineaspedidosprov", "referencia", "idlinea = {}".format(oParam['idlinea']))
             codproveedor = qsatype.FLUtil.sqlSelect("articulosprov", "codproveedor", "referencia = '{}'".format(referencia))
-            if len(proveedor) == 1:
-                # print("tengo idlinea y no proveedor pero ", proveedor[0].codproveedor, " ", linea.referencia, " ", oParam['codbarras'])
+            if codproveedor:
+                # print("tengo ilinea y no proveedor pero ", proveedor[0].codproveedor, " ", linea.referencia, " ", oParam['codbarras'])
                 objcod = flfactalma_def.iface.datosLecturaCodBarras(oParam['codbarras'], codproveedor, referencia)
                 asociado = flfactalma_def.iface.asociarCodBarras(referencia, codproveedor, objcod['codbarras'])
                 if asociado and not objcod['lote']:
@@ -84,7 +84,10 @@ class sanhigia_pedidos(flfacturac):
                     return self.iface.respuestaAnalizaCodBarras(model, oParam, val)
                     return val
                 else:
-                    val = self.iface.analizaCodBarrasLote(referencia, objcod['codbarras'], objcod['lote'], cantidad, oParam['idlinea'], codAlmacen)
+                    print("____analizar____")
+                    val = self.iface.analizaCodBarrasLote(referencia, objcod['codbarras'], objcod, cantidad, oParam['idlinea'], codAlmacen)
+                    print("__________________________")
+                    print(val)
                     return self.iface.respuestaAnalizaCodBarras(model, oParam, val)
                     return val
             else:
@@ -284,6 +287,7 @@ class sanhigia_pedidos(flfacturac):
             ncodlote = None
             if "ncodlote" in val['param']:
                 ncodlote = val['param']['ncodlote']
+            print(val)
             # opt = {}
             # opt['key'] = "ncodlote"
             # opt['alias'] = "Nuevo Lote"
@@ -658,8 +662,12 @@ class sanhigia_pedidos(flfacturac):
         else:
             # 2.2 El barcode es cuadrado
             codigo = datos['lote']
+            if "caducidad" in datos:
+                caducidad = datos["caducidad"]
+            else:
+                caducidad = None
             # lo que tenemos es el codigo de lotes pero lo que se inserta es el campo codlote de lotes, vamos a buscar el primer codlote de la tabla lotes que tenga como codigo el lote que hemos ledio y que tenga stock
-            codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", "codigo = '{}'".format(codigo))
+            codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", "codigo = '{}' AND referencia = '{}'".format(codigo, referencia))
             if not codLote:
                 query = qsatype.FLSqlQuery()
                 query.setTablesList(u"lotes")
@@ -679,6 +687,7 @@ class sanhigia_pedidos(flfacturac):
                 oParam['query'] = query
                 oParam['ncodlote'] = codigo
                 resul['param'] = oParam
+                oParam["caducidad"] = caducidad
                 return resul
                 #     else:
                 #         resul['status'] = -3
@@ -741,12 +750,19 @@ class sanhigia_pedidos(flfacturac):
         resul['param'] = idLinea
         return resul
 
-    def sanhigia_pedidos_analizaCodBarrasLote(self, referencia, barcode, codigo, cantidad, idLinea, codAlmacen):
+    def sanhigia_pedidos_analizaCodBarrasLote(self, referencia, barcode, objarticulo, cantidad, idLinea, codAlmacen):
         # 2.2 El barcode es cuadrado
+        print("___analizarcodbarraslote____")
         resul = {}
+        codigo = objarticulo["lote"]
+        if "caducidad" in objarticulo:
+            caducidad = objarticulo["caducidad"]
+        else:
+            caducidad = None
         # codigo = lote
         # lo que tenemos es el codigo de lotes pero lo que se inserta es el campo codlote de lotes, vamos a buscar el primer codlote de la tabla lotes que tenga como codigo el lote que hemos ledio y que tenga stock
-        codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", "codigo = '{}' AND enalmacen > 0".format(codigo))
+        codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", "codigo = '{}' AND enalmacen > 0 AND referencia ='{}'".format(codigo, referencia))
+        print("________________________", codLote)
         if codLote == u"" or not codLote:
             query = qsatype.FLSqlQuery()
             query.setTablesList(u"lotes")
@@ -763,6 +779,7 @@ class sanhigia_pedidos(flfacturac):
             oParam['idlinea'] = idLinea
             oParam['query'] = query
             oParam['ncodlote'] = codigo
+            oParam['caducidad'] = caducidad
             resul['param'] = oParam
             return resul
 

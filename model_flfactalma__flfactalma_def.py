@@ -150,7 +150,11 @@ class sanhigia_pedidos(flfactalma):
                 if len(derecha) == 7:
                     datos['lote'] = derecha[-7:]
                 else:
-                    datos['lote'] = derecha[:9]
+                    if len(lectura) > 35:
+                        datos['lote'] = derecha[:6]
+                        datos['caducidad'] = lectura[18:][:4]
+                    else:
+                        datos['lote'] = derecha[:9]
             elif lectura.startswith('(01)') or lectura.startswith('(02)'):
                 derecha = lectura[4:]
                 crt = derecha.find('(17)')
