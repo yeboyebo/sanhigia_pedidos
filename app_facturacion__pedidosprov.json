@@ -14,7 +14,7 @@
             "type": "insertAfterNode",
             "path": "/layout/root",
             "value": {
-                "layoutEnviar": {
+                "groupBoxBotones": {
                     "componente": "YBGroupBox",
                     "className": "class",
                     "layout": {
@@ -23,14 +23,28 @@
                             "prefix": "pedidosprov",
                             "icon": "send",
                             "label": "Listo PDA",
-                            "className": "floatRight_",
+                            "className": "floatLeft",
                             "buttonType": "flat",
                             "action": {
                                 "key": "listoPDA",
                                 "success": [
                                     {
-                                        "receiver": "tdb_masterpedidosprov",
-                                        "slot": "return"
+                                        "slot": "refrescar"
+                                    }
+                                ]
+                            }
+                        },
+                        "generarAlbaranButton": {
+                            "componente": "YBButton",
+                            "prefix": "pedidosprov",
+                            "label": "General Albarán",
+                            "className": "floatRight",
+                            "buttonType": "flat",
+                            "action": {
+                                "key": "generarAlbaran",
+                                "success": [
+                                    {
+                                        "slot": "refrescar"
                                     }
                                 ]
                             }
@@ -41,7 +55,7 @@
         },
         {
             "type": "insertAfterNode",
-            "path": "/layout/layoutEnviar",
+            "path": "/layout/groupBoxBotones",
             "value": {
                 "labelDescripcion": {
                     "componente": "YBLabel",
@@ -385,9 +399,19 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/acciones/procesaCodBarras",
+            "value": {
+                "generarAlbaran": {
+                    "action": "legacy",
+                    "serverAction": "generarAlbaranProv"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/drawIf/root",
             "value": {
-                "layoutEnviar": {
+                "groupBoxBotones": {
                     "listoPDAButton": {
                         "tipo": "disabled",
                         "condiciones": [
@@ -395,6 +419,16 @@
                                 "tipo": "!=",
                                 "campo": "pda",
                                 "valor": "Preparado"
+                            }
+                        ]
+                    },
+                    "generarAlbaranButton": {
+                        "tipo": "disabled",
+                        "condiciones": [
+                            {
+                                "tipo": "!=",
+                                "campo": "pda",
+                                "valor": "Listo PDA"
                             }
                         ]
                     }

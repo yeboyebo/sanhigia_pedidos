@@ -34,3 +34,7 @@ class sanhigia_pedidos_pedidosprov(flfacturac_pedidosprov, helpers.MixinConAccio
     def dameTemplateMasterPedidosprov(self):
         return form.iface.dameTemplateMasterPedidosprov(self)
 
+    @helpers.decoradores.accion(aqparam=["oParam"])
+    def generarAlbaranProv(self, oParam):
+        return form.iface.generarAlbaranProv(self, oParam)
+

@@ -600,7 +600,7 @@ class sanhigia_pedidos(flfacturac):
     def sanhigia_pedidos_initValidation(self, name, data):
         response = True
         if name == 'formRecord':
-            codtrabajador = qsatype.FLUtil.sqlSelect("sh_trabajadores", "codtrabajador", "nombre = '{}'".format(qsatype.FLUtil.nameUser()))
+            codtrabajador = qsatype.FLUtil.sqlSelect("sh_trabajadores", "codtrabajador", "idusuario = '{}'".format(qsatype.FLUtil.nameUser()))
             # user = sh_trabajadores.objects.get(nombre__iexact=qsatype.FLUtil.nameUser())
             if not data['DATA']['codtrabajador']:
                 response = self.iface.asignarTrabajador(data['DATA']['idpedido'], codtrabajador)

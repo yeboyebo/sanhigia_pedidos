@@ -4,6 +4,7 @@ from models.flfacturac.lineaspedidosprov import lineaspedidosprov
 from models.flfactppal.sh_trabajadores import sh_trabajadores
 from models.flfactalma.articulosprov import articulosprov
 from models.flfactalma import flfactalma_def
+import requests
 
 
 class sanhigia_pedidos(flfacturac):
@@ -383,9 +384,32 @@ class sanhigia_pedidos(flfacturac):
         curPedido.setModeAccess(curPedido.Edit)
         curPedido.refreshBuffer()
         curPedido.setValueBuffer("pda", 'Listo PDA')
+        codtrabajador = qsatype.FLUtil.sqlSelect("sh_trabajadores", "codtrabajador", "idusuario = '{}'".format(qsatype.FLUtil.nameUser()))
+        if codtrabajador and codtrabajador != "":
+            curPedido.setValueBuffer("codtrabajador", codtrabajador)
         if not curPedido.commitBuffer():
             return False
         return True
+
+    def sanhigia_pedidos_generarAlbaranProv(self, model, oParam):
+        response = {}
+        idpedido = model.idpedido
+        pedidopreparado = qsatype.FLUtil.sqlSelect("lineaspedidosprov", "COUNT(idlinea)", "idpedido = {}  AND shcantalbaran > 0".format(idpedido))
+        if not pedidopreparado or pedidopreparado < 1:
+            resul = {}
+            resul['status'] = 1
+            resul['msg'] = "Para generar albarán primero debe preparar las lineás"
+            return resul
+        try:
+            requests.post("http://127.0.0.1:8005/api/pedidosproveedor/{0}/llama_generar_albaran".format(idpedido))
+        except Exception as exc:
+            response['status'] = -1
+            response['msg'] = "Error al generar albáran.<br>Error: {}".format(exc)
+            return response
+        response['resul'] = 1
+        response['msg'] = "Se ha generado correctamente el albáran"
+        return response
+         #return True
 
     def sanhigia_pedidos_getForeignFields(self, model, template):
         return [
@@ -865,4 +889,7 @@ class sanhigia_pedidos(flfacturac):
 
     def dameTemplateMasterPedidosprov(self, model):
         return self.ctx.sanhigia_pedidos_dameTemplateMasterPedidosprov(model)
+
+    def generarAlbaranProv(self, model, oParam):
+        return self.ctx.sanhigia_pedidos_generarAlbaranProv(model, oParam)
 
