@@ -102,6 +102,11 @@
                         },
                         {
                             "tipo": "field",
+                            "listpos": "body",
+                            "key": "total"
+                        },
+                        {
+                            "tipo": "field",
                             "listpos": "subtitle",
                             "key": "nombrecliente",
                             "width": 200
