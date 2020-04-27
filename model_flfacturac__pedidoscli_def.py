@@ -354,7 +354,7 @@ class sanhigia_pedidos(flfacturac):
                         "validaciones": None
                     },
                     {
-                        "tipo": 56,
+                        "tipo": 55,
                         "componente": "YBFieldDB",
                         "prefix": "otros",
                         "rel": "agenciastrans",
@@ -414,7 +414,7 @@ class sanhigia_pedidos(flfacturac):
                         "validaciones": None
                     },
                     {
-                        "tipo": 56,
+                        "tipo": 55,
                         "componente": "YBFieldDB",
                         "prefix": "otros",
                         "rel": "agenciastrans",
@@ -482,7 +482,7 @@ class sanhigia_pedidos(flfacturac):
                     "validaciones": None
                 },
                 {
-                    "tipo": 56,
+                    "tipo": 55,
                     "componente": "YBFieldDB",
                     "prefix": "otros",
                     "rel": "agenciastrans",
@@ -604,11 +604,12 @@ class sanhigia_pedidos(flfacturac):
             # user = sh_trabajadores.objects.get(nombre__iexact=qsatype.FLUtil.nameUser())
             if not data['DATA']['codtrabajador']:
                 response = self.iface.asignarTrabajador(data['DATA']['idpedido'], codtrabajador)
-            else:
-                if data['DATA']['codtrabajador'] == codtrabajador:
-                    return True
-                else:
-                    return False
+            # Comentado por petición de Javier(Sanhigia) para que los pedidos se pueden gestionar y por usuario que no es el que lo ha creado
+            # else:
+            #     if data['DATA']['codtrabajador'] == codtrabajador:
+            #         return True
+            #     else:
+            #         return False
         return response
 
     def sanhigia_pedidos_field_trabajador(self, model):
@@ -1155,7 +1156,7 @@ class sanhigia_pedidos(flfacturac):
                     "desc": "codubicacion",
                     "disabled_name": "Ubicacion Inicial",
                     "auto_name": "Ubicacion Inicial",
-                    "tipo": "55",
+                    "tipo": 55,
                     "rel": "sh_ubicaciones",
                     "function": "getCodUbicacion",
                     "className": "relatedField",
@@ -1168,7 +1169,7 @@ class sanhigia_pedidos(flfacturac):
                     "desc": "codubicacion",
                     "disabled_name": "Ubicacion Final",
                     "auto_name": "Ubicacion Final",
-                    "tipo": "55",
+                    "tipo": 55,
                     "rel": "sh_ubicaciones",
                     "function": "getCodUbicacion",
                     "className": "relatedField",
@@ -1328,7 +1329,12 @@ class sanhigia_pedidos(flfacturac):
         query.setTablesList(u"pedidoscli,lineaspedidoscli, ubicacionesarticulo")
         query.setSelect(u"l.idlinea")
         query.setFrom(u"pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia LEFT JOIN stocks s ON l.referencia = s.referencia")
-        query.setWhere(u"p.servido in ('No','Parcial') AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.totalenalbaran <> l.cantidad AND s.disponible > 0 AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null)".format(ubicacionini, ubicacionfin))
+        where_consulta = u"p.servido in ('No','Parcial') AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.totalenalbaran <> l.cantidad AND s.disponible > 0 AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null)".format(ubicacionini, ubicacionfin)
+        if "fechaini" in oParam and oParam["fechaini"] is not None:
+            where_consulta = "{0} AND p.fecha >= '{1}'".format(where_consulta, oParam["fechaini"])
+        if "fechafin" in oParam and oParam["fechafin"] is not None:
+            where_consulta = "{0} AND p.fecha <= '{1}'".format(where_consulta, oParam["fechafin"])
+        query.setWhere(where_consulta)
         # query.setWhere(ustr(u"p.servido like 'Parcial' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '", str(ubicacionini), "' AND u.codubicacion <= '", str(ubicacionfin), "' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.totalenalbaran <> l.cantidad AND s.disponible > 0"))
         if query.exec_():
             if query.size() >= 1:
@@ -1338,7 +1344,7 @@ class sanhigia_pedidos(flfacturac):
                 # print("______", codpreparacion)
                 if not codpreparacion:
                     return False
-                if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{}' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia  LEFT JOIN stocks s ON l.referencia = s.referencia WHERE p.servido in ('No','Parcial') AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso')  AND l.totalenalbaran <> l.cantidad AND s.disponible > 0)".format(codpreparacion, ubicacionini, ubicacionfin)):
+                if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{0}' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia  LEFT JOIN stocks s ON l.referencia = s.referencia WHERE {1})".format(codpreparacion, where_consulta)):
                     return False
                 curPreparaciondepedidos.setModeAccess(curPreparaciondepedidos.Insert)
                 curPreparaciondepedidos.refreshBuffer()
@@ -1369,9 +1375,13 @@ class sanhigia_pedidos(flfacturac):
 
     def sanhigia_pedidos_agruparpedidosstock(self, model, oParam):
         response = {}
-        if "data" not in oParam:
+        if "data" not in oParam or ("data" in oParam and not oParam["data"]["descripcion"]):
             response['status'] = -1
-            response['data'] = {"selecteds": ""}
+            if "data" in oParam and not oParam["data"]["descripcion"]:
+                response["title"] = "Campo descripción es obligatorio"
+                response['data'] = {"ubicacionini": oParam["data"]["ubicacionini"], "ubicacionfin": oParam["data"]["ubicacionfin"], "fechaini": oParam["data"]["fechaini"], "fechafin": oParam["data"]["fechafin"]}
+            else:
+                response['data'] = {"selecteds": ""}
             response['params'] = [
                 {
                     "componente": "YBFieldDB",
@@ -1380,7 +1390,7 @@ class sanhigia_pedidos(flfacturac):
                     "desc": "codubicacion",
                     "disabled_name": "Ubicacion Inicial",
                     "auto_name": "Ubicacion Inicial",
-                    "tipo": "55",
+                    "tipo": 55,
                     "rel": "sh_ubicaciones",
                     "function": "getCodUbicacion",
                     "className": "relatedField",
@@ -1393,15 +1403,37 @@ class sanhigia_pedidos(flfacturac):
                     "desc": "codubicacion",
                     "disabled_name": "Ubicacion Final",
                     "auto_name": "Ubicacion Final",
-                    "tipo": "55",
+                    "tipo": 55,
                     "rel": "sh_ubicaciones",
                     "function": "getCodUbicacion",
                     "className": "relatedField",
                     "to_field": "codubicacion"
                 },
                 {
-                    "tipo": 3,
+                    "tipo": 26,
                     "required": False,
+                    "verbose_name": "Fecha Inicial",
+                    "key": "fechaini",
+                    "visible": True,
+                    "validaciones": None,
+                    "style": {
+                        "width": "100%"
+                    }
+                },
+                {
+                    "tipo": 26,
+                    "required": False,
+                    "verbose_name": "Fecha Final",
+                    "key": "fechafin",
+                    "visible": True,
+                    "validaciones": None,
+                    "style": {
+                        "width": "100%"
+                    }
+                },
+                {
+                    "tipo": 3,
+                    "required": True,
                     "verbose_name": "Descripción",
                     "key": "descripcion",
                     "visible": True,

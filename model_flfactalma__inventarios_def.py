@@ -65,6 +65,11 @@ class sanhigia_pedidos(flfactalma):
 
     def sanhigia_pedidos_cerrarAbrirInventario(self, model, oParam):
         response = {}
+        # Hasta que no se revisa el comportamiento de reiniciar el docker la funcionalidad estará en mantenimiento - 27-04-2020
+        response['status'] = -1
+        response['msg'] = "La funcionalidad de Abrir/Cerrar Inventario está en mantenimiento"
+        return response
+
         if "selecteds" not in oParam or not oParam['selecteds']:
             response['status'] = -1
             response['msg'] = "Debes seleccionar al menos un inventario"
