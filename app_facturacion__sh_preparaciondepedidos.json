@@ -172,7 +172,7 @@
                     }
                 },
                 {"tipo": "field", "key": "articulosprov.refproveedor", "label": "Ref.Prov", "width": 110},
-                {"tipo": "field", "key": "pedidoscli.codigo", "label": "Pedido", "width": 110},
+                {"tipo": "field", "key": "pedidoscli.codigo", "label": "Pedido", "width": 150},
                 {"tipo": "field", "key": "lineaspedidoscli.totalenalbaran", "label": "Serv", "width": 50},
                 {"tipo": "field", "key": "lineaspedidoscli.cerradapda", "width": 60},
                 {"tipo": "field", "key": "stocks.cantidad", "label":"Stock", "width": 58},

@@ -51,7 +51,7 @@ class sanhigia_pedidos(flfacturac):
         q.setSelect(u"codubicacion")
         q.setFrom(u"ubicacionesarticulo")
         # q.setWhere(u"referencia = UPPER('" + model.referencia.referencia.upper() + "') AND pordefecto = true")
-        q.setWhere(u"referencia = UPPER('{}') AND pordefecto = true".format(model.referencia.referencia.upper()))
+        q.setWhere(u"UPPER(referencia) = UPPER('{}') AND pordefecto = true".format(model.referencia.referencia))
         if not q.exec_():
             return ""
 
@@ -64,7 +64,7 @@ class sanhigia_pedidos(flfacturac):
         q.setSelect(u"refproveedor")
         q.setFrom(u"articulosprov")
         # q.setWhere(u"referencia = UPPER('" + model.referencia.referencia.upper() + "') AND pordefecto = true")
-        q.setWhere(u"referencia = UPPER('{}') AND pordefecto = true".format(model.referencia.referencia.upper()))
+        q.setWhere(u"UPPER(referencia) = UPPER('{}') AND pordefecto = true".format(model.referencia.referencia))
         if not q.exec_():
             return ""
 

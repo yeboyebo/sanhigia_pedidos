@@ -38,7 +38,7 @@ class sanhigia_pedidos(flfacturac):
             return val
         # Si idlinea y codproveedor en oParam tengo todo lo necesario para asignar un codigo de barras
         if "idlinea" in oParam and "codproveedor" in oParam:
-            print("viene por aqui 1")
+            # print("viene por aqui 1")
             referencia = qsatype.FLUtil.sqlSelect("lineaspedidoscli", "referencia", "idlinea = {}".format(oParam['idlinea']))
             # linea = lineaspedidoscli.objects.get(pk=oParam['idlinea'])
             objcod = flfactalma_def.iface.datosLecturaCodBarras(oParam['codbarras'], oParam["codproveedor"], referencia)
@@ -593,9 +593,40 @@ class sanhigia_pedidos(flfacturac):
                 curPedido.setValueBuffer("codproductoagt", oParam['Tarifa'])
             if not curPedido.commitBuffer():
                 return False
+            # Actualizar los datod de preparacion para todas las lineas del pedido
             if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'Pendiente' WHERE idpedido = {}".format(model.idpedido)):
                 return False
+            # if not self.sanhigia_pedidos_actualizarDatosLineas(model.idpedido):
+            #     return False
             return True
+
+    def sanhigia_pedidos_actualizarDatosLineas(self, idpedido):
+        curLineas = qsatype.FLSqlCursor(u"lineaspedidoscli")
+        where = "idpedido = {}".format(idpedido)
+        if not curLineas.select(where):
+            return False
+        while curLineas.next():
+            curLineas.setModeAccess(curLineas.Edit)
+            curLineas.refreshBuffer()
+            cantidad = curLineas.valueBuffer("cantidad")
+            servida = curLineas.valueBuffer("totalenalbaran")
+            shcantalbaran = curLineas.valueBuffer("shcantalbaran")
+            if shcantalbaran is None:
+                shcantalbaran = 0
+            if cantidad <= (servida + shcantalbaran):
+                curLineas.setValueBuffer("sh_estadopreparacion", "Todo")
+                curLineas.setValueBuffer("sh_preparacion", "Lista Envio")
+            elif shcantalbaran > 0:
+                curLineas.setValueBuffer("sh_estadopreparacion", "Parcial")
+                curLineas.setValueBuffer("sh_preparacion", "Pendiente")
+                # curLineas.setNull("codpreparaciondepedido")
+            else:
+                curLineas.setValueBuffer("sh_estadopreparacion", "No")
+                curLineas.setValueBuffer("sh_preparacion", "Pendiente")
+                # curLineas.setNull("codpreparaciondepedido")
+            if not curLineas.commitBuffer():
+                return False
+        return True
 
     def sanhigia_pedidos_initValidation(self, name, data):
         response = True
@@ -1134,7 +1165,6 @@ class sanhigia_pedidos(flfacturac):
         return filters
 
     def sanhigia_pedidos_agruparPedidos(self, model, oParam):
-        print(oParam)
         response = {}
         if ("selecteds" not in oParam or not oParam['selecteds']) and "data" not in oParam:
             response['status'] = -1
@@ -1149,6 +1179,17 @@ class sanhigia_pedidos(flfacturac):
             else:
                 response['data'] = {"selecteds": oParam['selecteds']}
             response['params'] = [
+                {
+                    "tipo": 3,
+                    "required": True,
+                    "verbose_name": "Descripción",
+                    "key": "descripcion",
+                    "visible": True,
+                    "validaciones": None,
+                    "style": {
+                        "width": "100%"
+                    }
+                },
                 {
                     "componente": "YBFieldDB",
                     "prefix": "otros",
@@ -1174,17 +1215,6 @@ class sanhigia_pedidos(flfacturac):
                     "function": "getCodUbicacion",
                     "className": "relatedField",
                     "to_field": "codubicacion"
-                },
-                {
-                    "tipo": 3,
-                    "required": True,
-                    "verbose_name": "Descripción",
-                    "key": "descripcion",
-                    "visible": True,
-                    "validaciones": None,
-                    "style": {
-                        "width": "100%"
-                    }
                 }
             ]
             return response
@@ -1257,7 +1287,7 @@ class sanhigia_pedidos(flfacturac):
             if not curPreparaciondepedidos.commitBuffer():
                 return False
 
-            if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{}' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido INNER JOIN ubicacionesarticulo u ON l.referencia = u.referencia  WHERE p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null))".format(codpreparacion, str_idpedidos[:-1], ubicacionini, ubicacionfin)):
+            if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{}' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido INNER JOIN ubicacionesarticulo u ON l.referencia = u.referencia  WHERE p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null))".format(codpreparacion, str_idpedidos[:-1], ubicacionini, ubicacionfin)):
                 return False
             resul["status"] = 1
             resul["preparacion"] = codpreparacion
@@ -1329,7 +1359,7 @@ class sanhigia_pedidos(flfacturac):
         query.setTablesList(u"pedidoscli,lineaspedidoscli, ubicacionesarticulo")
         query.setSelect(u"l.idlinea")
         query.setFrom(u"pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia LEFT JOIN stocks s ON l.referencia = s.referencia")
-        where_consulta = u"p.servido in ('No','Parcial') AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.totalenalbaran <> l.cantidad AND s.disponible > 0 AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null)".format(ubicacionini, ubicacionfin)
+        where_consulta = u"p.servido in ('No','Parcial') AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.totalenalbaran <> l.cantidad AND s.cantidad > 0 AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null)".format(ubicacionini, ubicacionfin)
         if "fechaini" in oParam and oParam["fechaini"] is not None:
             where_consulta = "{0} AND p.fecha >= '{1}'".format(where_consulta, oParam["fechaini"])
         if "fechafin" in oParam and oParam["fechafin"] is not None:
@@ -1341,7 +1371,6 @@ class sanhigia_pedidos(flfacturac):
                 # print("hay mas de uno", query.size())
                 curPreparaciondepedidos = qsatype.FLSqlCursor(u"sh_preparaciondepedidos")
                 codpreparacion = qsatype.FLUtil.nextCounter(u"codpreparaciondepedido", curPreparaciondepedidos)
-                # print("______", codpreparacion)
                 if not codpreparacion:
                     return False
                 if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{0}' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia  LEFT JOIN stocks s ON l.referencia = s.referencia WHERE {1})".format(codpreparacion, where_consulta)):
@@ -1384,6 +1413,17 @@ class sanhigia_pedidos(flfacturac):
                 response['data'] = {"selecteds": ""}
             response['params'] = [
                 {
+                    "tipo": 3,
+                    "required": True,
+                    "verbose_name": "Descripción",
+                    "key": "descripcion",
+                    "visible": True,
+                    "validaciones": None,
+                    "style": {
+                        "width": "100%"
+                    }
+                },
+                {
                     "componente": "YBFieldDB",
                     "prefix": "otros",
                     "key": "ubicacionini",
@@ -1425,17 +1465,6 @@ class sanhigia_pedidos(flfacturac):
                     "required": False,
                     "verbose_name": "Fecha Final",
                     "key": "fechafin",
-                    "visible": True,
-                    "validaciones": None,
-                    "style": {
-                        "width": "100%"
-                    }
-                },
-                {
-                    "tipo": 3,
-                    "required": True,
-                    "verbose_name": "Descripción",
-                    "key": "descripcion",
                     "visible": True,
                     "validaciones": None,
                     "style": {

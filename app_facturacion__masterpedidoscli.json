@@ -80,7 +80,11 @@
                     "class": "claseGrid",
                     "label": "Pedidos",
                     "prefix": "pedidoscli",
-                    "buscador": true,
+                    "buscador": {
+                        "fields": [
+                            "codigo"
+                        ]
+                    },
                     "filter": {
                         "fecha": {
                             "filterType": "interval"
