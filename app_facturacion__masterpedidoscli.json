@@ -80,15 +80,13 @@
                     "class": "claseGrid",
                     "label": "Pedidos",
                     "prefix": "pedidoscli",
-                    "buscador": {
-                        "fields": [
-                            "codigo"
-                        ]
-                    },
+                    "buscador": false,
                     "filter": {
+                        "codigo": true,
                         "fecha": {
                             "filterType": "interval"
-                        }
+                        },
+                        "codcliente": true
                     },
                     "colorRowField": "rowColor",
                     "multiselectable": true,

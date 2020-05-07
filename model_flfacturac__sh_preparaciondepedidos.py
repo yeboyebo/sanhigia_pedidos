@@ -39,6 +39,8 @@ class sanhigia_pedidos_sh_preparaciondepedidos(interna_sh_preparaciondepedidos, 
     def procesaCodBarrasGrupo(self, oParam):
         return form.iface.procesaCodBarrasGrupo(self, oParam)
 
+    def field_masterColorRow(self):
+        return form.iface.field_masterColorRow(self)
 
 # @class_declaration sh_preparaciondepedidos #
 class sh_preparaciondepedidos(sanhigia_pedidos_sh_preparaciondepedidos, helpers.MixinConAcciones):

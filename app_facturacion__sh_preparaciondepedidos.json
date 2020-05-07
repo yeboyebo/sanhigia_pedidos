@@ -117,8 +117,8 @@
             "columns": [
                 {
                     "tipo": "act",
-                    "key": "inventariar",
-                    "label": "Inventario al vuelo",
+                    "key": "cerrarLinea",
+                    "label": "cerrar Linea",
                     "success": [
                         {"slot": "refrescar"},
                         {"receiver": "fdb_codBarras", "slot": "select"}
@@ -126,8 +126,8 @@
                 },
                 {
                     "tipo": "act",
-                    "key": "cerrarLinea",
-                    "label": "cerrar Linea",
+                    "key": "completarLinea",
+                    "label": "Completar Linea",
                     "success": [
                         {"slot": "refrescar"},
                         {"receiver": "fdb_codBarras", "slot": "select"}
@@ -177,7 +177,16 @@
                 {"tipo": "field", "key": "lineaspedidoscli.cerradapda", "width": 60},
                 {"tipo": "field", "key": "stocks.cantidad", "label":"Stock", "width": 58},
                 {"tipo": "field", "key": "stocks.disponible", "label":"Disp.", "width": 58},
-                {"tipo": "field", "key": "lineaspedidoscli.referencia", "width": 110}
+                {"tipo": "field", "key": "lineaspedidoscli.referencia", "width": 110},
+                {
+                    "tipo": "act",
+                    "key": "inventariar",
+                    "label": "Inventario al vuelo",
+                    "success": [
+                        {"slot": "refrescar"},
+                        {"receiver": "fdb_codBarras", "slot": "select"}
+                    ]
+                }
             ],
             "rowclick": "gotoMoviloteQuery",
             "accionesGrid": []
@@ -208,6 +217,12 @@
             "icon": "content_paste",
             "prefix": "lineaspedidoscli",
             "serverAction": "inventariar"
+        },
+        "completarLinea" : {
+            "action": "legacy",
+            "icon": "check",
+            "prefix": "lineaspedidoscli",
+            "serverAction": "completarLinea"
         },
         "cerrarLinea": {
             "action": "legacy",

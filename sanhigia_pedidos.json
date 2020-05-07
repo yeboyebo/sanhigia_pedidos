@@ -213,6 +213,10 @@
             {
                 "name": "app_facturacion__sh_preparaciondepedidos.json",
                 "path": "apps/facturacion/templates/facturacion/plantillas/"
+            },
+            {
+                "name": "client.css",
+                "path": "assets/dist/css/"
             }
         ],
         "replaceFile": [

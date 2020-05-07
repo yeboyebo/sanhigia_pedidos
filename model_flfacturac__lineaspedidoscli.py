@@ -94,3 +94,12 @@ class sanhigia_pedidos_lineaspedidoscli(flfacturac_lineaspedidoscli, helpers.Mix
     def inventariar(self, oParam):
         return form.iface.inventariar(self, oParam)
 
+    @helpers.decoradores.accion(aqparam=[])
+    def visualizarPedido(self):
+        print("_______________________")
+        return form.iface.visualizarPedido(self)
+
+    @helpers.decoradores.accion(aqparam=["oParam"])
+    def completarLinea(self, oParam):
+        return form.iface.completarLinea(self, oParam)
+

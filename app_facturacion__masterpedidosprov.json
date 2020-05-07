@@ -59,12 +59,9 @@
                     "label": "Pedidos de proveedores",
                     "prefix": "pedidosprov",
                     "cansavefilter": false,
-                    "buscador": {
-                        "fields": [
-                            "codigo"
-                        ]
-                    },
+                    "buscador": false,
                     "filter": {
+                        "codigo": true,
                         "proyecto": {
                             "label": "Proveedores",
                             "filterType": "custom",

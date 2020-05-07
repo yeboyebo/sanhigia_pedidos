@@ -29,12 +29,24 @@ class sanhigia_pedidos(interna):
         return response
 
     def sanhigia_pedidos_getForeignFields(self, model, template):
+        if template == "master":
+            return [
+                {'verbose_name': 'rowColor', 'func': 'field_masterColorRow'}
+            ]
         if template == "grupoPedidosCli":
             return [
                 {'verbose_name': 'rowColor', 'func': 'field_grupoQueryColorRow'},
                 {'verbose_name': 'metadata', 'func': 'fun_metadata'}
             ]
         return []
+
+    def sanhigia_pedidos_field_masterColorRow(self, model):
+        preparacion = model.codpreparaciondepedido
+        tengolineas = qsatype.FLUtil.sqlSelect("lineaspedidoscli", "count(idlinea)", "codpreparaciondepedido = '{}' and sh_preparacion = 'En Curso' AND shcantalbaran < cantidad  and (shcantalbaran is null or shcantalbaran < cantidad)".format(preparacion))
+        print(tengolineas)
+        if tengolineas == 0:
+            return "colorGris"
+        return ""
 
     def sanhigia_pedidos_field_grupoQueryColorRow(self, model):
         pda = model["pedidoscli.pda"]
@@ -160,6 +172,9 @@ class sanhigia_pedidos(interna):
 
     def procesaCodBarrasGrupo(self, model, oParam):
         return self.ctx.sanhigia_pedidos_procesaCodBarrasGrupo(model, oParam)
+
+    def field_masterColorRow(self, model):
+        return self.ctx.sanhigia_pedidos_field_masterColorRow(model)
 
 
 # @class_declaration head #
