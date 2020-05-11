@@ -12,6 +12,7 @@
             "class": "claseGrid",
             "label": "Preparación de pedidos",
             "prefix": "sh_preparaciondepedidos",
+            "colorRowField": "rowColor",
             "buscador": false,
             "filter": {
                 "codpreparaciondepedido": true,

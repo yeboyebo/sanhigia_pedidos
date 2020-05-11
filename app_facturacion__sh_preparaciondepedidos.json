@@ -117,8 +117,8 @@
             "columns": [
                 {
                     "tipo": "act",
-                    "key": "cerrarLinea",
-                    "label": "cerrar Linea",
+                    "key": "completarLinea",
+                    "label": "Completar Linea",
                     "success": [
                         {"slot": "refrescar"},
                         {"receiver": "fdb_codBarras", "slot": "select"}
@@ -126,8 +126,8 @@
                 },
                 {
                     "tipo": "act",
-                    "key": "completarLinea",
-                    "label": "Completar Linea",
+                    "key": "cerrarLinea",
+                    "label": "cerrar Linea",
                     "success": [
                         {"slot": "refrescar"},
                         {"receiver": "fdb_codBarras", "slot": "select"}

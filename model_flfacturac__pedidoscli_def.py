@@ -1515,6 +1515,47 @@ class sanhigia_pedidos(flfacturac):
         # print("sale pro aqui????")
         return True
 
+
+    def sanhigia_pedidos_visualizarPedido(self, model):
+        print("___________________________")
+        print(model.idpedido)
+        qPedido = qsatype.FLSqlQuery()
+        qPedido.setTablesList(u"pedidoscli")
+        qPedido.setSelect(u"codigo, codcliente, nombrecliente, fecha, dirtipovia, direccion, ciudad, provincia, dirnum, dirotros")
+        qPedido.setFrom(u"pedidoscli")
+        qPedido.setWhere(u"idpedido = {} ".format(model.idpedido))
+        if not qPedido.exec_():
+            return response
+        if qPedido.next():
+            print("____________________________")
+            codigo = qPedido.value("codigo")
+            # codcliente = qPedido.value("codcliente")
+            # nombrecliente = qsatype.FLUtil.sqlSelect("clientes", "nombre", "codcliente = '{}'".format(codcliente))
+            nombrecliente = qPedido.value("nombrecliente")
+            fecha = qPedido.value("fecha")
+            direccion = str(qPedido.value("dirtipovia") or "") + " " + str(qPedido.value("direccion") or "") + ", " + str(qPedido.value("dirnum") or "") + " " + str(qPedido.value("dirotros") or "") + ", " + str(qPedido.value("ciudad") or "") + ", " + str(qPedido.value("provincia") or "")
+        response = {}
+        response["status"] = 2
+        response["confirm"] = "<div  style='overflow:hidden;''><div style='position:relative;float:left;'><div class='elementoPreparacion'>" + codigo + "</div></div><div style='position:relative;float:right;'><div class='elementoPreparacion'>" + str(fecha) + "</div></div></div></br><div class='elementoPreparacion'>" + nombrecliente + "</div></br><div class='elementoPreparacion'>" + direccion + "</div>"
+        response["customButtons"] = []
+        q = qsatype.FLSqlQuery()
+        q.setTablesList(u"lineaspedidoscli")
+        q.setSelect(u"descripcion, shcantalbaran, cantidad")
+        q.setFrom(u"lineaspedidoscli")
+        # q.setWhere(u"referencia = UPPER('" + model.referencia.referencia.upper() + "') AND codalmacen = 'ALM'")
+        q.setWhere(u"idpedido = {} ".format(model.idpedido))
+        if not q.exec_():
+            return response
+        response["confirm"] += "<br><div class='elementoPreparacion'>Artículos</div><table style='width: 100%;'>"
+        while q.next():
+            estadoLinea = "background-color:lightgreen;"
+            if q.value("shcantalbaran") != q.value("cantidad"):
+                estadoLinea = ""
+            response["confirm"] += " <tr style='" + estadoLinea + "'><td>" + q.value("descripcion") + "</td><td>" + str(int(q.value("shcantalbaran") or 0)) + " / " + str(int(q.value("cantidad") or 0)) + "</td></tr>"
+        response["confirm"] += "</table>"
+        return response
+
+
     def __init__(self, context=None):
         super(sanhigia_pedidos, self).__init__(context)
 
@@ -1571,4 +1612,7 @@ class sanhigia_pedidos(flfacturac):
 
     def actualizarTrabajador(self, model, oParam):
         return self.ctx.sanhigia_pedidos_actualizarTrabajador(model, oParam)
+
+    def visualizarPedido(self, model):
+        return self.ctx.sanhigia_pedidos_visualizarPedido(model)
 

@@ -53,3 +53,7 @@ class sanhigia_pedidos_pedidoscli(flfacturac_pedidoscli, helpers.MixinConAccione
     def quitarTrabajador(self, oParam):
         return form.iface.quitarTrabajador(self, oParam)
 
+    @helpers.decoradores.accion(aqparam=[])
+    def visualizarPedido(self):
+        return form.iface.visualizarPedido(self)
+

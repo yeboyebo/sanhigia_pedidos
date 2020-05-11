@@ -10,7 +10,6 @@ class sanhigia_pedidos(flfacturac):
 
 
     def sanhigia_pedidos_visualizarPedido(self, model):
-        print("___________________________")
         qPedido = qsatype.FLSqlQuery()
         qPedido.setTablesList(u"pedidoscli")
         qPedido.setSelect(u"codigo, codcliente, fecha, dirtipovia, direccion, ciudad, provincia, dirnum, dirotros")
@@ -184,6 +183,12 @@ class sanhigia_pedidos(flfacturac):
     def sanhigia_pedidos_modificarShcantidad(self, model, oParam):
         idLinea = model.pk
         shcantidad = oParam['shcantalbaran']
+        cerradapda = qsatype.FLUtil.sqlSelect(u"lineaspedidoscli", u"cerradapda", ustr(u"idlinea = '", idLinea, u"'"))
+        if cerradapda:
+            resul = {}
+            resul['status'] = -1
+            resul['msg'] = "La línea se encuentra cerrada no es posible actualizar la cántidad"
+            return resul
         curLP = qsatype.FLSqlCursor(u"lineaspedidoscli")
         curLP.select("idlinea = {}".format(idLinea))
         if not curLP.first():
@@ -199,6 +204,12 @@ class sanhigia_pedidos(flfacturac):
     def sanhigia_pedidos_modificarShcantidadQuery(self, model, oParam):
         idLinea = model.pk
         shcantidad = oParam['lineaspedidoscli.shcantalbaran']
+        cerradapda = qsatype.FLUtil.sqlSelect(u"lineaspedidoscli", u"cerradapda", ustr(u"idlinea = '", idLinea, u"'"))
+        if cerradapda:
+            resul = {}
+            resul['status'] = -1
+            resul['msg'] = "La línea se encuentra cerrada no es posible actualizar la cántidad"
+            return resul
         curLP = qsatype.FLSqlCursor(u"lineaspedidoscli")
         curLP.select("idlinea = {}".format(idLinea))
         if not curLP.first():
@@ -628,6 +639,84 @@ class sanhigia_pedidos(flfacturac):
                     return False
         return True
 
+    def sanhigia_pedidos_completarLinea(self, model, oParam):
+        idLinea = model.idlinea
+        cerradapda = model.cerradapda
+        if cerradapda:
+            resul = {}
+            resul['status'] = -1
+            resul['msg'] = "La línea se encuentra cerrada no es posible actualizar la cántidad"
+            return resul
+        porlotes = qsatype.FLUtil.sqlSelect("articulos", "porlotes", "referencia = '{}'".format(model.referencia.referencia))
+        if not porlotes:
+            curLP = qsatype.FLSqlCursor(u"lineaspedidoscli")
+            curLP.select("idlinea = {}".format(idLinea))
+            if not curLP.first():
+                raise ValueError("Error no se encuentra la linea de pedido ")
+                return False
+            curLP.setModeAccess(curLP.Edit)
+            curLP.refreshBuffer()
+            curLP.setValueBuffer("shcantalbaran", curLP.valueBuffer("cantidad"))
+            if not curLP.commitBuffer():
+                return False
+        else:
+            if model.shcantalbaran == model.cantidad:
+                return True
+            if "codlote" not in oParam:
+                resul = {}
+                query = qsatype.FLSqlQuery()
+                query.setTablesList(u"lotes")
+                query.setSelect(u"*")
+                query.setFrom(u"lotes")
+                query.setWhere("referencia = '{}'  AND enalmacen > 0".format(model.referencia.referencia))
+                # query.setWhere("referencia = '{}'".format(model.referencia.referencia))
+
+                if query.exec_():
+                    if query.size() >= 1:
+                        opts = []
+                        while query.next():
+                            opt = {}
+                            opt['key'] = query.value("codlote")
+                            formatofecha = "%d/%m/%Y"
+                            fecha = None
+                            if query.value("caducidad"):
+                                fecha = query.value("caducidad").strftime(formatofecha)
+                            descLote = query.value("descripcion") or ""
+                            opt['alias'] = query.value("codigo") + " - " + str(int(query.value("enalmacen"))) + " - " + str(fecha) + " - " + descLote
+                            opts.append(opt)
+
+                        response = {}
+                        response['status'] = -1
+                        response['data'] = {}
+                        response['params'] = [
+                            {
+                                "componente": "YBFieldDB",
+                                "tipo": 90,
+                                "verbose_name": "Opts",
+                                "label": "Asignar lote",
+                                "style": {"width": "700px"},
+                                "key": "codlote",
+                                "validaciones": None,
+                                "opts": opts
+                            }
+                        ]
+                        return response
+                    else:
+                        resul['status'] = -3
+                        codalmacen = qsatype.FLUtil.sqlSelect(u"pedidoscli", u"codalmacen", "idpedido = {}".format(model.idpedido.idpedido))
+                        resul['msg'] = "No existe stock para la referencia " + model.referencia.referencia + " en el almacén ", codalmacen
+                        # resul['param'] = idLinea
+                        return resul
+            else:
+                codalmacen = qsatype.FLUtil.sqlSelect(u"pedidoscli", u"codalmacen", "idpedido = {}".format(model.idpedido.idpedido))
+                codLote = oParam['codlote']
+                enalmacen = qsatype.FLUtil.sqlSelect("lotes", "enalmacen", "referencia = '{}' AND codlote = '{}'".format(model.referencia.referencia, codLote))
+                cantidad = int(model.cantidad) - int((model.shcantalbaran or 0))
+                if enalmacen < cantidad:
+                    cantidad = enalmacen or 0
+                pedidoscli.form.iface.insertarMovilote(model.idlinea, model.referencia.referencia, cantidad, codalmacen, codLote)
+        return True
+
     def __init__(self, context=None):
         super(sanhigia_pedidos, self).__init__(context)
 
@@ -708,78 +797,6 @@ class sanhigia_pedidos(flfacturac):
 
     def inventariar(self, model, oParam):
         return self.ctx.sanhigia_pedidos_inventariar(model, oParam)
-
-    def sanhigia_pedidos_completarLinea(self, model, oParam):
-        print(model.idlinea)
-        idLinea = model.idlinea
-        porlotes = qsatype.FLUtil.sqlSelect("articulos", "porlotes", "referencia = '{}'".format(model.referencia.referencia))
-        if not porlotes:
-            curLP = qsatype.FLSqlCursor(u"lineaspedidoscli")
-            curLP.select("idlinea = {}".format(idLinea))
-            if not curLP.first():
-                raise ValueError("Error no se encuentra la linea de pedido ")
-                return False
-            curLP.setModeAccess(curLP.Edit)
-            curLP.refreshBuffer()
-            curLP.setValueBuffer("shcantalbaran", curLP.valueBuffer("cantidad"))
-            if not curLP.commitBuffer():
-                return False
-        else:
-            if "codlote" not in oParam:
-                resul = {}
-                query = qsatype.FLSqlQuery()
-                query.setTablesList(u"lotes")
-                query.setSelect(u"*")
-                query.setFrom(u"lotes")
-                query.setWhere("referencia = '{}'  AND enalmacen > 0".format(model.referencia.referencia))
-                # query.setWhere("referencia = '{}'".format(model.referencia.referencia))
-
-                if query.exec_():
-                    if query.size() >= 1:
-                        opts = []
-                        while query.next():
-                            opt = {}
-                            opt['key'] = query.value("codlote")
-                            formatofecha = "%d/%m/%Y"
-                            fecha = None
-                            if query.value("caducidad"):
-                                fecha = query.value("caducidad").strftime(formatofecha)
-                            descLote = query.value("descripcion") or ""
-                            opt['alias'] = query.value("codigo") + " - " + str(int(query.value("enalmacen"))) + " - " + str(fecha) + " - " + descLote
-                            opts.append(opt)
-
-                        response = {}
-                        response['status'] = -1
-                        response['data'] = {}
-                        response['params'] = [
-                            {
-                                "componente": "YBFieldDB",
-                                "tipo": 90,
-                                "verbose_name": "Opts",
-                                "label": "Asignar lote",
-                                "style": {"width": "700px"},
-                                "key": "codlote",
-                                "validaciones": None,
-                                "opts": opts
-                            }
-                        ]
-                        return response
-                    else:
-                        resul['status'] = -3
-                        codalmacen = qsatype.FLUtil.sqlSelect(u"pedidoscli", u"codalmacen", "idpedido = {}".format(model.idpedido.idpedido))
-                        resul['msg'] = "No existe stock para la referencia " + model.referencia.referencia + " en el almacén ", codalmacen
-                        # resul['param'] = idLinea
-                        return resul
-            else:
-                codalmacen = qsatype.FLUtil.sqlSelect(u"pedidoscli", u"codalmacen", "idpedido = {}".format(model.idpedido.idpedido))
-                codLote = oParam['codlote']
-                enalmacen = qsatype.FLUtil.sqlSelect("lotes", "enalmacen", "referencia = '{}' AND codlote = '{}'".format(model.referencia.referencia, codLote))
-                cantidad = int(model.cantidad) - int((model.shcantalbaran or 0))
-                if enalmacen < cantidad:
-                    cantidad = enalmacen or 0
-                pedidoscli.form.iface.insertarMovilote(model.idlinea, model.referencia.referencia, cantidad, codalmacen, codLote)
-        return True
-
 
     def completarLinea(self, model, oParam):
         return self.ctx.sanhigia_pedidos_completarLinea(model, oParam)

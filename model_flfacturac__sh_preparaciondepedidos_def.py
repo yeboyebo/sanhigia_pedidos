@@ -42,7 +42,7 @@ class sanhigia_pedidos(interna):
 
     def sanhigia_pedidos_field_masterColorRow(self, model):
         preparacion = model.codpreparaciondepedido
-        tengolineas = qsatype.FLUtil.sqlSelect("lineaspedidoscli", "count(idlinea)", "codpreparaciondepedido = '{}' and sh_preparacion = 'En Curso' AND shcantalbaran < cantidad  and (shcantalbaran is null or shcantalbaran < cantidad)".format(preparacion))
+        tengolineas = qsatype.FLUtil.sqlSelect("lineaspedidoscli", "count(idlinea)", "codpreparaciondepedido = '{}' and sh_preparacion = 'En Curso' AND (shcantalbaran is null or shcantalbaran < cantidad)".format(preparacion))
         print(tengolineas)
         if tengolineas == 0:
             return "colorGris"

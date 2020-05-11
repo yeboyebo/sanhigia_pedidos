@@ -96,7 +96,6 @@ class sanhigia_pedidos_lineaspedidoscli(flfacturac_lineaspedidoscli, helpers.Mix
 
     @helpers.decoradores.accion(aqparam=[])
     def visualizarPedido(self):
-        print("_______________________")
         return form.iface.visualizarPedido(self)
 
     @helpers.decoradores.accion(aqparam=["oParam"])

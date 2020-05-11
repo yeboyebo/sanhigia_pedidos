@@ -89,7 +89,7 @@
                         "codcliente": true
                     },
                     "colorRowField": "rowColor",
-                    "multiselectable": true,
+                    "multiselectable": "action",
                     "columns": [
                         {
                             "tipo": "field",
@@ -133,6 +133,7 @@
                         }
                     ],
                     "rowclick": "link",
+                    "rowclickmuli": "visualizarPedido",
                     "accionesGrid": [
                         {
                             "key": "agruparPedidos",
@@ -171,6 +172,18 @@
         {
             "type": "insertAfterNode",
             "path": "/acciones/agruparPedidos",
+            "value": {
+                "visualizarPedido": {
+                    "action": "legacy",
+                    "icon": "check",
+                    "prefix": "pedidoscli",
+                    "serverAction": "visualizarPedido"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/visualizarPedido",
             "value": {
                 "completarpedidosstock": {
                     "action": "gridAction",
