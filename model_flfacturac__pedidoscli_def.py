@@ -1517,8 +1517,6 @@ class sanhigia_pedidos(flfacturac):
 
 
     def sanhigia_pedidos_visualizarPedido(self, model):
-        print("___________________________")
-        print(model.idpedido)
         qPedido = qsatype.FLSqlQuery()
         qPedido.setTablesList(u"pedidoscli")
         qPedido.setSelect(u"codigo, codcliente, nombrecliente, fecha, dirtipovia, direccion, ciudad, provincia, dirnum, dirotros")
@@ -1540,7 +1538,7 @@ class sanhigia_pedidos(flfacturac):
         response["customButtons"] = []
         q = qsatype.FLSqlQuery()
         q.setTablesList(u"lineaspedidoscli")
-        q.setSelect(u"descripcion, shcantalbaran, cantidad")
+        q.setSelect(u"descripcion, shcantalbaran, cantidad, referencia")
         q.setFrom(u"lineaspedidoscli")
         # q.setWhere(u"referencia = UPPER('" + model.referencia.referencia.upper() + "') AND codalmacen = 'ALM'")
         q.setWhere(u"idpedido = {} ".format(model.idpedido))
@@ -1551,10 +1549,10 @@ class sanhigia_pedidos(flfacturac):
             estadoLinea = "background-color:lightgreen;"
             if q.value("shcantalbaran") != q.value("cantidad"):
                 estadoLinea = ""
-            response["confirm"] += " <tr style='" + estadoLinea + "'><td>" + q.value("descripcion") + "</td><td>" + str(int(q.value("shcantalbaran") or 0)) + " / " + str(int(q.value("cantidad") or 0)) + "</td></tr>"
+            ubicacion = qsatype.FLUtil.sqlSelect("ubicacionesarticulo", "codubicacion", "referencia = '{}'".format(q.value("referencia"))) or ""
+            response["confirm"] += " <tr style='" + estadoLinea + "'><td>" + q.value("descripcion") + "</td><td style='width:55px;'>" + str(int(q.value("shcantalbaran") or 0)) + " / " + str(int(q.value("cantidad") or 0)) + "</td><td>" + ubicacion + "</td></tr>"
         response["confirm"] += "</table>"
         return response
-
 
     def __init__(self, context=None):
         super(sanhigia_pedidos, self).__init__(context)

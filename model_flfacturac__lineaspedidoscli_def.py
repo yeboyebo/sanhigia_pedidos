@@ -33,7 +33,7 @@ class sanhigia_pedidos(flfacturac):
         response["customButtons"] = []
         q = qsatype.FLSqlQuery()
         q.setTablesList(u"lineaspedidoscli")
-        q.setSelect(u"descripcion, shcantalbaran, cantidad")
+        q.setSelect(u"descripcion, shcantalbaran, cantidad, referencia")
         q.setFrom(u"lineaspedidoscli")
         # q.setWhere(u"referencia = UPPER('" + model.referencia.referencia.upper() + "') AND codalmacen = 'ALM'")
         q.setWhere(u"idpedido = {} ".format(model.idpedido.idpedido))
