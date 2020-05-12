@@ -284,8 +284,13 @@ class sanhigia_pedidos(flfacturac):
         return True
 
     def sanhigia_pedidos_pedidoListoPDA(self, model, oParam):
+        lineasServidas = qsatype.FLUtil.sqlSelect("lineaspedidoscli", "COUNT(idlinea)", "idpedido = '{}' AND shcantalbaran is not null and shcantalbaran > 0".format(model.idpedido))
+        if not lineasServidas or lineasServidas == 0:
+            resul = {}
+            resul['status'] = -1
+            resul['msg'] = "No es posible completar no existen líneas para servir"
+            return resul
         if "pesobultos" not in oParam:
-            # print("_______________AAAAAAAAAAAAAAAAAAAA_______________")
             valor = parseFloat(qsatype.FLUtil.sqlSelect(u"articulos a INNER JOIN lineaspedidoscli l ON a.referencia = l.referencia ", u"SUM(a.peso*l.shcantalbaran)", "l.idpedido = {}".format(model.idpedido), u"articulos,lineaspedidoscli"))
             # valor = qsatype.FLUtil.roundFieldValue(valor, u"albaranescli", u"peso")
             if valor < 1:
@@ -354,7 +359,7 @@ class sanhigia_pedidos(flfacturac):
                         "validaciones": None
                     },
                     {
-                        "tipo": 55,
+                        "tipo": 5,
                         "componente": "YBFieldDB",
                         "prefix": "otros",
                         "rel": "agenciastrans",
@@ -367,7 +372,6 @@ class sanhigia_pedidos(flfacturac):
                 ]
                 return response
             else:
-                # print("_______________CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC_______________")
                 tarifaDefecto = ""
                 q = qsatype.FLSqlQuery()
                 q.setTablesList(u"productosagtrans")
@@ -414,7 +418,7 @@ class sanhigia_pedidos(flfacturac):
                         "validaciones": None
                     },
                     {
-                        "tipo": 55,
+                        "tipo": 5,
                         "componente": "YBFieldDB",
                         "prefix": "otros",
                         "rel": "agenciastrans",
@@ -436,7 +440,6 @@ class sanhigia_pedidos(flfacturac):
                 ]
                 return response
         elif "Tarifa" not in oParam:
-            # print("_______________1_______________")
             tarifaDefecto = ""
             q = qsatype.FLSqlQuery()
             q.setTablesList(u"productosagtrans")
@@ -505,7 +508,6 @@ class sanhigia_pedidos(flfacturac):
             ]
             return response
         else:
-            # print("____________2_______________")
             if oParam['codagencia'] != qsatype.FLUtil.sqlSelect(u"productosagtrans", u"codagencia", u"codproductoagt = '{}'".format(oParam['Tarifa'])):
                 codTarifa = qsatype.FLUtil.sqlSelect(u"agenciastrans", u"codproductoagtdefecto", u"codagencia = '{}'".format(oParam['codagencia']))
                 # codzona = qsatype.FLUtil.sqlSelect("provincias", "codigo", ustr(u"idprovincia = '", model.idprovincia, "'"))
@@ -655,18 +657,22 @@ class sanhigia_pedidos(flfacturac):
         descPreparacion = ""
         q = qsatype.FLSqlQuery()
         q.setTablesList(u"lineaspedidoscli, pedidoscli, sh_preparaciondepedidos")
-        q.setSelect(u"pr.descripcion")
+        q.setSelect(u"l.idlinea, pr.descripcion")
         q.setFrom(u"pedidoscli p INNER JOIN lineaspedidoscli l ON p.idpedido = l.idpedido INNER JOIN sh_preparaciondepedidos pr ON l.codpreparaciondepedido = pr.codpreparaciondepedido")
         # q.setWhere(ustr(u"p.idpedido = ", model.idpedido, " GROUP BY pr.descripcion, p.idpedido"))
-        q.setWhere(u"p.idpedido = {} GROUP BY pr.descripcion, p.idpedido".format(model.idpedido))
+        q.setWhere(u"p.idpedido = {} GROUP BY pr.descripcion, l.idlinea".format(model.idpedido))
         if not q.exec_():
             return descPreparacion
         if q.size() > 100:
             return descPreparacion
 
+        descs = {}
         while q.next():
-            if q.value(0):
-                descPreparacion += " " + q.value("pr.descripcion")
+            if q.value(1):
+                descs[q.value(1)] = True
+        for d in descs:
+            descPreparacion += " " + d
+        print(descPreparacion)
         return descPreparacion
 
     def sanhigia_pedidos_field_colorRow(self, model):
@@ -1286,8 +1292,8 @@ class sanhigia_pedidos(flfacturac):
             # curPreparaciondepedidos.setValueBuffer(u"desdehasta", oParam["selecteds"])
             if not curPreparaciondepedidos.commitBuffer():
                 return False
-
-            if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{}' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido INNER JOIN ubicacionesarticulo u ON l.referencia = u.referencia  WHERE p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null))".format(codpreparacion, str_idpedidos[:-1], ubicacionini, ubicacionfin)):
+            print(str_idpedidos)
+            if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{}' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido INNER JOIN ubicacionesarticulo u ON l.referencia = u.referencia  WHERE p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null) AND (l.totalenalbaran < l.cantidad) AND NOT cerrada)".format(codpreparacion, str_idpedidos[:-1], ubicacionini, ubicacionfin)):
                 return False
             resul["status"] = 1
             resul["preparacion"] = codpreparacion
@@ -1538,7 +1544,7 @@ class sanhigia_pedidos(flfacturac):
         response["customButtons"] = []
         q = qsatype.FLSqlQuery()
         q.setTablesList(u"lineaspedidoscli")
-        q.setSelect(u"descripcion, shcantalbaran, cantidad, referencia")
+        q.setSelect(u"descripcion, shcantalbaran, cantidad, totalenalbaran, referencia")
         q.setFrom(u"lineaspedidoscli")
         # q.setWhere(u"referencia = UPPER('" + model.referencia.referencia.upper() + "') AND codalmacen = 'ALM'")
         q.setWhere(u"idpedido = {} ".format(model.idpedido))
@@ -1550,7 +1556,7 @@ class sanhigia_pedidos(flfacturac):
             if q.value("shcantalbaran") != q.value("cantidad"):
                 estadoLinea = ""
             ubicacion = qsatype.FLUtil.sqlSelect("ubicacionesarticulo", "codubicacion", "referencia = '{}'".format(q.value("referencia"))) or ""
-            response["confirm"] += " <tr style='" + estadoLinea + "'><td>" + q.value("descripcion") + "</td><td style='width:55px;'>" + str(int(q.value("shcantalbaran") or 0)) + " / " + str(int(q.value("cantidad") or 0)) + "</td><td>" + ubicacion + "</td></tr>"
+            response["confirm"] += " <tr style='" + estadoLinea + "'><td>" + q.value("descripcion") + "</td><td style='width:55px;'>" + str(int(q.value("shcantalbaran") or 0)) + " / " + str(int(int(q.value("cantidad")) - int(q.value("totalenalbaran")) or 0)) + "</td><td>" + ubicacion + "</td></tr>"
         response["confirm"] += "</table>"
         return response
 
