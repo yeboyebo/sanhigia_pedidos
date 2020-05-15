@@ -66,9 +66,9 @@ class sanhigia_pedidos(flfactalma):
     def sanhigia_pedidos_cerrarAbrirInventario(self, model, oParam):
         response = {}
         # Hasta que no se revisa el comportamiento de reiniciar el docker la funcionalidad estará en mantenimiento - 27-04-2020
-        response['status'] = -1
-        response['msg'] = "La funcionalidad de Abrir/Cerrar Inventario está en mantenimiento"
-        return response
+        # response['status'] = -1
+        # response['msg'] = "La funcionalidad de Abrir/Cerrar Inventario está en mantenimiento"
+        # return response
 
         if "selecteds" not in oParam or not oParam['selecteds']:
             response['status'] = -1
@@ -87,8 +87,9 @@ class sanhigia_pedidos(flfactalma):
             msgError = "Cerrar"
             msgInfo = "cerrado"
         try:
-            requests.post("http://127.0.0.1:8005/api/inventariosapi/{0}/llama_abrircerrar_inventario".format(arrInventarios[0]))
-            # requests.post("http://172.65.0.1:8005/api/inventariosapi/{0}/llama_abrircerrar_inventario".format(arrInventarios[0]))
+            # Llamadas locales
+            # requests.post("http://127.0.0.1:8005/api/inventariosapi/{0}/llama_abrircerrar_inventario".format(arrInventarios[0]))
+            requests.post("http://172.65.0.1:8005/api/inventariosapi/{0}/llama_abrircerrar_inventario".format(arrInventarios[0]))
         except Exception as exc:
             print(exc)
             response['status'] = -1

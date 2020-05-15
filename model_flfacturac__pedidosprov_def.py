@@ -398,14 +398,16 @@ class sanhigia_pedidos(flfacturac):
     def sanhigia_pedidos_generarAlbaranProv(self, model, oParam):
         response = {}
         idpedido = model.idpedido
-        pedidopreparado = qsatype.FLUtil.sqlSelect("lineaspedidosprov", "COUNT(idlinea)", "idpedido = {}  AND shcantalbaran > 0".format(idpedido))
+        pedidopreparado = qsatype.FLUtil.sqlSelect("lineaspedidosprov", "COUNT(idlinea)", "idpedido = {}  AND shcantalbaran > 0 AND cantidad > totalenalbaran ".format(idpedido))
         if not pedidopreparado or pedidopreparado < 1:
             resul = {}
             resul['status'] = 1
             resul['msg'] = "Para generar albarán primero debe preparar las lineás"
             return resul
         try:
-            requests.post("http://127.0.0.1:8005/api/pedidosproveedor/{0}/llama_generar_albaran".format(idpedido))
+            # Llamadas locales
+            # requests.post("http://127.0.0.1:8005/api/pedidosproveedor/{0}/llama_generar_albaran".format(idpedido))
+            requests.post("http://172.65.0.1:8005/api/pedidosproveedor/{0}/llama_generar_albaran".format(idpedido))
         except Exception as exc:
             response['status'] = -1
             response['msg'] = "Error al generar albáran.<br>Error: {}".format(exc)

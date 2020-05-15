@@ -60,7 +60,6 @@
                             "label": "General Albarán",
                             "className": "floatRight",
                             "buttonType": "flat",
-                            "disabled": "true",
                             "action": {
                                 "key": "generarAlbaran",
                                 "success": [
