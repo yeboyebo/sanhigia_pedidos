@@ -406,16 +406,25 @@ class sanhigia_pedidos(flfacturac):
             return resul
         try:
             # Llamadas locales
-            # requests.post("http://127.0.0.1:8005/api/pedidosproveedor/{0}/llama_generar_albaran".format(idpedido))
-            requests.post("http://172.65.0.1:8005/api/pedidosproveedor/{0}/llama_generar_albaran".format(idpedido))
-        except Exception as exc:
+            # res = requests.post("http://127.0.0.1:8005/api/pedidosproveedor/{0}/llama_generar_albaran".format(idpedido))
+            res = requests.post("http://172.65.0.1:8005/api/pedidosproveedor/{0}/llama_generar_albaran".format(idpedido))
+            if res.status_code != 200:
+                response['status'] = -1
+                response['msg'] = "Error al generar albáran.<br>Código error: {1} {2}".format(res.status_code, res.reason)
+                return response
+        except Exception:
             response['status'] = -1
-            response['msg'] = "Error al generar albáran.<br>Error: {}".format(exc)
+            response['msg'] = "Error al generar albáran.<br>Error de conexión con el servidor"
             return response
+        idalbaran = res.json()
+        if not idalbaran:
+            response['status'] = -1
+            response['msg'] = "Error al generar albáran."
+            return response
+        codigo = qsatype.FLUtil.sqlSelect("albaranesprov", "codigo", "idalbaran = {}  ".format(idalbaran))
         response['resul'] = 1
-        response['msg'] = "Se ha generado correctamente el albáran"
+        response['msg'] = "Se ha generado correctamente el albáran {}".format(codigo)
         return response
-         #return True
 
     def sanhigia_pedidos_getForeignFields(self, model, template):
         return [

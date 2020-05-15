@@ -88,12 +88,16 @@ class sanhigia_pedidos(flfactalma):
             msgInfo = "cerrado"
         try:
             # Llamadas locales
-            # requests.post("http://127.0.0.1:8005/api/inventariosapi/{0}/llama_abrircerrar_inventario".format(arrInventarios[0]))
-            requests.post("http://172.65.0.1:8005/api/inventariosapi/{0}/llama_abrircerrar_inventario".format(arrInventarios[0]))
+            # res = requests.post("http://127.0.0.1:8005/api/inventariosapi/{0}/llama_abrircerrar_inventario".format(arrInventarios[0]))
+            res = requests.post("http://172.65.0.1:8005/api/inventariosapi/{0}/llama_abrircerrar_inventario".format(arrInventarios[0]))
+            if res.status_code != 200:
+                response['status'] = -1
+                response['msg'] = "Error al {0} el inventario.<br>Código error: {1} {2}".format(msgError, res.status_code, res.reason)
+                return response
         except Exception as exc:
             print(exc)
             response['status'] = -1
-            response['msg'] = "Error al {} el inventario.<br>Error: {}".format(msgError, exc)
+            response['msg'] = "Error al {} el inventario.<br>Error de conexión con el servidor".format(msgError)
             return response
         response['resul'] = 1
         response['msg'] = "Se ha {0} correctamente el inventario '{1}'".format(msgInfo, arrInventarios[0])

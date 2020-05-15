@@ -23,7 +23,7 @@
                 }
             },
             "colorRowField": "rowColor",
-            "multiselectable": "action",
+            "multiselectable": true,
             "columns": [
                 {"tipo": "field", "key": "codinventario", "width": 80},
                 {"tipo": "field", "key": "codalmacen", "width": 70},
