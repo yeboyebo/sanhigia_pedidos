@@ -146,15 +146,41 @@ class sanhigia_pedidos(flfactalma):
             if lectura.startswith('01') or lectura.startswith('02'):
                 derecha = lectura[2:]
                 datos['codbarras'] = derecha[:14]
-                derecha = lectura[26:]
-                if len(derecha) == 7:
-                    datos['lote'] = derecha[-7:]
+                sincodbarras = derecha[14:]
+                # Aesculap
+                if sincodbarras.startswith('17') and sincodbarras[8] == '1' and sincodbarras[9] == '0':
+                    # 010403865301991517241209104511266114
+                    # 0114560146927560172208001017g59
+                    derecha = derecha[16:]
+                    datos['caducidad'] = derecha[:6]
+                    lote = derecha[6:]
+                    datos['lote'] = lote
+                elif sincodbarras.startswith('11') and sincodbarras[8] == '1' and sincodbarras[9] == '7':
+                    # 0108809490620277111805281723052710240811042100000274
+                    derecha = lectura[26:]
+                    datos['caducidad'] = derecha[:6]
+                    derecha = derecha[8:]
+                    datos['lote'] = derecha[:8]
+                elif sincodbarras.startswith('91') and sincodbarras[8] == '1' and sincodbarras[9] == '0':
+                    # 01805003882000489108D05s101802012240630 BIOPLANT
+                    derecha = lectura[26:]
+                    datos['lote'] = derecha[:5]
+                    caducidad = derecha[7:]
+                    datos['caducidad'] = caducidad
+                elif sincodbarras.startswith('10'):
+                    # 0104038653021093104510975730
+                    lote = sincodbarras[2:]
+                    datos['lote'] = lote
                 else:
-                    if len(lectura) > 35:
-                        datos['lote'] = derecha[:6]
-                        datos['caducidad'] = lectura[18:][:4]
+                    derecha = lectura[26:]
+                    if len(derecha) == 7:
+                        datos['lote'] = derecha[-7:]
                     else:
-                        datos['lote'] = derecha[:9]
+                        if len(lectura) > 35:
+                            datos['lote'] = derecha[:6]
+                            datos['caducidad'] = lectura[18:][:4]
+                        else:
+                            datos['lote'] = derecha[:9]
             elif lectura.startswith('(01)') or lectura.startswith('(02)'):
                 derecha = lectura[4:]
                 crt = derecha.find('(17)')

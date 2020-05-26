@@ -84,12 +84,9 @@ class sanhigia_pedidos(flfacturac):
                     return self.iface.respuestaAnalizaCodBarras(model, oParam, val)
                     return val
                 else:
-                    print("____analizar____")
                     val = self.iface.analizaCodBarrasLote(referencia, objcod['codbarras'], objcod, cantidad, oParam['idlinea'], codAlmacen)
-                    print("__________________________")
-                    print(val)
                     return self.iface.respuestaAnalizaCodBarras(model, oParam, val)
-                    return val
+                    # return val
             else:
                 response = {}
                 response['status'] = -1
@@ -287,7 +284,7 @@ class sanhigia_pedidos(flfacturac):
             ncodlote = None
             if "ncodlote" in val['param']:
                 ncodlote = val['param']['ncodlote']
-            print(val)
+            # print(val)
             # opt = {}
             # opt['key'] = "ncodlote"
             # opt['alias'] = "Nuevo Lote"
@@ -763,7 +760,7 @@ class sanhigia_pedidos(flfacturac):
 
     def sanhigia_pedidos_analizaCodBarrasLote(self, referencia, barcode, objarticulo, cantidad, idLinea, codAlmacen):
         # 2.2 El barcode es cuadrado
-        print("___analizarcodbarraslote____")
+        # print("___analizarcodbarraslote____")
         resul = {}
         codigo = objarticulo["lote"]
         if "caducidad" in objarticulo:
@@ -773,7 +770,7 @@ class sanhigia_pedidos(flfacturac):
         # codigo = lote
         # lo que tenemos es el codigo de lotes pero lo que se inserta es el campo codlote de lotes, vamos a buscar el primer codlote de la tabla lotes que tenga como codigo el lote que hemos ledio y que tenga stock
         codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", "codigo = '{}' AND enalmacen > 0 AND referencia ='{}'".format(codigo, referencia))
-        print("________________________", codLote)
+        # print("________________________", codLote)
         if codLote == u"" or not codLote:
             query = qsatype.FLSqlQuery()
             query.setTablesList(u"lotes")
