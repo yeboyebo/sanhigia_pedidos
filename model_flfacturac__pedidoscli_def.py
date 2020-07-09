@@ -1157,7 +1157,7 @@ class sanhigia_pedidos(flfacturac):
             q.setTablesList(u"pedidoscli")
             q.setSelect(u"codigo")
             q.setFrom(u"pedidoscli")
-            q.setWhere(u"pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Albaranado', 'Parcial') AND servido IN ('No', 'Parcial') AND (sh_estadopago NOT IN ('Borrador', 'Borrador con promocion') OR sh_estadopago is null)")
+            q.setWhere(u"pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Albaranado', 'Parcial') AND servido IN ('No', 'Parcial') AND (sh_estadopago NOT IN ('Borrador', 'Borrador con promocion', 'Forma de pago bloqueada') OR sh_estadopago is null)")
             if not q.exec_():
                 return []
             # if q.size() > 100:
@@ -1257,7 +1257,7 @@ class sanhigia_pedidos(flfacturac):
         ubicacionfin = oParam["ubicacionfin"]
         crearPreparacion = False
         pedidoscli = "'" + "','".join(oParam['selecteds'].split(",")) + "'"
-        consulta_where = u"p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}'  AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null) GROUP BY p.idpedido".format(pedidoscli, ubicacionini, ubicacionfin)
+        consulta_where = u"p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}'  AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion', 'Forma de pago bloqueada') OR p.sh_estadopago is null) GROUP BY p.idpedido".format(pedidoscli, ubicacionini, ubicacionfin)
         query = qsatype.FLSqlQuery()
         query.setTablesList(u"pedidoscli, lineaspedidoscli, ubicacionesarticulo")
         query.setSelect(u"p.idpedido,COUNT(l.idlinea)")
@@ -1274,7 +1274,7 @@ class sanhigia_pedidos(flfacturac):
         str_idpedidos = ""
         while query.next():
             num_lineas_prep = query.value(1)
-            num_lineas = qsatype.FLUtil.sqlSelect("pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido", "COUNT(l.idlinea)", "p.idpedido = {0} AND  p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null)".format(query.value(0)), u"pedidoscli,lineaspedidoscli")
+            num_lineas = qsatype.FLUtil.sqlSelect("pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido", "COUNT(l.idlinea)", "p.idpedido = {0} AND  p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion', 'Forma de pago bloqueada') OR p.sh_estadopago is null)".format(query.value(0)), u"pedidoscli,lineaspedidoscli")
             if int(num_lineas) == int(num_lineas_prep):
                 crearPreparacion = True
                 str_idpedidos += "{},".format(query.value(0))
@@ -1293,7 +1293,7 @@ class sanhigia_pedidos(flfacturac):
             if not curPreparaciondepedidos.commitBuffer():
                 return False
             print(str_idpedidos)
-            if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{}' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido INNER JOIN ubicacionesarticulo u ON l.referencia = u.referencia  WHERE p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null) AND (l.totalenalbaran < l.cantidad) AND NOT cerrada)".format(codpreparacion, str_idpedidos[:-1], ubicacionini, ubicacionfin)):
+            if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{}' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido INNER JOIN ubicacionesarticulo u ON l.referencia = u.referencia  WHERE p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion', 'Forma de pago bloqueada') OR p.sh_estadopago is null) AND (l.totalenalbaran < l.cantidad) AND NOT cerrada)".format(codpreparacion, str_idpedidos[:-1], ubicacionini, ubicacionfin)):
                 return False
             resul["status"] = 1
             resul["preparacion"] = codpreparacion
@@ -1365,7 +1365,7 @@ class sanhigia_pedidos(flfacturac):
         query.setTablesList(u"pedidoscli,lineaspedidoscli, ubicacionesarticulo")
         query.setSelect(u"l.idlinea")
         query.setFrom(u"pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia LEFT JOIN stocks s ON l.referencia = s.referencia")
-        where_consulta = u"p.servido in ('No','Parcial') AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.totalenalbaran <> l.cantidad AND s.cantidad > 0 AND (p.sh_estadopago not in ('Borrador','Borrador con promocion') OR p.sh_estadopago is null)".format(ubicacionini, ubicacionfin)
+        where_consulta = u"p.servido in ('No','Parcial') AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.totalenalbaran <> l.cantidad AND s.cantidad > 0 AND (p.sh_estadopago not in ('Borrador','Borrador con promocion', 'Forma de pago bloqueada') OR p.sh_estadopago is null)".format(ubicacionini, ubicacionfin)
         if "fechaini" in oParam and oParam["fechaini"] is not None:
             where_consulta = "{0} AND p.fecha >= '{1}'".format(where_consulta, oParam["fechaini"])
         if "fechafin" in oParam and oParam["fechafin"] is not None:
