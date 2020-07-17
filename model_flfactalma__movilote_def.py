@@ -53,9 +53,11 @@ class sanhigia_pedidos(interna):
             resul['msg'] = "No pueden generarse movimientos nulos"
             return resul
         if cursor.valueBuffer("docorigen") == "PP":
-            cantidad = oParam["cantidad"]
+            cant_pp = oParam["cantidad"].replace(',', '.')
+            cantidad = parseFloat(cant_pp)
         elif cursor.valueBuffer("docorigen") == "PC":
-            cantidad = int(oParam["cantidadmlote"]) * -1
+            cant_pc = oParam["cantidadmlote"].replace(',', '.')
+            cantidad = parseFloat(cant_pc) * -1
         cursor.setValueBuffer("cantidad", cantidad)
         if not cursor.commitBuffer():
             return False
