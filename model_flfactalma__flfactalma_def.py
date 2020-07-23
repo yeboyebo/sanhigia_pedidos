@@ -98,6 +98,7 @@ class sanhigia_pedidos(flfactalma):
         return None
 
     def sanhigia_pedidos_datosLecturaCodBarras(self, lectura=None, codproveedor=None, referencia=None):
+        print("???????????")
         if not lectura or lectura == u"":
             return u""
         datos = None
@@ -179,9 +180,7 @@ class sanhigia_pedidos(flfactalma):
                 if len(derecha) == 7:
                     datos['lote'] = derecha[-7:]
                 else:
-                    print("_____________")
-                    print(sincodbarras)
-                    print(sincodbarras[9])
+                    # 190809^]214101519
                     if sincodbarras.startswith('10'):
                         # 0104038653021093104510975730
                         if sincodbarras[9] == '1' and sincodbarras[10] == '7':
@@ -198,9 +197,21 @@ class sanhigia_pedidos(flfactalma):
                             datos['caducidad'] = caducidad[:6]
                             lote = sincodbarras[10:]
                             datos['lote'] = lote
+                            number_found = -1
+                            for position, reg in enumerate(datos['lote']):
+                                # print("*", reg, ord(reg), position)
+                                if ord(reg) == 29:
+                                    number_found = position - 1
+                                    datos["lote"] = datos["lote"][:number_found]
                         else:
                             lote = sincodbarras[2:]
                             datos['lote'] = lote
+                            number_found = -1
+                            for position, reg in enumerate(datos['lote']):
+                                # print("*", reg, ord(reg), position)
+                                if ord(reg) == 29:
+                                    number_found = position - 1
+                                    datos["lote"] = datos["lote"][:number_found]
                     elif len(lectura) > 35:
                         datos['lote'] = derecha[:6]
                         datos['caducidad'] = lectura[18:][:4]
