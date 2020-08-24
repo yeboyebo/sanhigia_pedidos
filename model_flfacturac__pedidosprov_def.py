@@ -401,6 +401,12 @@ class sanhigia_pedidos(flfacturac):
             resul['status'] = 1
             resul['msg'] = "Para generar albarán primero debe preparar las lineás"
             return resul
+        codtrabajador = qsatype.FLUtil.sqlSelect("pedidosprov", "codtrabajador", "idpedido = {} ".format(idpedido))
+        if not codtrabajador or codtrabajador == "":
+            resul = {}
+            resul['status'] = 1
+            resul['msg'] = "No esta informado el campo trabajador.Para informarlo usa el bóton 'Listo PDA'"
+            return resul
         try:
             # Llamadas locales
             # res = requests.post("http://127.0.0.1:8005/api/pedidosproveedor/{0}/llama_generar_albaran".format(idpedido))
