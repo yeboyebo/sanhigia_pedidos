@@ -201,7 +201,7 @@ class sanhigia_pedidos(flfactalma):
                             for position, reg in enumerate(datos['lote']):
                                 # print("*", reg, ord(reg), position)
                                 if ord(reg) == 29:
-                                    number_found = position - 1
+                                    number_found = position
                                     datos["lote"] = datos["lote"][:number_found]
                         else:
                             lote = sincodbarras[2:]
@@ -210,7 +210,7 @@ class sanhigia_pedidos(flfactalma):
                             for position, reg in enumerate(datos['lote']):
                                 # print("*", reg, ord(reg), position)
                                 if ord(reg) == 29:
-                                    number_found = position - 1
+                                    number_found = position
                                     datos["lote"] = datos["lote"][:number_found]
                     elif len(lectura) > 35:
                         datos['lote'] = derecha[:6]
