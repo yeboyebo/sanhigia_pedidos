@@ -285,6 +285,12 @@
                         },
                         {
                             "tipo": "field",
+                            "key": "stockDisp",
+                            "label": "Stock Disp.",
+                            "width": 80
+                        },
+                        {
+                            "tipo": "field",
                             "key": "disStock",
                             "label": "Stock",
                             "width": 50

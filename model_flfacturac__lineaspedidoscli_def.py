@@ -89,6 +89,19 @@ class sanhigia_pedidos(flfacturac):
         if q.next():
             return q.value(0)
 
+    def sanhigia_pedidos_fun_stockDisp(self, model):
+        q = qsatype.FLSqlQuery()
+        q.setTablesList(u"stocks")
+        q.setSelect(u"disponible")
+        q.setFrom(u"stocks")
+        # q.setWhere(u"referencia = UPPER('" + model.referencia.referencia.upper() + "') AND codalmacen = 'ALM'")
+        q.setWhere(u"referencia = UPPER('{}') AND codalmacen = 'ALM'".format(model.referencia.referencia.upper()))
+        if not q.exec_():
+            return 0
+
+        if q.next():
+            return q.value(0)
+
     def sanhigia_pedidos_fun_codubicacion(self, model):
         q = qsatype.FLSqlQuery()
         q.setTablesList(u"ubicacionesarticulo")
@@ -164,6 +177,7 @@ class sanhigia_pedidos(flfacturac):
                 {'verbose_name': 'rowColor', 'func': 'field_colorRow'},
                 {'verbose_name': 'metadata', 'func': 'fun_metadata'},
                 {'verbose_name': 'disStock', 'func': 'fun_disStock'},
+                {'verbose_name': 'stockDisp', 'func': 'fun_stockDisp'},
                 {'verbose_name': 'codubicacion', 'func': 'fun_codubicacion'},
                 {'verbose_name': 'referenciaprov', 'func': 'fun_referenciaprov'},
                 {'verbose_name': 'pteServir', 'func': 'fun_pteServir'}
@@ -173,6 +187,7 @@ class sanhigia_pedidos(flfacturac):
                 {'verbose_name': 'rowColor', 'func': 'field_grupoColorRow'},
                 {'verbose_name': 'metadata', 'func': 'fun_metadata'},
                 {'verbose_name': 'disStock', 'func': 'fun_disStock'},
+                {'verbose_name': 'stockDisp', 'func': 'fun_stockDisp'},
                 {'verbose_name': 'codubicacion', 'func': 'fun_codubicacion'},
                 {'verbose_name': 'referenciaprov', 'func': 'fun_referenciaprov'},
                 {'verbose_name': 'codpedido', 'func': 'fun_codpedido'},
@@ -728,6 +743,9 @@ class sanhigia_pedidos(flfacturac):
 
     def fun_disStock(self, model):
         return self.ctx.sanhigia_pedidos_fun_disStock(model)
+
+    def fun_stockDisp(self, model):
+        return self.ctx.sanhigia_pedidos_fun_stockDisp(model)
 
     def fun_codubicacion(self, model):
         return self.ctx.sanhigia_pedidos_fun_codubicacion(model)

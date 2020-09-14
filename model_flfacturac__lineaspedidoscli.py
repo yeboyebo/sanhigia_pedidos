@@ -15,6 +15,9 @@ class sanhigia_pedidos_lineaspedidoscli(flfacturac_lineaspedidoscli, helpers.Mix
     def fun_disStock(self):
         return form.iface.fun_disStock(self)
 
+    def fun_stockDisp(self):
+        return form.iface.fun_stockDisp(self)
+
     def fun_codubicacion(self):
         return form.iface.fun_codubicacion(self)
 
