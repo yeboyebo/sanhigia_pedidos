@@ -390,6 +390,9 @@ class sanhigia_pedidos(flfacturac):
             curPedido.setValueBuffer("codtrabajador", codtrabajador)
         if not curPedido.commitBuffer():
             return False
+        if not qsatype.FLUtil.sqlUpdate(u"lineaspedidosprov", "sh_codtrabarecep", codtrabajador, "idpedido = {} AND sh_codtrabarecep IS NULL AND shcantalbaran > 0".format(model.idpedido)):
+            raise ValueError("Error al actualizar el trabajador de las líneas")
+            return False
         return True
 
     def sanhigia_pedidos_generarAlbaranProv(self, model, oParam):

@@ -585,6 +585,7 @@ class sanhigia_pedidos(flfacturac):
             curPedido.setModeAccess(curPedido.Edit)
             curPedido.refreshBuffer()
             curPedido.setValueBuffer("pda", 'Listo PDA')
+            codtrabajador = curPedido.valueBuffer("codtrabajador")
             if "canbultos" in oParam and "pesobultos" in oParam:
                 curPedido.setValueBuffer("canbultos", oParam['canbultos'])
                 pesobulto = parseFloat(oParam['pesobultos']) / parseFloat(oParam['canbultos'])
@@ -597,6 +598,11 @@ class sanhigia_pedidos(flfacturac):
                 return False
             # Actualizar los datod de preparacion para todas las lineas del pedido
             if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'Pendiente' WHERE idpedido = {}".format(model.idpedido)):
+                return False
+
+            # Actualizar el campo codtrabajador de las líneas del pedido
+            if not qsatype.FLUtil.sqlUpdate(u"lineaspedidoscli", "sh_codtrabaprep", codtrabajador, "idpedido = {} AND sh_codtrabaprep IS NULL AND shcantalbaran > 0".format(model.idpedido)):
+                raise ValueError("Error al actualizar el trabajador de las líneas")
                 return False
             # if not self.sanhigia_pedidos_actualizarDatosLineas(model.idpedido):
             #     return False
