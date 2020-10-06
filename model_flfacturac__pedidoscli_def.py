@@ -601,9 +601,12 @@ class sanhigia_pedidos(flfacturac):
                 return False
 
             # Actualizar el campo codtrabajador de las líneas del pedido
-            if not qsatype.FLUtil.sqlUpdate(u"lineaspedidoscli", "sh_codtrabaprep", codtrabajador, "idpedido = {} AND sh_codtrabaprep IS NULL AND shcantalbaran > 0".format(model.idpedido)):
+            if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_codtrabaprep = '{}' WHERE idpedido = {} AND sh_codtrabaprep IS NULL AND shcantalbaran > 0".format(codtrabajador, model.idpedido)):
                 raise ValueError("Error al actualizar el trabajador de las líneas")
                 return False
+            # if not qsatype.FLUtil.sqlUpdate(u"lineaspedidoscli", "sh_codtrabaprep", codtrabajador, "idpedido = {} AND sh_codtrabaprep IS NULL AND shcantalbaran > 0".format(model.idpedido)):
+            #     raise ValueError("Error al actualizar el trabajador de las líneas")
+            #     return False
             # if not self.sanhigia_pedidos_actualizarDatosLineas(model.idpedido):
             #     return False
             return True
