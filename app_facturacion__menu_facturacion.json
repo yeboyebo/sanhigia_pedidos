@@ -32,6 +32,17 @@
                 "ICON": "shopping_cart",
                 "COLOR": "rgb(30, 170, 30)"
             }
+        },
+        {
+            "type": "insertAfterItem",
+            "path": "/items[sh_preparaciondepedidos]",
+            "value": {
+                "NAME": "Devoluciones",
+                "TEXT": "Devoluciones",
+                "ICON": "dashboard",
+                "TYPE": "absolute",
+                "URL": "http://webapp.sanhigia.com:9000/DevolucionesPedidos"
+            }
         }
     ]
 }
