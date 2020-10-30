@@ -78,7 +78,7 @@ class sanhigia_pedidos(yblogin):
                         usuario = usuarios.objects.filter(idusuario__exact=username)
                         if len(usuario) == 0:
                             return _i.login(request, 'No existe el usuario')
-                        user = User.objects.create_user(username=username, password="Sh20Pda17")
+                        user = User.objects.create_user(username=username, password=password)
                         user.is_staff = False
                         user.groups.add(Group.objects.get(name='agentes'))
                         user.save()
@@ -90,7 +90,12 @@ class sanhigia_pedidos(yblogin):
                 if usuario.password != md5passwd:
                     print("si no")
                     return _i.login(request, 'Error de autentificación')
-                user = authenticate(username=username, password="Sh20Pda17")
+                user = authenticate(username=username, password=password)
+                if user is None:
+                    user = User.objects.get(username__exact=str(username))
+                    user.set_password(password)
+                    user.save()
+                    user = authenticate(username=str(username), password=password)
                 if user is not None:
                     login_auth(request, user)
                     accessControl.accessControl.registraAC()
