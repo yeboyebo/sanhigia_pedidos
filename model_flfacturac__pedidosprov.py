@@ -38,3 +38,7 @@ class sanhigia_pedidos_pedidosprov(flfacturac_pedidosprov, helpers.MixinConAccio
     def generarAlbaranProv(self, oParam):
         return form.iface.generarAlbaranProv(self, oParam)
 
+    @helpers.decoradores.accion(aqparam=["oParam"])
+    def visualizarPedido(self, oParam):
+        return form.iface.visualizarPedido(self, oParam)
+

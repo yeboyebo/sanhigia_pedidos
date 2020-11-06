@@ -95,7 +95,7 @@
                             "width": 200
                         }
                     ],
-                    "rowclick": "link",
+                    "rowclick": "visualizarPedido",
                     "accionesGrid": [
                         {
                             "key": "agruparPedidos",
@@ -119,6 +119,17 @@
                     "action": "gridAction",
                     "serverAction": "agruparPedidos",
                     "icon": "content_copy"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/agruparPedidos",
+            "value": {
+                "visualizarPedido": {
+                    "action": "legacy",
+                    "prefix": "pedidosprov",
+                    "serverAction": "visualizarPedido"
                 }
             }
         }
