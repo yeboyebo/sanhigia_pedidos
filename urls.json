@@ -37,6 +37,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/models/flfactalma/sh_ubicaciones",
+            "value": {
+                "movistock": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/models/flfactppal/zonasgeo",
             "value": {
                 "agenciastrans": null

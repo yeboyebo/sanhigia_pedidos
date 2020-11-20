@@ -10,7 +10,6 @@ import requests
 class sanhigia_pedidos(flfacturac):
 
     def sanhigia_pedidos_procesaCodBarras(self, model, oParam):
-        print(oParam)
         # Suma 1
         cantidad = 1
         # qsatype.debug(ustr("lencodbarras ", len(oParam['codbarras'])))

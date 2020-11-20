@@ -43,7 +43,6 @@ class sanhigia_pedidos(interna):
     def sanhigia_pedidos_field_masterColorRow(self, model):
         preparacion = model.codpreparaciondepedido
         tengolineas = qsatype.FLUtil.sqlSelect("lineaspedidoscli", "count(idlinea)", "codpreparaciondepedido = '{}' and sh_preparacion = 'En Curso' AND (shcantalbaran is null or shcantalbaran < cantidad)".format(preparacion))
-        print(tengolineas)
         if tengolineas == 0:
             return "colorGris"
         return ""
@@ -53,21 +52,33 @@ class sanhigia_pedidos(interna):
         total = model["lineaspedidoscli.totalenalbaran"] or 0
         shcant = model["lineaspedidoscli.shcantalbaran"] or 0
         cantidad = model["lineaspedidoscli.cantidad"] or 0
-        cerrada = model["lineaspedidoscli.cerradapda"] or False
-        if pda == "Preparado":
-            return "cLink"
-        if cerrada:
-            return "cPrimary"
-        elif (total + shcant) == cantidad:
-            return "cSuccess"
-        # elif model["lineaspedidoscli.cerradapda"] is True:
+        cerradapda = model["lineaspedidoscli.cerradapda"] or False
+        # if pda == "Preparado":
+        #     return "cLink"
+        # if cerradapda:
+        #     return "cPrimary"
+        # elif (total + shcant) == cantidad:
         #     return "cSuccess"
-        elif (total + shcant) == cantidad and cerrada is False:
-            return None
-        elif (total + shcant) > 0 and (total + shcant) < cantidad:
+        # # elif model["lineaspedidoscli.cerradapda"] is True:
+        # #     return "cSuccess"
+        # elif (total + shcant) == cantidad and cerradapda is False:
+        #     return None
+        # elif shcant > 0 and (total + shcant) > 0 and (total + shcant) < cantidad:
+        #     return "cWarning"
+        # elif (total + shcant) > cantidad:
+        #     return "cInfo"
+        # else:
+        #     return None
+        if pda == "Preparado" and shcant <= (cantidad - total):
+            return "cPrimary"
+        elif shcant > (cantidad - total):
+            return "cDanger"
+        elif cerradapda:
             return "cWarning"
-        elif (total + shcant) > cantidad:
-            return "cInfo"
+        elif shcant == (cantidad - total):
+            return "cSuccess"
+        elif shcant < (cantidad - total):
+            return None
         else:
             return None
 
@@ -78,6 +89,7 @@ class sanhigia_pedidos(interna):
         query["select"] = "lineaspedidoscli.idlinea, lineaspedidoscli.idpedido, lineaspedidoscli.shcantalbaran, lineaspedidoscli.cantidad, lineaspedidoscli.descripcion, lineaspedidoscli.referencia, lineaspedidoscli.totalenalbaran, lineaspedidoscli.cerradapda, stocks.disponible, stocks.cantidad, ubicacionesarticulo.codubicacion, pedidoscli.codigo, articulosprov.refproveedor, lineaspedidoscli.cantidad - lineaspedidoscli.totalenalbaran, lineaspedidoscli.codpreparaciondepedido, pedidoscli.pda"
         query["from"] = "lineaspedidoscli INNER JOIN pedidoscli ON lineaspedidoscli.idpedido = pedidoscli.idpedido INNER JOIN ubicacionesarticulo ON lineaspedidoscli.referencia = ubicacionesarticulo.referencia INNER JOIN stocks on lineaspedidoscli.referencia = stocks.referencia AND pedidoscli.codalmacen = stocks.codalmacen LEFT OUTER JOIN articulosprov ON (lineaspedidoscli.referencia = articulosprov.referencia AND articulosprov.pordefecto)"
         query["where"] = "lineaspedidoscli.codpreparaciondepedido = '" + preparacion + "' AND lineaspedidoscli.sh_preparacion = 'En Curso'"
+        # query["where"] = "lineaspedidoscli.codpreparaciondepedido = '" + preparacion + "'"
         query["orderby"] = "ubicacionesarticulo.codubicacion, lineaspedidoscli.referencia, lineaspedidoscli.idlinea"
         return query
 
@@ -149,6 +161,29 @@ class sanhigia_pedidos(interna):
                     return pedidoscli.form.iface.respuestaAnalizaCodBarras(None, oParam, val)
         return True
 
+    def sanhigia_pedidos_eliminarLineas(self, model, oParam):
+        response = {}
+        if "selecteds" not in oParam or not oParam['selecteds']:
+            response['status'] = -1
+            response['msg'] = "Debes seleccionar al menos una línea"
+            return response
+        curLineas = qsatype.FLSqlCursor(u"lineaspedidoscli")
+        where = "idlinea IN ({})".format(oParam['selecteds'])
+        curLineas.select(where)
+        total_lineas = curLineas.size()
+        while curLineas.next():
+            curLineas.setModeAccess(curLineas.Edit)
+            curLineas.refreshBuffer()
+            curLineas.setValueBuffer("sh_estadopreparacion", "No")
+            curLineas.setValueBuffer("sh_preparacion", "Pendiente")
+            curLineas.setNull("codpreparaciondepedido")
+            if not curLineas.commitBuffer():
+                return False
+        response['resul'] = 1
+        response['msg'] = "Se ha(n) eliminado {0} línea(s) correctamente de la preparación".format(total_lineas)
+        return response
+
+
     def __init__(self, context=None):
         super().__init__(context)
 
@@ -175,6 +210,9 @@ class sanhigia_pedidos(interna):
 
     def field_masterColorRow(self, model):
         return self.ctx.sanhigia_pedidos_field_masterColorRow(model)
+
+    def eliminarLineas(self, model, oParam):
+        return self.ctx.sanhigia_pedidos_eliminarLineas(model, oParam)
 
 
 # @class_declaration head #

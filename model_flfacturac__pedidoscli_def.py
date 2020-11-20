@@ -681,7 +681,6 @@ class sanhigia_pedidos(flfacturac):
                 descs[q.value(1)] = True
         for d in descs:
             descPreparacion += " " + d
-        print(descPreparacion)
         return descPreparacion
 
     def sanhigia_pedidos_field_colorRow(self, model):
@@ -697,6 +696,10 @@ class sanhigia_pedidos(flfacturac):
             return None
 
     def sanhigia_pedidos_getForeignFields(self, model, template):
+        if template == "mastershpedidoscli":
+            return [
+                {'verbose_name': 'rowColor', 'func': 'field_shpedidoscliQuerycolorRow'}
+            ]
         return [
             {'verbose_name': 'Trabajador', 'func': 'field_trabajador'},
             {'verbose_name': 'Desc. preparación', 'func': 'field_descPreparacion'},
@@ -1264,13 +1267,12 @@ class sanhigia_pedidos(flfacturac):
         resul = {}
         ubicacionini = oParam["ubicacionini"]
         ubicacionfin = oParam["ubicacionfin"]
-        crearPreparacion = False
         pedidoscli = "'" + "','".join(oParam['selecteds'].split(",")) + "'"
-        consulta_where = u"p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}'  AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion', 'Forma de pago bloqueada', 'Pagos pendientes', 'Pendiente validar PA', 'Devolucion por preparar', 'Devolucion preparada', 'Devolucion aprobada') OR p.sh_estadopago is null) GROUP BY p.idpedido".format(pedidoscli, ubicacionini, ubicacionfin)
+        consulta_where = u"l.idpedido IN ({0}) AND u.codubicacion >= '{1}'  AND u.codubicacion <= '{2}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.cantidad > l.totalenalbaran AND NOT l.cerrada  GROUP BY l.idlinea".format(pedidoscli, ubicacionini, ubicacionfin)
         query = qsatype.FLSqlQuery()
-        query.setTablesList(u"pedidoscli, lineaspedidoscli, ubicacionesarticulo")
-        query.setSelect(u"p.idpedido,COUNT(l.idlinea)")
-        query.setFrom(u"pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido INNER JOIN ubicacionesarticulo u ON l.referencia = u.referencia")
+        query.setTablesList(u"lineaspedidoscli, ubicacionesarticulo")
+        query.setSelect(u"l.idlinea")
+        query.setFrom(u"lineaspedidoscli l LEFT OUTER JOIN ubicacionesarticulo u ON l.referencia = u.referencia")
         query.setWhere(consulta_where)
         if not query.exec_():
             resul['status'] = -2
@@ -1280,15 +1282,7 @@ class sanhigia_pedidos(flfacturac):
             resul['status'] = -2
             resul['msg'] = "No se encuentran elementos que cumplan los requisitos"
             return resul
-        str_idpedidos = ""
-        while query.next():
-            num_lineas_prep = query.value(1)
-            num_lineas = qsatype.FLUtil.sqlSelect("pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido", "COUNT(l.idlinea)", "p.idpedido = {0} AND  p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion', 'Forma de pago bloqueada', 'Pagos pendientes', 'Pendiente validar PA', 'Devolucion por preparar', 'Devolucion preparada', 'Devolucion aprobada') OR p.sh_estadopago is null)".format(query.value(0)), u"pedidoscli,lineaspedidoscli")
-            if int(num_lineas) == int(num_lineas_prep):
-                crearPreparacion = True
-                str_idpedidos += "{},".format(query.value(0))
-
-        if crearPreparacion:
+        if query.size() > 0:
             curPreparaciondepedidos = qsatype.FLSqlCursor(u"sh_preparaciondepedidos")
             codpreparacion = qsatype.FLUtil.nextCounter(u"codpreparaciondepedido", curPreparaciondepedidos)
             curPreparaciondepedidos.setModeAccess(curPreparaciondepedidos.Insert)
@@ -1301,9 +1295,11 @@ class sanhigia_pedidos(flfacturac):
             # curPreparaciondepedidos.setValueBuffer(u"desdehasta", oParam["selecteds"])
             if not curPreparaciondepedidos.commitBuffer():
                 return False
-            print(str_idpedidos)
-            if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{}' WHERE idlinea IN (select l.idlinea from pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido INNER JOIN ubicacionesarticulo u ON l.referencia = u.referencia  WHERE p.servido not like 'Sí' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado') AND p.idpedido IN ({}) AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND (p.sh_estadopago not in ('Borrador','Borrador con promocion', 'Forma de pago bloqueada', 'Pagos pendientes', 'Pendiente validar PA', 'Devolucion por preparar', 'Devolucion preparada', 'Devolucion aprobada') OR p.sh_estadopago is null) AND (l.totalenalbaran < l.cantidad) AND NOT cerrada)".format(codpreparacion, str_idpedidos[:-1], ubicacionini, ubicacionfin)):
-                return False
+            while query.next():
+                if not qsatype.FLUtil.execSql(u"UPDATE lineaspedidoscli set sh_preparacion = 'En Curso', codpreparaciondepedido='{0}', cerradapda = false WHERE idlinea = {1}".format(codpreparacion, query.value(0))):
+                    resul['status'] = -2
+                    resul['msg'] = "Error al asignar línea {}".format(query.value(0))
+                    return resul
             resul["status"] = 1
             resul["preparacion"] = codpreparacion
             return resul
@@ -1368,17 +1364,32 @@ class sanhigia_pedidos(flfacturac):
         resul = {}
         ubicacionini = oParam["ubicacionini"]
         ubicacionfin = oParam["ubicacionfin"]
+        pendientes_pago = oParam["pendientespago"]
+        filtro_estadopago = "'Borrador','Borrador con promocion', 'Forma de pago bloqueada', 'Pendiente validar PA', 'Devolucion por preparar', 'Devolucion preparada', 'Devolucion aprobada'"
+        if pendientes_pago is None:
+            filtro_estadopago += ",'Pagos pendientes'"
         # TODO query ver numero de lineas si > 100 o < 1 avisar
         # numLineas = qsatype.FLUtil.execSql(ustr(u"select l.idlinea from  WHERE ")
         query = qsatype.FLSqlQuery()
         query.setTablesList(u"pedidoscli,lineaspedidoscli, ubicacionesarticulo")
         query.setSelect(u"l.idlinea")
-        query.setFrom(u"pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia LEFT JOIN stocks s ON l.referencia = s.referencia")
-        where_consulta = u"p.servido in ('No','Parcial') AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '{}' AND u.codubicacion <= '{}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.totalenalbaran <> l.cantidad AND s.cantidad > 0 AND (p.sh_estadopago not in ('Borrador','Borrador con promocion', 'Forma de pago bloqueada', 'Pagos pendientes', 'Pendiente validar PA', 'Devolucion por preparar', 'Devolucion preparada', 'Devolucion aprobada') OR p.sh_estadopago is null)".format(ubicacionini, ubicacionfin)
+        query.setFrom(u"pedidoscli p INNER JOIN lineaspedidoscli l on l.idpedido = p.idpedido LEFT JOIN ubicacionesarticulo u ON l.referencia = u.referencia LEFT JOIN stocks s ON (l.referencia = s.referencia")
+        where_consulta = u"p.servido in ('No','Parcial') AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '{0}' AND u.codubicacion <= '{1}' AND (l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.totalenalbaran <> l.cantidad AND s.cantidad > 0 AND (p.sh_estadopago not in ({2}) OR p.sh_estadopago is null)".format(ubicacionini, ubicacionfin, filtro_estadopago)
         if "fechaini" in oParam and oParam["fechaini"] is not None:
             where_consulta = "{0} AND p.fecha >= '{1}'".format(where_consulta, oParam["fechaini"])
         if "fechafin" in oParam and oParam["fechafin"] is not None:
             where_consulta = "{0} AND p.fecha <= '{1}'".format(where_consulta, oParam["fechafin"])
+        array_referencias = []
+        where_referencias = None
+        if "referencia1" in oParam and oParam["referencia1"] is not None:
+            array_referencias.append(oParam["referencia1"])
+        if "referencia2" in oParam and oParam["referencia2"] is not None:
+            array_referencias.append(oParam["referencia2"])
+        if len(array_referencias) > 0:
+            where_referencias = "','".join(array_referencias)
+            if where_referencias is not None:
+                where_consulta = "{0} AND l.referencia IN ('{1}')".format(where_consulta, where_referencias)
+
         query.setWhere(where_consulta)
         # query.setWhere(ustr(u"p.servido like 'Parcial' AND p.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Parcial') AND u.codubicacion >= '", str(ubicacionini), "' AND u.codubicacion <= '", str(ubicacionfin), "' AND(l.sh_preparacion is null OR l.sh_preparacion NOT LIKE 'En Curso') AND l.totalenalbaran <> l.cantidad AND s.disponible > 0"))
         if query.exec_():
@@ -1485,10 +1496,46 @@ class sanhigia_pedidos(flfacturac):
                     "style": {
                         "width": "100%"
                     }
+                },
+                {
+                    "componente": "YBFieldDB",
+                    "prefix": "otros",
+                    "key": "referencia1",
+                    "desc": "referencia",
+                    "disabled_name": "Referencia 1",
+                    "auto_name": "Referencia 1",
+                    "tipo": 55,
+                    "rel": "articulos",
+                    "function": "getReferencia",
+                    "className": "relatedField",
+                    "to_field": "referencia"
+                },
+                {
+                    "componente": "YBFieldDB",
+                    "prefix": "otros",
+                    "key": "referencia2",
+                    "desc": "referencia",
+                    "disabled_name": "Referencia 2",
+                    "auto_name": "Referencia 2",
+                    "tipo": 55,
+                    "rel": "articulos",
+                    "function": "getReferencia",
+                    "className": "relatedField",
+                    "to_field": "referencia"
+                },
+                {
+                    "tipo": 18,
+                    "required": False,
+                    "verbose_name": "Pendiente de pago",
+                    "key": "pendientespago",
+                    "visible": True,
+                    "validaciones": None,
+                    "style": {
+                        "width": "100%"
+                    }
                 }
             ]
             return response
-
         preparacion = self.sanhigia_pedidos_generaPreparaciondepedidosConStock(model, oParam["data"])
         # print("_______", preparacion)
         if not preparacion:
@@ -1540,7 +1587,6 @@ class sanhigia_pedidos(flfacturac):
         if not qPedido.exec_():
             return response
         if qPedido.next():
-            print("____________________________")
             codigo = qPedido.value("codigo")
             # codcliente = qPedido.value("codcliente")
             # nombrecliente = qsatype.FLUtil.sqlSelect("clientes", "nombre", "codcliente = '{}'".format(codcliente))
@@ -1552,22 +1598,84 @@ class sanhigia_pedidos(flfacturac):
         response["confirm"] = "<div  style='overflow:hidden;''><div style='position:relative;float:left;'><div class='elementoPreparacion'>" + codigo + "</div></div><div style='position:relative;float:right;'><div class='elementoPreparacion'>" + str(fecha) + "</div></div></div></br><div class='elementoPreparacion'>" + nombrecliente + "</div></br><div class='elementoPreparacion'>" + direccion + "</div>"
         response["customButtons"] = []
         q = qsatype.FLSqlQuery()
-        q.setTablesList(u"lineaspedidoscli")
-        q.setSelect(u"descripcion, shcantalbaran, cantidad, totalenalbaran, referencia")
-        q.setFrom(u"lineaspedidoscli")
+        q.setTablesList(u"lineaspedidoscli,stocks")
+        q.setSelect(u"lineaspedidoscli.descripcion, lineaspedidoscli.shcantalbaran, lineaspedidoscli.cantidad, lineaspedidoscli.totalenalbaran, lineaspedidoscli.referencia, stocks.cantidad")
+        q.setFrom(u"lineaspedidoscli LEFT OUTER JOIN stocks ON lineaspedidoscli.referencia = stocks.referencia AND stocks.codalmacen = 'ALM'")
         # q.setWhere(u"referencia = UPPER('" + model.referencia.referencia.upper() + "') AND codalmacen = 'ALM'")
         q.setWhere(u"idpedido = {} ".format(model.idpedido))
         if not q.exec_():
             return response
-        response["confirm"] += "<br><div class='elementoPreparacion'>Artículos</div><table style='width: 100%;'>"
+        response["confirm"] += "<br><div class='elementoPreparacion'>Artículos</div><table style='width: 100%; cellpadding: 2px'>"
         while q.next():
             estadoLinea = "background-color:lightgreen;"
-            if q.value("shcantalbaran") != q.value("cantidad"):
+            if q.value("lineaspedidoscli.shcantalbaran") != q.value("lineaspedidoscli.cantidad"):
                 estadoLinea = ""
-            ubicacion = qsatype.FLUtil.sqlSelect("ubicacionesarticulo", "codubicacion", "referencia = '{}'".format(q.value("referencia"))) or ""
-            response["confirm"] += " <tr style='" + estadoLinea + "'><td>" + q.value("descripcion") + "</td><td style='width:55px;'>" + str(int(q.value("shcantalbaran") or 0)) + " / " + str(int(int(q.value("cantidad")) - int(q.value("totalenalbaran")) or 0)) + "</td><td>" + ubicacion + "</td></tr>"
+            ubicacion = qsatype.FLUtil.sqlSelect("ubicacionesarticulo", "codubicacion", "referencia = '{}'".format(q.value("lineaspedidoscli.referencia"))) or ""
+            response["confirm"] += " <tr style='" + estadoLinea + "'><td>" + q.value("lineaspedidoscli.descripcion") + "</td><td style='width:55px;'>" + str(int(q.value("lineaspedidoscli.shcantalbaran") or 0)) + " / " + str(int(int(q.value("lineaspedidoscli.cantidad")) - int(q.value("lineaspedidoscli.totalenalbaran")) or 0)) + "</td><td>" + ubicacion + "</td><td style='width:80px;text-align:right;'>Stock: " + str(int(q.value("stocks.cantidad") or 0)) + "</td></tr>"
         response["confirm"] += "</table>"
         return response
+
+    def gesttare_queryGrid_mastershpedidoscli(self, model, filters):
+        where = "1 = 1"
+        # filtro_estadopago = "'Borrador','Borrador con promocion', 'Forma de pago bloqueada', 'Pendiente validar PA', 'Devolucion por preparar', 'Devolucion preparada', 'Devolucion aprobada'"
+        # if filters:
+        #     if "[ptespago]" in filters and (filters["[ptespago]"] is None or filters["[ptespago]"] == ""):
+        #         filtro_estadopago += ",'Pagos pendientes'"
+        # f_pedidosNoBorradores = "pedidoscli.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Albaranado', 'Parcial') AND servido IN ('No', 'Parcial') AND (sh_estadopago NOT IN ({}) OR sh_estadopago is null)".format(filtro_estadopago)
+
+        filtro_estadopago = "AND (sh_estadopago is null OR sh_estadopago NOT IN ('Borrador','Borrador con promocion', 'Forma de pago bloqueada', 'Pendiente validar PA', 'Devolucion por preparar', 'Devolucion preparada', 'Devolucion aprobada','Pagos pendientes'))"
+        if filters and "[ptespago]" in filters and filters["[ptespago]"] != "":
+            filtro_estadopago = " AND sh_estadopago = 'Pagos pendientes'"
+
+        f_pedidosNoBorradores = "pedidoscli.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Albaranado', 'Parcial') AND servido IN ('No', 'Parcial')  {}".format(filtro_estadopago)
+        if where is not None:
+            where += " AND "
+        where += f_pedidosNoBorradores
+        if filters:
+            if "[codigo]" in filters and filters["[codigo]"] != "":
+                where += " AND pedidoscli.codigo like '%{}%'".format(filters["[codigo]"])
+            if "[codcliente]" in filters and filters["[codcliente]"] != "":
+                where += " AND (UPPER(pedidoscli.codcliente) like '%{}%' OR UPPER(pedidoscli.nombrecliente) like '%{}%')".format(filters["[codcliente]"].upper(), filters["[codcliente]"].upper())
+            if "[d_fecha]" in filters and filters["[d_fecha]"] != "":
+                where += " AND pedidoscli.fecha >= '{}'".format(filters["[d_fecha]"])
+            if "[h_fecha]" in filters and filters["[h_fecha]"] != "":
+                where += " AND pedidoscli.fecha <= '{}'".format(filters["[h_fecha]"])
+            if "[fecha]" in filters and filters["[fecha]"] != "":
+                where += " AND pedidoscli.fecha = '{}'".format(filters["[fecha]"])
+            if "[referencia1]" in filters and filters["[referencia1]"] != "":
+                where += " AND lineaspedidoscli.referencia = '{}'".format(filters["[referencia1]"])
+            if "[referencia2]" in filters and filters["[referencia2]"] != "":
+                where += " AND lineaspedidoscli.referencia = '{}'".format(filters["[referencia2]"])
+            if "[completadostock]" in filters and filters["[completadostock]"] != "":
+                where += " AND NOT lineaspedidoscli.cerrada AND lineaspedidoscli.cantidad > lineaspedidoscli.totalenalbaran AND stocks.cantidad > (lineaspedidoscli.cantidad - lineaspedidoscli.totalenalbaran)"
+            # if "[buscador]" in filters and filters["[buscador]"] != "":
+            #     where += " AND UPPER(pedidoscli.nombre) LIKE '%" + filters["[buscador]"].upper() + "%' OR UPPER(pedidoscli.nombre) LIKE '%" + filters["[buscador]"].upper() + "%' OR UPPER(pedidoscli.nombre) LIKE '%" + filters["[buscador]"].upper() + "%'"
+        query = {}
+        query["tablesList"] = ("pedidoscli,lineaspedidoscli,sh_trabajadores")
+        query["select"] = "pedidoscli.idpedido,pedidoscli.codigo,pedidoscli.nombrecliente,pedidoscli.fecha,pedidoscli.total,pedidoscli.sh_estadopreparacion,pedidoscli.pda,pedidoscli.codtrabajador,sh_trabajadores.nombre,MAX(sh_preparaciondepedidos.descripcion)"
+        query["from"] = ("pedidoscli INNER JOIN lineaspedidoscli ON pedidoscli.idpedido = lineaspedidoscli.idpedido LEFT OUTER JOIN sh_trabajadores ON pedidoscli.codtrabajador = sh_trabajadores.codtrabajador LEFT OUTER JOIN sh_preparaciondepedidos ON lineaspedidoscli.codpreparaciondepedido = sh_preparaciondepedidos.codpreparaciondepedido LEFT JOIN stocks ON (lineaspedidoscli.referencia = stocks.referencia AND stocks.codalmacen='ALM')")
+        query["where"] = (where)
+        query["groupby"] = " pedidoscli.idpedido,pedidoscli.codigo,pedidoscli.nombrecliente,pedidoscli.fecha,pedidoscli.total,pedidoscli.sh_estadopreparacion,pedidoscli.pda,pedidoscli.codtrabajador,sh_trabajadores.nombre"
+        query["orderby"] = ("pedidoscli.fecha DESC, pedidoscli.codigo DESC, pedidoscli.sh_estadopreparacion DESC")
+        query["selectcount"] = "count(distinct(pedidoscli.codigo))"
+        return query
+
+    def sanhigia_pedidos_visualizarShPedido(self, model, oParam):
+        response = {}
+        response["url"] = "/facturacion/pedidoscli/{}".format(model.pk)
+        return response
+
+    def sanhigia_pedidos_field_shpedidoscliQuerycolorRow(self, model):
+        estado = model["pedidoscli.pda"]
+        trabajador = model["pedidoscli.codtrabajador"]
+        if estado == "Listo PDA":
+            return "cSuccess"
+        elif estado == "Albaranado":
+            return "cDanger"
+        elif trabajador:
+            return "cWarning"
+        else:
+            return None
 
     def __init__(self, context=None):
         super(sanhigia_pedidos, self).__init__(context)
@@ -1628,4 +1736,13 @@ class sanhigia_pedidos(flfacturac):
 
     def visualizarPedido(self, model):
         return self.ctx.sanhigia_pedidos_visualizarPedido(model)
+
+    def queryGrid_mastershpedidoscli(self, model, filters):
+        return self.ctx.gesttare_queryGrid_mastershpedidoscli(model, filters)
+
+    def visualizarShPedido(self, model, oParam):
+        return self.ctx.sanhigia_pedidos_visualizarShPedido(model, oParam)
+
+    def field_shpedidoscliQuerycolorRow(self, model):
+        return self.ctx.sanhigia_pedidos_field_shpedidoscliQuerycolorRow(model)
 

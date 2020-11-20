@@ -77,6 +77,14 @@
             {
                 "path": "models/fllogin/",
                 "name": "model_fllogin__fllogin_def.py"
+            },
+            {
+                "name": "model_flfactppal__clientes_def.py",
+                "path": "models/flfactppal/"
+            },
+            {
+                "name": "model_flfactppal__clientes.py",
+                "path": "models/flfactppal/"
             }
         ],
         "patchJson": [
@@ -217,6 +225,14 @@
             {
                 "name": "client.css",
                 "path": "assets/dist/css/"
+            },
+            {
+                "name": "model_flfactalma__movistock.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__movistock_def.py",
+                "path": "models/flfactalma/"
             }
         ],
         "replaceFile": [

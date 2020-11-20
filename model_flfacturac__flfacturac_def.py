@@ -24,7 +24,7 @@ class sanhigia_pedidos(interna):
         # _i = self.iface
         query = qsatype.FLSqlQuery()
         query.setTablesList(name)
-        query.setSelect(u"cantidad, totalenalbaran, shcantalbaran, cerradapda")
+        query.setSelect(u"cantidad, totalenalbaran, shcantalbaran, cerradapda, cerrada")
         query.setFrom(name)
         query.setWhere("idpedido = {}".format(idPedido))
         if not query.exec_():
@@ -43,7 +43,7 @@ class sanhigia_pedidos(interna):
                 continue
             totalLineas += 1
             cantidadServida = parseFloat(query.value(u"totalenalbaran")) + parseFloat(query.value(u"shcantalbaran"))
-            cerrada = query.value(u"cerradapda")
+            cerrada = query.value(u"cerradapda") or query.value(u"cerrada")
             if cerrada:
                 totalCerradas += 1
             else:

@@ -44,95 +44,137 @@
         },
         {
             "type": "insertAfterNode",
-            "path": "/layout/root",
+            "path": "/schema/root",
             "value": {
-                "groupBoxAcciones": {
-                    "componente": "YBGroupBox",
-                    "className": "",
-                    "style": {},
-                    "layout": {
-                        "pedidosStock": {
-                            "componente": "YBButton",
-                            "label": "Completar pedidos con Stock",
-                            "className": "floatRight",
-                            "buttonType": "raised",
-                            "secondary": true,
-                            "primary": false,
-                            "action": {
-                                "key": "completarpedidosstock",
-                                "success": [
-                                    {
-                                        "slot": "goto"
-                                    }
-                                ]
-                            }
-                        }
+                "mastershpedidoscli": {
+                    "query": {
+                        "p_l": 50
                     }
                 }
             }
         },
         {
             "type": "insertAfterNode",
-            "path": "/layout/groupBoxAcciones",
+            "path": "/layout/root",
             "value": {
                 "masterGrid": {
                     "componente": "YBGrid",
-                    "class": "claseGrid",
-                    "label": "Pedidos",
-                    "prefix": "pedidoscli",
+                    "type": "query",
+                    "prefix": "mastershpedidoscli",
+                    "autofilter": false,
+                    "cansavefilter": false,
+                    "className": "",
                     "buscador": false,
                     "filter": {
-                        "codigo": true,
+                        "codigo": {
+                            "label": "Código",
+                            "filterType": "custom",
+                            "tipo": 3,
+                            "key": "codigo"
+                        },
+                        "codcliente": {
+                            "label": "Cliente",
+                            "filterType": "custom",
+                            "tipo": 55,
+                            "rel": "clientes",
+                            "key": "codcliente",
+                            "tofield": "codcliente",
+                            "desc": "nombre"
+                        },
+                        "referencia1": {
+                            "filterType": "custom",
+                            "tipo": 55,
+                            "tofield": "referencia",
+                            "key": "referencia",
+                            "desc": "descripcion",
+                            "rel": "articulos",
+                            "label": "Ref. 1"
+                        },
+                        "referencia2": {
+                            "filterType": "custom",
+                            "tipo": 55,
+                            "tofield": "referencia",
+                            "key": "referencia",
+                            "desc": "descripcion",
+                            "rel": "articulos",
+                            "label": "Ref. 2"
+                        },
+                        "completadostock": {
+                            "filterType": "custom",
+                            "tipo": 18,
+                            "label": "Pedidos a completar",
+                            "key": "completadostock",
+                            "style": {
+                                "width": "100%"
+                            }
+                        },
+                        "ptespago": {
+                            "filterType": "custom",
+                            "tipo": 18,
+                            "label": "Pendientes de pago",
+                            "key": "ptespago",
+                            "style": {
+                                "width": "100%"
+                            }
+                        },
                         "fecha": {
                             "filterType": "interval"
-                        },
-                        "codcliente": true
+                        }
                     },
-                    "colorRowField": "rowColor",
-                    "multiselectable": "action",
                     "columns": [
                         {
                             "tipo": "field",
                             "listpos": "title",
-                            "key": "codigo",
-                            "width": 120
+                            "key": "pedidoscli.codigo",
+                            "width": 80
                         },
                         {
                             "tipo": "field",
                             "listpos": "body",
-                            "key": "fecha"
+                            "key": "pedidoscli.fecha",
+                            "color": "Color usuario",
+                            "label": "Fecha",
+                            "width": 20
                         },
                         {
                             "tipo": "field",
                             "listpos": "body",
-                            "key": "total"
+                            "key": "pedidoscli.total",
+                            "label": "Total",
+                            "width": 50
                         },
                         {
                             "tipo": "field",
                             "listpos": "subtitle",
-                            "key": "nombrecliente",
+                            "key": "pedidoscli.nombrecliente",
+                            "label": "Nombre cliente",
+                            "title": true,
                             "width": 200
                         },
                         {
                             "tipo": "foreignfield",
-                            "listpos": "secondaryitem",
-                            "key": "Trabajador",
+                            "listpos": "title",
+                            "key": "sh_trabajadores.nombre",
+                            "label": "Trabajador",
                             "width": 90
                         },
                         {
                             "tipo": "foreignfield",
                             "listpos": "body",
-                            "key": "Desc. preparación",
-                            "width": 150
+                            "key": "MAX(sh_preparaciondepedidos.descripcion)",
+                            "label": "Desc.preparación",
+                            "width": 80
                         },
                         {
                             "tipo": "field",
                             "listpos": "body",
-                            "key": "sh_estadopreparacion",
-                            "width": 90
+                            "key": "pedidoscli.sh_estadopreparacion",
+                            "width": 60
                         }
                     ],
-                    "rowclick": "link",
+                    "colorRowField": "rowColor",
+                    "multiselectable": "action",
+                    "rowclick": "visualizarShPedido",
                     "rowclickmuli": "visualizarPedido",
                     "accionesGrid": [
                         {
@@ -185,22 +227,22 @@
             "type": "insertAfterNode",
             "path": "/acciones/visualizarPedido",
             "value": {
-                "completarpedidosstock": {
-                    "action": "gridAction",
-                    "prefix": "pedidoscli",
-                    "serverAction": "agruparpedidosstock"
-                }
-            }
-        },
-        {
-            "type": "insertAfterNode",
-            "path": "/acciones/completarpedidosstock",
-            "value": {
                 "quitarTrabajador": {
                     "action": "gridAction",
                     "prefix": "pedidoscli",
                     "serverAction": "quitarTrabajador",
                     "icon": "highlight_off"
+                }
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/acciones/quitarTrabajador",
+            "value": {
+                "visualizarShPedido": {
+                    "action": "legacy",
+                    "prefix": "pedidoscli",
+                    "serverAction": "visualizarShPedido"
                 }
             }
         },

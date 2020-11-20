@@ -44,6 +44,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/flfactalma/sh_ubicaciones",
+            "value": {
+                "movistock": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/flfactppal/usuarios",
             "value": {
                 "sh_trabajadores": null

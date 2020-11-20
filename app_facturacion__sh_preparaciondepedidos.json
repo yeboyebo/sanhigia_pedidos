@@ -114,6 +114,7 @@
             "filter": "",
             "colorRowField": "rowColor",
             "type": "query",
+            "multiselectable": true,
             "columns": [
                 {
                     "tipo": "act",
@@ -189,7 +190,13 @@
                 }
             ],
             "rowclick": "gotoMoviloteQuery",
-            "accionesGrid": []
+            "accionesGrid": [
+                {
+                    "key": "eliminarLineas",
+                    "label": "Eliminar líneas",
+                    "success": [{ "slot": "refrescar"}]
+                }
+            ]
         },
         "groupBoxVolver": {
             "componente": "YBGroupBox",
@@ -283,6 +290,12 @@
             "icon": "edit",
             "prefix": "lineaspedidoscli",
             "serverAction": "dameTemplatePedidoCli"
+        },
+        "eliminarLineas": {
+            "label": "Eliminar líneas de  la preparación",
+            "action": "gridAction",
+            "serverAction": "eliminarLineas",
+            "icon": "delete"
         }
     },
     "drawIf": {}

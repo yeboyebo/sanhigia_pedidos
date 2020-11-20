@@ -46,6 +46,24 @@ class sanhigia_pedidos(flfactalma):
             data.append({"descripcion": descripcion, "referencia": q.value(0)})
         return data
 
+    def sanhigia_pedidos_getReferencia(self, model, oParam):
+        data = []
+        q = qsatype.FLSqlQuery()
+        q.setTablesList(u"articulos")
+        q.setSelect(u"referencia,descripcion")
+        q.setFrom(u"articulos")
+        q.setWhere(u"referencia LIKE '%" + oParam['val'] + "%'")
+
+        if not q.exec_():
+            # print("Error inesperado")
+            return []
+        if q.size() > 100:
+            return []
+
+        while q.next():
+            data.append({"referencia": q.value(0)})
+        return data
+
     def __init__(self, context=None):
         super(sanhigia_pedidos, self).__init__(context)
 
@@ -60,4 +78,7 @@ class sanhigia_pedidos(flfactalma):
 
     def getRerenciasInventario(self, model, oParam, cursor):
         return self.ctx.sanhigia_pedidos_getRerenciasInventario(model, oParam, cursor)
+
+    def getReferencia(self, model, oParam):
+        return self.ctx.sanhigia_pedidos_getReferencia(model, oParam)
 

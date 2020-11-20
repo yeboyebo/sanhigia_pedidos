@@ -57,3 +57,14 @@ class sanhigia_pedidos_pedidoscli(flfacturac_pedidoscli, helpers.MixinConAccione
     def visualizarPedido(self):
         return form.iface.visualizarPedido(self)
 
+    @helpers.decoradores.accion(aqparam=["oParam"])
+    def queryGrid_mastershpedidoscli(model, filters):
+        return form.iface.queryGrid_mastershpedidoscli(model, filters)
+
+    @helpers.decoradores.accion(aqparam=["oParam"])
+    def visualizarShPedido(self, oParam):
+        return form.iface.visualizarShPedido(self, oParam)
+
+    def field_shpedidoscliQuerycolorRow(self):
+        return form.iface.field_shpedidoscliQuerycolorRow(self)
+

@@ -22,3 +22,7 @@ class sanhigia_pedidos_articulos(flfactalma_articulos, helpers.MixinConAcciones)
     def getRerenciasInventario(self, oParam, cursor):
         return form.iface.getRerenciasInventario(self, oParam, cursor)
 
+    @helpers.decoradores.accion(aqparam=["oParam"])
+    def getReferencia(self, oParam):
+        return form.iface.getReferencia(self, oParam)
+
