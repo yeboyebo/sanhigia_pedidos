@@ -305,11 +305,11 @@ class sanhigia_pedidos(flfacturac):
         idPedido = curLinea.valueBuffer("idpedido")
         if curLinea.valueBuffer("cerradapda"):
             curLinea.setValueBuffer("cerradapda", False)
-            curLinea.setValueBuffer("sh_preparacion", "En Curso")
+            # curLinea.setValueBuffer("sh_preparacion", "En Curso")
             # curLinea.setValueBuffer("cerrada", False)
         else:
             curLinea.setValueBuffer("cerradapda", True)
-            curLinea.setValueBuffer("sh_preparacion", "Pendiente")
+            # curLinea.setValueBuffer("sh_preparacion", "Pendiente")
             # curLinea.setValueBuffer("cerrada", True)
         if not curLinea.commitBuffer():
             qsatype.debug("tiene esos caracteres extraños")
