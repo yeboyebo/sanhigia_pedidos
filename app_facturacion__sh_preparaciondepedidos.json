@@ -266,7 +266,7 @@
             ]
         },
         "gotoMoviloteQuery": {
-            "action": "goto",
+            "action": "legacy",
             "prefix": "lineaspedidoscli",
             "serverAction": "dameTemplateMoviloteQuery"
         },

@@ -183,6 +183,20 @@ class sanhigia_pedidos(interna):
         response['msg'] = "Se ha(n) eliminado {0} línea(s) correctamente de la preparación".format(total_lineas)
         return response
 
+    def sanhigia_pedidos_visualizarPedido(self, model, oParam):
+        regimen_iva = qsatype.FLUtil.sqlSelect("pedidosprov INNER JOIN proveedores ON pedidosprov.codproveedor = proveedores.codproveedor", "proveedores.regimeniva", "idpedido = {}".format(model.idpedido))
+        response = {}
+        if regimen_iva == "UE":
+            if "confirmacion" in oParam:
+                response['url'] = "/facturacion/pedidosprov/{}".format(model.pk)
+            else:
+                response["status"] = 2
+                response["title"] = "CMR Necesario"
+                response["confirm"] = "Este pedido corresponde a un proveedor de la EU y necesita de un documento CMR. Comprueba que disponemos del documento y reclámalo si no es así."
+                response["customButtons"] = [{"accion": "goto", "nombre": "Aceptar", "url": "/facturacion/pedidosprov/{}".format(model.pk)}]
+        else:
+            response["url"] = "/facturacion/pedidosprov/{}".format(model.pk)
+        return response
 
     def __init__(self, context=None):
         super().__init__(context)
@@ -213,6 +227,9 @@ class sanhigia_pedidos(interna):
 
     def eliminarLineas(self, model, oParam):
         return self.ctx.sanhigia_pedidos_eliminarLineas(model, oParam)
+
+    def visualizarPedido(self, model, oParam):
+        return self.ctx.sanhigia_pedidos_visualizarPedido(model, oParam)
 
 
 # @class_declaration head #

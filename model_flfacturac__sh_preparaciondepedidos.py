@@ -46,6 +46,11 @@ class sanhigia_pedidos_sh_preparaciondepedidos(interna_sh_preparaciondepedidos, 
     def eliminarLineas(self, oParam):
         return form.iface.eliminarLineas(self, oParam)
 
+    @helpers.decoradores.accion(aqparam=["oParam"])
+    def visualizarPedido(self, oParam):
+        return form.iface.visualizarPedido(self, oParam)
+
+
 # @class_declaration sh_preparaciondepedidos #
 class sh_preparaciondepedidos(sanhigia_pedidos_sh_preparaciondepedidos, helpers.MixinConAcciones):
     pass

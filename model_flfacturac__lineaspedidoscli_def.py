@@ -4,6 +4,7 @@ from models.flfactalma.articulos import articulos
 from models.flfacturac import flfacturac_def, pedidoscli
 from YBUTILS.viewREST import cacheController
 from models.flfactalma import flfactalma_def
+from models.flfacturac import pedidoscli as pedidoscli_def
 
 
 class sanhigia_pedidos(flfacturac):
@@ -267,11 +268,100 @@ class sanhigia_pedidos(flfacturac):
             return '/facturacion/lineaspedidoscli/{}/cantidadPorLote'.format(model.pk)
         return True
 
-    def sanhigia_pedidos_dameTemplateMoviloteQuery(self, model):
+    def sanhigia_pedidos_dameTemplateMoviloteQuery(self, model, oParam):
+        print("Dame template movilote")
+        print(oParam)
         # porlotes = articulos.objects.filter(referencia__exact=model.referencia)
         porlotes = qsatype.FLUtil.sqlSelect("articulos", "porlotes", "referencia = '{}'".format(model.referencia.referencia))
         if porlotes:
-            return '/facturacion/lineaspedidoscli/{}/cantidadPorLote'.format(model.pk)
+            print("pasa por lotes")
+            if "codlote" not in oParam:
+                resul = {}
+                query = qsatype.FLSqlQuery()
+                query.setTablesList(u"lotes")
+                query.setSelect(u"*")
+                query.setFrom(u"lotes")
+                query.setWhere("referencia = '{}'  AND enalmacen > 0".format(model.referencia.referencia))
+                # query.setWhere("referencia = '{}'".format(model.referencia.referencia))
+
+                if query.exec_():
+                    if query.size() >= 1:
+                        opts = []
+                        while query.next():
+                            opt = {}
+                            opt['key'] = query.value("codlote")
+                            formatofecha = "%d/%m/%Y"
+                            fecha = None
+                            if query.value("caducidad"):
+                                fecha = query.value("caducidad").strftime(formatofecha)
+                            descLote = query.value("descripcion") or ""
+                            opt['alias'] = query.value("codigo") + " - " + str(int(query.value("enalmacen"))) + " - " + str(fecha) + " - " + descLote
+                            opts.append(opt)
+
+                        response = {}
+                        response['status'] = -1
+                        response['data'] = {}
+                        response['success'] = [{ "slot": "refrescar"}]
+                        response["customButtons"] = [{"accion": "serverAction", "nombre": "guardar", "prefix": "lineaspedidoscli", "serverAction": "dameTemplateMoviloteQuery"}, {"accion": "goto", "nombre": "Ver lotes", "url": '/facturacion/lineaspedidoscli/{}/cantidadPorLote'.format(model.pk)}]
+                        response['params'] = [
+                            {
+                                "tipo": 3,
+                                "required": False,
+                                "verbose_name": "Cantidad",
+                                "null": True,
+                                "key": "cantidad",
+                                "defaultvalue": 1,
+                                "validaciones": None
+                            },
+                            {
+                                "componente": "YBFieldDB",
+                                "tipo": 90,
+                                "verbose_name": "Opts",
+                                "label": "Asignar lote",
+                                "style": {"width": "700px"},
+                                "key": "codlote",
+                                "validaciones": None,
+                                "null": True,
+                                "opts": opts
+                            },
+                            {
+                                "tipo": 3,
+                                "required": False,
+                                "verbose_name": "Código Lote",
+                                "null": True,
+                                "key": "ncodlote",
+                                # "clientBch": True,
+                                "validaciones": None
+                            },
+                            {
+                                "tipo": 26,
+                                "required": False,
+                                "verbose_name": "F. Caducidad",
+                                "null": True,
+                                "key": "caducidad",
+                                "validaciones": None
+                            }
+                        ]
+                        return response
+                    else:
+                        resul['status'] = -3
+                        codalmacen = qsatype.FLUtil.sqlSelect(u"pedidoscli", u"codalmacen", "idpedido = {}".format(model.idpedido.idpedido))
+                        resul['msg'] = "No existe stock para la referencia " + model.referencia.referencia + " en el almacén ", codalmacen
+                        # resul['param'] = idLinea
+                        return resul
+            else:
+                if not oParam['codlote']:
+                    oParam['codlote'] = pedidoscli_def.form.iface.creaLote(oParam['ncodlote'], oParam['caducidad'], model.referencia.referencia)
+                codalmacen = qsatype.FLUtil.sqlSelect(u"pedidoscli", u"codalmacen", "idpedido = {}".format(model.idpedido.idpedido))
+                # qsatype.debug(model.idlinea, model.referencia, 1, codalmacen, oParam['codlote'])
+                # codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", ustr(u"codigo = '", oParam['codlote'], u"' AND referencia = '", model.referencia, "' AND enalmacen > 0 "))
+                codLote = oParam['codlote']
+                cantidad = float(oParam['cantidad']) or 0
+                pedidoscli.form.iface.insertarMovilote(model.idlinea, model.referencia.referencia, cantidad, codalmacen, codLote)
+            # response = {}
+            # response['url'] = '/facturacion/lineaspedidoscli/{}/cantidadPorLote'.format(model.pk)
+            return True
+
         return True
 
     def sanhigia_pedidos_dameTemplatePedidoCli(self, model):
@@ -432,6 +522,23 @@ class sanhigia_pedidos(flfacturac):
                     response['data'] = {}
                     response['params'] = [
                         {
+                            "tipo": 3,
+                            "required": False,
+                            "verbose_name": "Código Lote",
+                            "null": True,
+                            "key": "ncodlote",
+                            # "clientBch": True,
+                            "validaciones": None
+                        },
+                        {
+                            "tipo": 26,
+                            "required": False,
+                            "verbose_name": "F. Caducidad",
+                            "null": True,
+                            "key": "caducidad",
+                            "validaciones": None
+                        },
+                        {
                             "componente": "YBFieldDB",
                             "tipo": 90,
                             "verbose_name": "Opts",
@@ -439,6 +546,7 @@ class sanhigia_pedidos(flfacturac):
                             "style": {"width": "700px"},
                             "key": "codlote",
                             "validaciones": None,
+                            "null": True,
                             "opts": opts
                         }
                     ]
@@ -450,6 +558,8 @@ class sanhigia_pedidos(flfacturac):
                     # resul['param'] = idLinea
                     return resul
         else:
+            if not oParam['codlote']:
+                oParam['codlote'] = pedidoscli_def.form.iface.creaLote(oParam['ncodlote'], oParam['caducidad'], model.referencia.referencia)
             codalmacen = qsatype.FLUtil.sqlSelect(u"pedidoscli", u"codalmacen", "idpedido = {}".format(model.idpedido.idpedido))
             # qsatype.debug(model.idlinea, model.referencia, 1, codalmacen, oParam['codlote'])
             # codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", ustr(u"codigo = '", oParam['codlote'], u"' AND referencia = '", model.referencia, "' AND enalmacen > 0 "))
@@ -779,8 +889,8 @@ class sanhigia_pedidos(flfacturac):
     def dameTemplateMovilote(self, model):
         return self.ctx.sanhigia_pedidos_dameTemplateMovilote(model)
 
-    def dameTemplateMoviloteQuery(self, model):
-        return self.ctx.sanhigia_pedidos_dameTemplateMoviloteQuery(model)
+    def dameTemplateMoviloteQuery(self, model, oParam):
+        return self.ctx.sanhigia_pedidos_dameTemplateMoviloteQuery(model, oParam)
 
     def dameTemplatePedidoCli(self, model):
         return self.ctx.sanhigia_pedidos_dameTemplatePedidoCli(model)

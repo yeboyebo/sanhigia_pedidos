@@ -1677,6 +1677,45 @@ class sanhigia_pedidos(flfacturac):
         else:
             return None
 
+    def sanhigia_pedidos_creaLote(self, codigo, caducidad, referencia):
+        codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", u"codigo = '{0}' AND referencia = '{1}' AND caducidad = '{2}'".format(codigo, referencia, caducidad))
+        if not codLote:
+            query = qsatype.FLSqlQuery()
+            query.setTablesList(u"articulos")
+            query.setSelect(u"descripcion")
+            query.setFrom(u"articulos")
+            query.setWhere("referencia = '{}'".format(referencia))
+
+            if query.exec_():
+                if query.next():
+                    descripcion = query.value(0)
+                else:
+                    return False
+            else:
+                return False
+
+            if not caducidad:
+                resul = {}
+                resul['status'] = -3
+                resul['msg'] = "F.Caducidad obligatoria"
+                resul['resul'] = False
+                return resul
+
+            curLote = qsatype.FLSqlCursor(u"lotes")
+            curLote.setModeAccess(curLote.Insert)
+            curLote.refreshBuffer()
+            curLote.setValueBuffer("codigo", codigo)
+            curLote.setValueBuffer("caducidad", caducidad)
+            curLote.setValueBuffer("descripcion", descripcion)
+            curLote.setValueBuffer("referencia", referencia)
+            curLote.setValueBuffer("enalmacen", 0)
+            curLote.setValueBuffer(u"codlote", qsatype.FLUtil.nextCounter(u"codlote", curLote))
+            if curLote.commitBuffer():
+                return curLote.valueBuffer("codlote")
+            return False
+        else:
+            return codLote
+
     def __init__(self, context=None):
         super(sanhigia_pedidos, self).__init__(context)
 
@@ -1745,4 +1784,7 @@ class sanhigia_pedidos(flfacturac):
 
     def field_shpedidoscliQuerycolorRow(self, model):
         return self.ctx.sanhigia_pedidos_field_shpedidoscliQuerycolorRow(model)
+
+    def creaLote(self, codigo, caducidad, referencia):
+        return self.ctx.sanhigia_pedidos_creaLote(codigo, caducidad, referencia)
 

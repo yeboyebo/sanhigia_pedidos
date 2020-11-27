@@ -65,9 +65,9 @@ class sanhigia_pedidos_lineaspedidoscli(flfacturac_lineaspedidoscli, helpers.Mix
     def dameTemplateMovilote(self):
         return form.iface.dameTemplateMovilote(self)
 
-    @helpers.decoradores.accion(miparam=[])
-    def dameTemplateMoviloteQuery(self):
-        return form.iface.dameTemplateMoviloteQuery(self)
+    @helpers.decoradores.accion(aqparam=["oParam"])
+    def dameTemplateMoviloteQuery(self, oParam):
+        return form.iface.dameTemplateMoviloteQuery(self, oParam)
 
     @helpers.decoradores.accion(miparam=[])
     def cerrarLinea(self):
