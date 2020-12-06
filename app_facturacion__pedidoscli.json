@@ -316,10 +316,6 @@
                             "success": [
                                 {
                                     "slot": "refrescar"
-                                },
-                                {
-                                    "receiver": "fdb_codBarras",
-                                    "slot": "select"
                                 }
                             ]
                         }

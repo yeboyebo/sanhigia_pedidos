@@ -70,7 +70,7 @@ class sanhigia_pedidos(interna):
         # else:
         #     return None
         if pda == "Preparado" and shcant <= (cantidad - total):
-            return "cPrimary"
+            return "cLink"
         elif shcant > (cantidad - total):
             return "cDanger"
         elif cerradapda:
