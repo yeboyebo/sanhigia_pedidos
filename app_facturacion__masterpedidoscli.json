@@ -81,6 +81,15 @@
                             "tofield": "codcliente",
                             "desc": "nombre"
                         },
+                        "codproveedor": {
+                            "label": "Proveedor",
+                            "filterType": "custom",
+                            "tipo": 55,
+                            "rel": "proveedores",
+                            "key": "codproveedor",
+                            "tofield": "codproveedor",
+                            "desc": "nombre"
+                        },
                         "referencia1": {
                             "filterType": "custom",
                             "tipo": 55,

@@ -1615,7 +1615,7 @@ class sanhigia_pedidos(flfacturac):
         response["confirm"] += "</table>"
         return response
 
-    def gesttare_queryGrid_mastershpedidoscli(self, model, filters):
+    def sanhigia_pedidos_queryGrid_mastershpedidoscli(self, model, filters):
         where = "1 = 1"
         # filtro_estadopago = "'Borrador','Borrador con promocion', 'Forma de pago bloqueada', 'Pendiente validar PA', 'Devolucion por preparar', 'Devolucion preparada', 'Devolucion aprobada'"
         # if filters:
@@ -1623,11 +1623,11 @@ class sanhigia_pedidos(flfacturac):
         #         filtro_estadopago += ",'Pagos pendientes'"
         # f_pedidosNoBorradores = "pedidoscli.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Albaranado', 'Parcial') AND servido IN ('No', 'Parcial') AND (sh_estadopago NOT IN ({}) OR sh_estadopago is null)".format(filtro_estadopago)
 
-        filtro_estadopago = "AND (sh_estadopago is null OR sh_estadopago NOT IN ('Borrador','Borrador con promocion', 'Forma de pago bloqueada', 'Pendiente validar PA', 'Devolucion por preparar', 'Devolucion preparada', 'Devolucion aprobada','Pagos pendientes'))"
+        filtro_estadopago = "AND (pedidoscli.sh_estadopago is null OR pedidoscli.sh_estadopago NOT IN ('Borrador','Borrador con promocion', 'Forma de pago bloqueada', 'Pendiente validar PA', 'Devolucion por preparar', 'Devolucion preparada', 'Devolucion aprobada','Pagos pendientes'))"
         if filters and "[ptespago]" in filters and filters["[ptespago]"] != "":
-            filtro_estadopago = " AND sh_estadopago = 'Pagos pendientes'"
+            filtro_estadopago = " AND pedidoscli.sh_estadopago = 'Pagos pendientes'"
 
-        f_pedidosNoBorradores = "pedidoscli.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Albaranado', 'Parcial') AND servido IN ('No', 'Parcial')  {}".format(filtro_estadopago)
+        f_pedidosNoBorradores = "pedidoscli.pda IN ('Pendiente', 'Listo PDA', 'Preparado', 'Albaranado', 'Parcial') AND pedidoscli.servido IN ('No', 'Parcial')  {}".format(filtro_estadopago)
         if where is not None:
             where += " AND "
         where += f_pedidosNoBorradores
@@ -1648,12 +1648,14 @@ class sanhigia_pedidos(flfacturac):
                 where += " AND lineaspedidoscli.referencia = '{}'".format(filters["[referencia2]"])
             if "[completadostock]" in filters and filters["[completadostock]"] != "":
                 where += " AND NOT lineaspedidoscli.cerrada AND lineaspedidoscli.cantidad > lineaspedidoscli.totalenalbaran AND stocks.cantidad > (lineaspedidoscli.cantidad - lineaspedidoscli.totalenalbaran)"
+            if "[codproveedor]" in filters and filters["[codproveedor]"] != "":
+                where += " AND (UPPER(articulosprov.codproveedor) like '%{}%' OR UPPER(articulosprov.nombre) like '%{}%')".format(filters["[codproveedor]"].upper(), filters["[codproveedor]"].upper())
             # if "[buscador]" in filters and filters["[buscador]"] != "":
             #     where += " AND UPPER(pedidoscli.nombre) LIKE '%" + filters["[buscador]"].upper() + "%' OR UPPER(pedidoscli.nombre) LIKE '%" + filters["[buscador]"].upper() + "%' OR UPPER(pedidoscli.nombre) LIKE '%" + filters["[buscador]"].upper() + "%'"
         query = {}
         query["tablesList"] = ("pedidoscli,lineaspedidoscli,sh_trabajadores")
         query["select"] = "pedidoscli.idpedido,pedidoscli.codigo,pedidoscli.nombrecliente,pedidoscli.fecha,pedidoscli.total,pedidoscli.sh_estadopreparacion,pedidoscli.pda,pedidoscli.codtrabajador,sh_trabajadores.nombre,MAX(sh_preparaciondepedidos.descripcion)"
-        query["from"] = ("pedidoscli INNER JOIN lineaspedidoscli ON pedidoscli.idpedido = lineaspedidoscli.idpedido LEFT OUTER JOIN sh_trabajadores ON pedidoscli.codtrabajador = sh_trabajadores.codtrabajador LEFT OUTER JOIN sh_preparaciondepedidos ON lineaspedidoscli.codpreparaciondepedido = sh_preparaciondepedidos.codpreparaciondepedido LEFT JOIN stocks ON (lineaspedidoscli.referencia = stocks.referencia AND stocks.codalmacen='ALM')")
+        query["from"] = ("pedidoscli INNER JOIN lineaspedidoscli ON pedidoscli.idpedido = lineaspedidoscli.idpedido LEFT OUTER JOIN sh_trabajadores ON pedidoscli.codtrabajador = sh_trabajadores.codtrabajador LEFT OUTER JOIN sh_preparaciondepedidos ON lineaspedidoscli.codpreparaciondepedido = sh_preparaciondepedidos.codpreparaciondepedido LEFT JOIN stocks ON (lineaspedidoscli.referencia = stocks.referencia AND stocks.codalmacen='ALM') LEFT OUTER JOIN articulosprov ON (lineaspedidoscli.referencia = articulosprov.referencia AND articulosprov.pordefecto)")
         query["where"] = (where)
         query["groupby"] = " pedidoscli.idpedido,pedidoscli.codigo,pedidoscli.nombrecliente,pedidoscli.fecha,pedidoscli.total,pedidoscli.sh_estadopreparacion,pedidoscli.pda,pedidoscli.codtrabajador,sh_trabajadores.nombre"
         query["orderby"] = ("pedidoscli.fecha DESC, pedidoscli.codigo DESC, pedidoscli.sh_estadopreparacion DESC")
@@ -1777,7 +1779,7 @@ class sanhigia_pedidos(flfacturac):
         return self.ctx.sanhigia_pedidos_visualizarPedido(model)
 
     def queryGrid_mastershpedidoscli(self, model, filters):
-        return self.ctx.gesttare_queryGrid_mastershpedidoscli(model, filters)
+        return self.ctx.sanhigia_pedidos_queryGrid_mastershpedidoscli(model, filters)
 
     def visualizarShPedido(self, model, oParam):
         return self.ctx.sanhigia_pedidos_visualizarShPedido(model, oParam)
