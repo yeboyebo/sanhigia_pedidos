@@ -9,6 +9,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/flfacturac/sh_preparaciondepedidos",
+            "value": {
+                "eventos": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/flfactalma/lineasregstocks",
             "value": {
                 "regstocks": null

@@ -233,6 +233,14 @@
             {
                 "name": "model_flfactalma__movistock_def.py",
                 "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfacturac__eventos.py",
+                "path": "models/flfacturac/"
+            },
+            {
+                "name": "model_flfacturac__eventos_def.py",
+                "path": "models/flfacturac/"
             }
         ],
         "replaceFile": [
