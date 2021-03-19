@@ -1646,8 +1646,9 @@ class sanhigia_pedidos(flfacturac):
                 where += " AND lineaspedidoscli.referencia = '{}'".format(filters["[referencia1]"])
             if "[referencia2]" in filters and filters["[referencia2]"] != "":
                 where += " AND lineaspedidoscli.referencia = '{}'".format(filters["[referencia2]"])
+            # Cambiar por  stocks.cantidad >= (lineaspedidoscli.cantidad - lineaspedidoscli.totalenalbaran) - Pedido por Ines -fecha: 19-03-2021
             if "[completadostock]" in filters and filters["[completadostock]"] != "":
-                where += " AND NOT lineaspedidoscli.cerrada AND lineaspedidoscli.cantidad > lineaspedidoscli.totalenalbaran AND stocks.cantidad > (lineaspedidoscli.cantidad - lineaspedidoscli.totalenalbaran)"
+                where += " AND NOT lineaspedidoscli.cerrada AND lineaspedidoscli.cantidad > lineaspedidoscli.totalenalbaran AND stocks.cantidad >= (lineaspedidoscli.cantidad - lineaspedidoscli.totalenalbaran)"
             if "[codproveedor]" in filters and filters["[codproveedor]"] != "":
                 where += " AND (UPPER(articulosprov.codproveedor) like '%{}%' OR UPPER(articulosprov.nombre) like '%{}%')".format(filters["[codproveedor]"].upper(), filters["[codproveedor]"].upper())
             # if "[buscador]" in filters and filters["[buscador]"] != "":
