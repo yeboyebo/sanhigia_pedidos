@@ -440,7 +440,9 @@ class sanhigia_pedidos(flfacturac):
         ]
 
     def sanhigia_pedidos_creaLote(self, codigo, caducidad, referencia):
-        codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", u"codigo = '{0}' AND referencia = '{1}' AND caducidad = '{2}'".format(codigo, referencia, caducidad))
+        # #H2808 Ignorar la fecha de caducidad y solo comprobar el código de lote a la hora de crear lotes nuevos. Fecha  26-04-2021
+        # codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", u"codigo = '{0}' AND referencia = '{1}' AND caducidad = '{2}'".format(codigo, referencia, caducidad))
+        codLote = qsatype.FLUtil.sqlSelect(u"lotes", u"codlote", u"codigo = '{0}' AND referencia = '{1}'".format(codigo, referencia))
         if not codLote:
             query = qsatype.FLSqlQuery()
             query.setTablesList(u"articulos")
